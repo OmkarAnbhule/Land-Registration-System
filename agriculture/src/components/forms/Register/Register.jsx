@@ -1,5 +1,5 @@
 import React, { useState, useTransition } from 'react'
-
+ 
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
