@@ -36,6 +36,7 @@ export default function Register() {
     return (
         <div className='register-root'>
             <h1>Sign Up</h1>
+            <h2>
             <div className='step-symbols'>
                 <p style={{ border: step >= 1 ? '2px solid cyan' : '2px solid gray' }} onClick={() => handleStep(1)}>1</p>
                 <p>
@@ -51,23 +52,24 @@ export default function Register() {
                 <div className='icon-control'>
                     <i className='bi bi-arrow-down-circle' onClick={handleBack} style={{display: step > 1 ? 'block' : 'none'}}></i>
                 </div>
-                <div className="input-control" style={{ display: step == 1 ? 'flex' : 'none' }}>
+                <div className='form-group'>
+                <div className="input-control">
                     <div className='icon-control'>
                         <i className='bi bi-person-fill'></i>
                     </div>
-                    <label htmlFor='text' style={{display:isfocus ? 'block' : 'none'}}>Enter Your Name</label>
+                    <label htmlFor='text' style={{display:isfocus ? 'block' : 'none' , top: isfocus ? '-14px' :'0px', fontSize:isfocus ? '1em' : '.8em' }}>Enter Your Name</label>
                     <input type='text' name='text' value={name} onChange={handleName} onFocus={handleFocusIn} placeholder={isfocus ? '' : 'Enter Your Name'}></input>
                 </div>
-                <div className="input-control" style={{ display: step == 2 ? 'flex' : 'none' }}>
+                <div className="input-control" >
                     <div className='icon-control'>
                         <i className='bi bi-envelope-fill'></i>
                     </div>
                     <label htmlFor='email' style={{display:isfocus ? 'block' : 'none'}}>Enter Your Email</label>
                     <input type='email' name='email' value={email} onChange={handleEmail} onFocus={handleFocusIn} placeholder={isfocus ? '' :'Enter Your Email'}></input>
                 </div>
-                <div className="input-control" style={{ display: step == 3 ? 'flex' : 'none' }}>
+                <div className="input-control">
                     <div className='icon-control'>
-                        <i className='bi bi-key-fill'></i>
+                        <i className='bi bi-key-fill' style={{transform:'rotate(-30deg)'}}></i>
                     </div>
                     <label htmlFor='password' style={{display:isfocus ? 'block' : 'none'}}>Enter Your Password</label>
                     <input type={isShow ? 'text' : 'password'} name='password' value={password} onChange={handlePassword} onFocus={handleFocusIn} placeholder={isfocus ? '' :'Enter Your Password'}></input>
@@ -77,6 +79,7 @@ export default function Register() {
                 </div>
                 <button onClick={handleClick}>{step < 3 ? 'Next' : 'Submit'}</button>
             </div>
+        </div>
         </div>
     )
 }

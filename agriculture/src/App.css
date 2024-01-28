@@ -66,20 +66,25 @@
   justify-content: center;
   align-items: center;
 }
+.register-root .form .form-group{
+  display: grid;
+  justify-self: center;
+  align-items: center;
+  row-gap: 40px;
+}
 .register-root .form .input-control{
   display: flex;
   justify-content: center;
   align-items: center;
   border: 2px solid;
   position: relative;
+  height: 70px;
 }
 .register-root .form .input-control label{
   position: absolute;
-  top:-13px;
-  left: 75px;
+  left:40px;
   background: white;
-  font-size: .8em;
-  transition: all .5s;
+  transition: all .5s ease-in-out;
 }
   .register-root .form .input-control input{
   width:18em;
@@ -88,9 +93,6 @@
 .register-root .form .input-control .icon-control i{
   font-size: 20px;
   color:gray;
-}
-.register-root .form .input-control:nth-child(4) .icon-control:nth-child(1) i{
-  transform: rotate(-30deg);
 }
 .register-root .form>.icon-control{
   justify-content: center;
@@ -106,9 +108,9 @@
   transform: rotate(90deg);
   font-size: x-large;
 }
-.register-root .form .input-control .icon-control:nth-child(3){
+.register-root .form .form-group .input-control:nth-child(3) .icon-control:nth-child(4){
   position: absolute;
-  right: 30px;
+  right: 0px;
   border: none;
 }
 .register-root .form .input-control .icon-control{
