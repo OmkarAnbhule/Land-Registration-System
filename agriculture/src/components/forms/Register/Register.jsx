@@ -8,7 +8,7 @@ export default function Register() {
     const [step, setStep] = useState(1);
     const [isfocus,setFocus] = useState(false)
     const [ispending,startTransition] = useTransition();
-
+    const temp = 1
     const handleName = (e) => {
         setName(e.target.value)
     }
