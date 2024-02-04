@@ -36,7 +36,6 @@ export default function Register() {
     return (
         <div className='register-root'>
             <h1>Sign Up</h1>
-            <h2>
             <div className='step-symbols'>
                 <p style={{ border: step >= 1 ? '2px solid cyan' : '2px solid gray' }} onClick={() => handleStep(1)}>1</p>
                 <p>
