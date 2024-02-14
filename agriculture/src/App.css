@@ -159,8 +159,8 @@
   grid-auto-flow: column;
   grid-template-areas: 'start center end';
   border-bottom:2px solid rgb(192, 189, 189);
-  &>div{
-    border:2px solid;
+  &>.icon-control{
+    display: none;
   }
   .logo{
     grid-area: start;
@@ -257,8 +257,9 @@
     position: absolute;
     left:0;
     top:100px;
-    background: white;
+    background: green;
     padding: 20px 0px;
+
     .logo{
       width:100%;
     display: flex;
@@ -290,14 +291,43 @@
 
 @media only screen and (max-width:600px) {
   .navbar-root{
-    background: #ff0000;
-    border:2px solid;
+    &>.icon-control{
+      display: grid;
+      place-items: center;
+      grid-auto-flow: column;
+      border: 2px solid;
+      width:50px;
+      height: 50px;
+      padding: 7px;
+      gap:0px;
+      p{
+        width:40px;
+        height: 5px;
+        border:2px solid;
+        margin:7px 0px;
+        &:nth-child(1){
+          
+        }
+        &:nth-child(2){
+          background: green;
+        }
+        &:nth-child(3){
+          background: yellow;
+        }
+      }
+    }
+    .logo{
+      width:50vw;
+      grid-area: end;
+      p{
+        font-size: large;
+      }
+    }
     .links{
       display:none;
     }
     .profile{
-      grid-area: center;
-
+      display:none;
     }
   }
 }

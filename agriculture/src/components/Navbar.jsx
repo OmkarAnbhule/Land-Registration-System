@@ -8,7 +8,11 @@ export default function Navbar() {
                 <p>Some Name</p>
             </div>
             <div className='icon-control'>
-
+                <div className='menu'>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                </div>
             </div>
             <div className='sidebar'>
                 <div className='logo'>
