@@ -152,14 +152,15 @@
 
 .navbar-root {
   position: relative;
-  width: 99.7vw;
+  width: 99.75vw;
   height: 100px;
   margin: 0;
   display: grid;
   place-items: center;
   grid-auto-flow: column;
   grid-template-areas: 'start center end';
-  border-bottom: 2px solid rgb(192, 189, 189);
+  border-bottom: 2px solid gray;
+  box-shadow: 3px 10px 25px -6px rgb(170, 169, 169);
 
   &>.icon-control {
     display: none;
@@ -309,6 +310,39 @@
   }
 }
 
+.home-root{
+  margin-top: 100px;
+  height:auto;
+  display:grid;
+  place-items: center;
+  grid-template-areas: 'start end';
+  
+  .text{
+    width:50vw;
+    height:100px;
+    display:flex;
+    justify-content: center;
+    height:500px;
+    flex-direction:column;
+    padding:0;
+    margin:0;
+    p{
+      &:nth-child(1){
+      font-size:3vw;
+      text-align: start;
+      margin:0;
+      }
+      &:nth-child(2){
+        font-size:1.2vw;
+        text-align:start;
+
+      }
+    }
+
+  }
+}
+
+/*mobile css */
 @media only screen and (max-width:600px) {
   .navbar-root {
     &>.icon-control {
@@ -420,61 +454,23 @@
         transform: translate3d(0, -20px, 0) rotate(-270deg);
         transition-delay: 0.075s;
       }
+  }
 
-      p {
-        width: 40px;
-        height: 5px;
-        margin: 7px 0px;
-        transform: rotate(45deg);
-        background: gray;
-        transform: all .5s;
+  .logo {
+    width: 50vw;
+    grid-area: end;
 
-        &:nth-child(1) {
-          position: relative;
-          left: 22px;
-          top: 4px;
-          animation: lin1 2s linear infinite ease-in-out;
-        }
-
-        &:nth-child(2) {
-          width: 60px;
-
-        }
-
-        &:nth-child(3) {
-          position: relative;
-          left: -1px;
-
-        }
-      }
-
-      @keyframes lin1 {
-        from {
-          transform: rotate(45deg);
-        }
-
-        to {
-          visibility: hidden;
-          transform: translateX(50px) translateY(40px) rotate(45deg);
-        }
-      }
-    }
-
-    .logo {
-      width: 50vw;
-      grid-area: end;
-
-      p {
-        font-size: large;
-      }
-    }
-
-    .links {
-      display: none;
-    }
-
-    .profile {
-      display: none;
+    p {
+      font-size: large;
     }
   }
+
+  .links {
+    display: none;
+  }
+
+  .profile {
+    display: none;
+  }
+}
 }
