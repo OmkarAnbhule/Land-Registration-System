@@ -1,6 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function Navbar() {
+    const [style, setStyle] = useState(false)
+    const handleSideBar = () => {
+        setStyle(!style)
+    }
     return (
         <div className='navbar-root'>
             <div className='logo'>
@@ -8,13 +12,13 @@ export default function Navbar() {
                 <p>Some Name</p>
             </div>
             <div className='icon-control'>
-                <div className='menu'>
-                    <p></p>
-                    <p></p>
-                    <p></p>
-                </div>
+                <button className={style ? 'hamburger hamburger--elastic is-active' : 'hamburger hamburger--elastic'} type="button" onClick={handleSideBar}>
+                    <span className="hamburger-box">
+                        <span className="hamburger-inner"></span>
+                    </span>
+                </button>
             </div>
-            <div className='sidebar'>
+            <div className='sidebar' style={{display: style ? 'block' :'none'}}>
                 <div className='logo'>
                     <img width={50} height={50}></img>
                     <p>Some Name</p>
