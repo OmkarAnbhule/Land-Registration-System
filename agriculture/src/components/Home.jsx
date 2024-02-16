@@ -1,4 +1,5 @@
 import React from 'react'
+import HomeAnimation from './HomeAnimation'
 
 export default function Home() {
   return (
@@ -13,13 +14,9 @@ export default function Home() {
 
       </div>
       <div className='image'>
-        <img width={500} height={500}></img>
+        <HomeAnimation/>
       </div>
-      <div className='background'>
-        <div className='shape'>
-          
-        </div>
-      </div>
+      
     </div>
   )
 }

@@ -310,38 +310,177 @@
   }
 }
 
-.home-root{
+.home-root {
   margin-top: 100px;
-  height:auto;
-  display:grid;
+  height: auto;
+  display: grid;
   place-items: center;
   grid-template-areas: 'start end';
-  
-  .text{
-    width:50vw;
-    height:100px;
-    display:flex;
+
+  .text {
+    width: 50vw;
+    height: 100px;
+    display: flex;
     justify-content: center;
-    height:500px;
-    flex-direction:column;
-    padding:0;
-    margin:0;
-    p{
-      &:nth-child(1){
-      font-size:3vw;
-      text-align: start;
-      margin:0;
+    height: 500px;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+
+    p {
+      &:nth-child(1) {
+        font-size: 3vw;
+        text-align: start;
+        margin: 0;
       }
-      &:nth-child(2){
-        font-size:1.2vw;
-        text-align:start;
+
+      &:nth-child(2) {
+        font-size: 1.2vw;
+        text-align: start;
 
       }
     }
-
   }
 }
 
+.container {
+  border: 2px solid;
+  width: 500px;
+  height: 500px;
+  perspective: 1000px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px;
+
+  .cube {
+    width: 300px;
+    height: 300px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all .5s;
+    animation: block 8s ease-in-out infinite 8s;
+
+    &:before,
+    &:after {
+      display: block;
+      content: '';
+      position: absolute;
+    }
+
+    &:before {
+      width: 160px;
+      height: 240px;
+      left: 50px;
+      top: -8px;
+      background-repeat: no-repeat;
+      background-image: linear-gradient(30deg, transparent 26%, rgb(136, 171, 242) 26.3%, rgb(136, 171, 242) 74%, transparent 74.3%),
+        /*left side*/
+        linear-gradient(150deg, transparent 26%, rgb(30, 69, 146) 26.3%, rgb(30, 69, 146) 74%, transparent 74.3%),
+        /*right side*/
+        linear-gradient(150deg, transparent 26%, rgb(44, 113, 250) 26.3%, rgb(44, 113, 250) 73%, transparent 73%),
+        /*top*/
+        linear-gradient(30deg, transparent 27%, rgb(44, 113, 250) 27%, rgb(44, 113, 250) 74%, transparent 74.3%),
+        /*top*/
+        radial-gradient(circle at center, rgb(44, 113, 250) 20%, transparent 20%);
+      /*top*/
+      background-size: 50% 60%;
+      background-position: 0 100%,
+        100% 100%,
+        0 48.5%,
+        100% 48.5%,
+        50% 60%;
+      z-index: -1;
+    }
+  }
+
+  .map {
+    img{
+      border:2px solid;
+      animation:imgAnim 8s ease-in-out infinite;
+    }
+    .scanner {
+      width: 250px;
+      height: 250px;
+      position: absolute;
+      border: 2px solid;
+      top: 10px;
+      transition: all .5s;
+      background: rgba(68, 217, 254, .4);
+      opacity: 0;
+      animation:scanner1 8s ease-in-out infinite;
+    }
+
+    .scanner::after {
+      content: '';
+      position: absolute;
+      width: 250px;
+      height: 8px;
+      left: 0;
+      top: 0;
+      background: rgba(68, 217, 254, .8);
+      transition: all .5s;
+      animation: scanner 5s ease-in-out infinite 2s;
+    }
+  }
+}
+@keyframes imgAnim {
+  0%{
+    transform: translateX(150px);
+    opacity: 0;
+  }
+  20%,80%{
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  100%{
+    transform: translateY(150px) scale(.5);
+    opacity: 0;
+  }
+}
+@keyframes scanner {
+  0%{
+    transform: translateY(0px);
+  }
+  50%{
+    transform: translateY(250px);
+  }
+  100%{
+    transform: translateY(0px);
+  }
+}
+@keyframes scanner1 {
+  0%,20%{
+    opacity: 0;
+  }
+  30%,70%{
+    opacity: 1;
+  }
+  80%,100%{
+    opacity: 0;
+  }
+  
+}
+@keyframes block {
+  0%,5%{
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  10%,40%{
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  41%,69%{
+    transform: translateX(150px);
+  }
+  80%,100%{
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  
+}
 /*mobile css */
 @media only screen and (max-width:600px) {
   .navbar-root {
@@ -454,23 +593,23 @@
         transform: translate3d(0, -20px, 0) rotate(-270deg);
         transition-delay: 0.075s;
       }
-  }
+    }
 
-  .logo {
-    width: 50vw;
-    grid-area: end;
+    .logo {
+      width: 50vw;
+      grid-area: end;
 
-    p {
-      font-size: large;
+      p {
+        font-size: large;
+      }
+    }
+
+    .links {
+      display: none;
+    }
+
+    .profile {
+      display: none;
     }
   }
-
-  .links {
-    display: none;
-  }
-
-  .profile {
-    display: none;
-  }
-}
 }
