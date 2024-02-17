@@ -9,7 +9,7 @@ export default function Navbar() {
         <div className='navbar-root'>
             <div className='logo'>
                 <img width={50} height={50}></img>
-                <p>Some Name</p>
+                <p>Land Ledger</p>
             </div>
             <div className='icon-control'>
                 <button className={style ? 'hamburger hamburger--elastic is-active' : 'hamburger hamburger--elastic'} type="button" onClick={handleSideBar}>

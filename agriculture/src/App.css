@@ -344,7 +344,6 @@
 }
 
 .container {
-  border: 2px solid;
   width: 500px;
   height: 500px;
   perspective: 1000px;
@@ -398,7 +397,7 @@
 
   .map {
     img{
-      border:2px solid;
+      object-fit:cover;
       animation:imgAnim 8s ease-in-out infinite;
     }
     .scanner {
