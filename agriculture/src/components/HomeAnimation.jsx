@@ -1,25 +1,29 @@
-import React, { useState } from 'react'
-import img1 from '../assets/terrains/terrain3.jpg'
-import img2 from '../assets/terrains/terrain.jpg'
+import React, { useEffect, useState } from 'react'
+import img1 from '../assets/terrains/terrain4.jpg'
+import img2 from '../assets/terrains/terrain2.jpg'
+import img3 from '../assets/terrains/terrain3.jpg'
 
+
+const images = [img1,img2,img3];
 export default function HomeAnimation() {
-    const [img,setImg] = useState(null);
-    const getImage = () => {
-        if(img == null){
-            setImg(img1)   
-        }
-        else{
-            if(img == img1){
-                setImg(img2)
+    const [currentIndex,setCurrentIndex] = useState(0);
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if(currentIndex === 2) {
+                setCurrentIndex(0);
             }
-            
-        }
-        return img
-    }
+            else {
+                 setCurrentIndex(currentIndex + 1);
+            }
+            console.log(currentIndex)
+        }, 8000)
+        return () => clearInterval(intervalId);
+    }, [currentIndex])
+
     return (
         <div className='container'>
             <div className="map">
-                <img width={250} height={250} src={getImage()}></img>
+                <img width={250} height={250} src={images[currentIndex]}></img>
                 <div className='scanner'></div>
             </div>
             <div className='cube'>
