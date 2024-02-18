@@ -11,12 +11,10 @@ export default function Home() {
         <p>
           lorem ipsum lorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsum
         </p>
-
       </div>
       <div className='image'>
         <HomeAnimation/>
-      </div>
-      
+      </div>     
     </div>
   )
 }

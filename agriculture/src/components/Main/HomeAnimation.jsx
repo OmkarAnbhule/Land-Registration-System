@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import img1 from '../assets/terrains/terrain4.jpg'
-import img2 from '../assets/terrains/terrain2.jpg'
-import img3 from '../assets/terrains/terrain3.jpg'
+import img1 from '../../assets/terrains/terrain4.jpg'
+import img2 from '../../assets/terrains/terrain2.jpg'
+import img3 from '../../assets/terrains/terrain3.jpg'
 
 
-const images = [img1,img2,img3];
+const images = [img1,img3];
 export default function HomeAnimation() {
     const [currentIndex,setCurrentIndex] = useState(0);
     useEffect(() => {
         const intervalId = setInterval(() => {
-            if(currentIndex === 2) {
+            if(currentIndex === images.length - 1) {
                 setCurrentIndex(0);
             }
             else {
