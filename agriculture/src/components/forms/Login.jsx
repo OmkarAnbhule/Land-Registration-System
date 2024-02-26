@@ -1,7 +1,7 @@
-import React, { useState, useTransition } from 'react'
-import img from '../../../assets/home_assets/register_form/register.jpg'
+import React, { useState } from 'react'
+import img from '../../assets/home_assets/register_form/register.jpg'
 
-export default function Register() {
+export default function Login() {
     const [firstName, setFirstName] = useState('');
     const [LastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -10,26 +10,45 @@ export default function Register() {
     const [isShow, setShow] = useState(false)
     const [step, setStep] = useState(1);
     const [isfocus, setFocus] = useState(null)
-    const [ispending, startTransition] = useTransition();
+    const [checkbox, setCheckBox] = useState(false)
     const temp = 1
     const handleFirstName = (e) => {
-        setFirstName(e.target.value)
+        const temp = e.target.value.replace(/\s/g, '')
+        setFirstName(temp)
+
     }
     const handleLastName = (e) => {
-        setLastName(e.target.value)
+        const temp = e.target.value.replace(/\s/g, '')
+        setLastName(temp)
+
     }
     const handleEmail = (e) => {
-        setEmail(e.target.value)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const temp = e.target.value.replace(/\s/g, '').toLowerCase()
+        if (emailRegex.test(temp)) {
+            setEmailErr('')
+        }
+        else {
+            setEmailErr('Invalid Email')
+        }
+        setEmail(temp)
     }
     const handlePassword = (e) => {
-        setPassowrd(e.target.value)
+        const temp = e.target.value.replace(/\s/g, '')
+        setPassowrd(temp)
     }
     const handleAadhar = (e) => {
-        setAadhar(e.target.value)
+        const temp = e.target.value.replace(/[^\d]/g, '').replace(/(.{3})/g, '$1-').slice(0, 15);
+        setAadhar(temp)
+    }
+    const handleCheckBox = (e) => {
+        setCheckBox(!checkbox)
     }
     const handleClick = () => {
-        setStep(step + 1)
-        setFocus(false)
+        if (isComplete && checkbox) {
+            setStep(step + 1)
+            setFocus(false)
+        }
     }
     const handleStep = (val) => {
         setStep(val)
@@ -43,16 +62,11 @@ export default function Register() {
     }
     const handleBlur = () => {
         setFocus(null)
+        checkFields()
     }
 
     return (
-        <div className='register-root'>
-            <div>
-                <img width={400} height={380} src={img}></img>
-                <h2>Get Started with Land Ledger</h2>
-                <p>Welcome to Land Ledger ! Before you proceed with your registration, please take a moment to review our <b>Privacy Policy.</b> This policy outlines how we collect, use, and safeguard your personal information.
-                By clicking <b>"I Agree"</b> or similar language, you acknowledge that you have read and understood our Privacy Policy. If you do not agree with the terms outlined in the policy, please refrain from registering on our platform.</p>
-            </div>
+        <div className='login-root'>
             <div>
                 <h1>Create your free account</h1>
                 <div className='step-symbols'>
@@ -88,8 +102,8 @@ export default function Register() {
                         </div>
                         <div className="input-control" >
 
-                            <label htmlFor='email' className={isfocus == 'email' || email != '' ? 'focused' : ''}>Email</label>
-                            <input type='email' id='email' value={email} onChange={handleEmail} onFocus={() => handleFocusIn('email')} onBlur={handleBlur}></input>
+                            <label htmlFor='email' className={isfocus == 'email' || email != '' ? 'focused' : ''}>Email Id</label>
+                            <input type='text' id='email' value={email} onChange={handleEmail} onFocus={() => handleFocusIn('email')} onBlur={handleBlur}></input>
                         </div>
                         <div className="input-control">
                             <label htmlFor='password' className={isfocus == 'password' || password != '' ? 'focused' : ''}>Password</label>
@@ -108,6 +122,12 @@ export default function Register() {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div>
+                <img width={400} height={380} src={img}></img>
+                <h2>Welcome Back to Land Ledger</h2>
+                <p>Welcome to Land Ledger ! Before you proceed with your registration, please take a moment to review our <b>Privacy Policy.</b> This policy outlines how we collect, use, and safeguard your personal information.
+                    By clicking <b>"I Agree"</b> or similar language, you acknowledge that you have read and understood our Privacy Policy. If you do not agree with the terms outlined in the policy, please refrain from registering on our platform.</p>
             </div>
         </div>
     )
