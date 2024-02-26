@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import img from '../../assets/home_assets/register_form/register.jpg'
 import { useNavigate } from 'react-router-dom';
+import Otp from './Otp';
 
 export default function Register() {
     const navigate = useNavigate()
@@ -33,12 +34,19 @@ export default function Register() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const temp = e.target.value.replace(/\s/g, '').toLowerCase()
         if (emailRegex.test(temp)) {
-            setEmailErr('')
+            let res = VerifyEmail()
+            if (res.message == 'User Found') {
+                setEmailErr('Email Already Found')
+            }
+            else {
+                setEmailErr('')
+            }
         }
         else {
             setEmailErr('Invalid Email')
         }
         setEmail(temp)
+
     }
     const handlePassword = (e) => {
         const temp = e.target.value.replace(/\s/g, '')
@@ -55,6 +63,8 @@ export default function Register() {
         if (isComplete && checkbox) {
             setStep(step + 1)
             setFocus(false)
+            let res = sendData()
+
         }
     }
     const handleStep = (val) => {
@@ -109,6 +119,32 @@ export default function Register() {
     const handleLogin = () => {
         navigate('/login')
     }
+
+    const VerifyEmail = async () => {
+        let result = await fetch('http://localhost:5000/verify-old-user', {
+            method: 'post',
+            body: JSON.stringify({ email: email }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = result.json()
+        console.log(result)
+        return result
+    }
+
+    const sendData = async () => {
+        let result = await fetch('http://localhost:5000/send-otp', {
+            method: 'post',
+            body: JSON.stringify({ email: email }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = result.json()
+        console.log(result)
+        return result
+    }
     return (
         <div className='register-root'>
             <div>
@@ -132,13 +168,15 @@ export default function Register() {
                 </div>
                 <div className='form'>
                     <div className='icon-control'>
-                        <i className='bi bi-arrow-down-circle' onClick={handleBack} style={{ display: step > 1 && step < 3
-                            
-                            
-                            ? 'block' : 'none' }}></i>
+                        <i className='bi bi-arrow-down-circle' onClick={handleBack} style={{
+                            display: step > 1 && step < 3
+
+
+                                ? 'block' : 'none'
+                        }}></i>
                     </div>
                     <div className='form-group'>
-                        <div className='input-group'>
+                        {/* <div className='input-group'>
                             <div className="input-control">
                                 <label htmlFor='text' className={isfocus == 'firstname' || firstName != '' ? 'focused' : ''} style={{ color: firstNameErr == '' ? '' : 'red' }}>First name</label>
                                 <input type='text' id='text' value={firstName} style={{ border: firstNameErr == '' ? '' : '2px solid red' }
@@ -200,9 +238,11 @@ export default function Register() {
                         )}
                         <div>
                             Already have an account <span onClick={handleLogin}>click to login</span>
-                        </div>
+                        </div>*/}
+                        <Otp />
                     </div>
                 </div>
+
             </div>
         </div >
     )
