@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 export default function Otp(props) {
+  const navigate = useNavigate()
   const [num1, setNum1] = useState();
   const [num2, setNum2] = useState();
   const [num3, setNum3] = useState();
@@ -70,8 +72,10 @@ export default function Otp(props) {
       }
     })
     result = result.json()
-    console.log(result)
-    console.log(props.img)
+    if(result.success == true){
+      navigate('/')
+      localStorage.setItem('isloggedin',true)
+    }
   }
 
   const handleReset = async () => {
