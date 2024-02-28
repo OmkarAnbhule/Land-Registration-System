@@ -606,31 +606,14 @@
     position: relative;
     padding: 30px;
 
-    &>.icon-control {
-      justify-content: center;
-      display: grid;
-      align-items: center;
-      text-align: center;
-      width: 40px;
-      height: 40px;
-      position: absolute;
-      top: 0;
-
-      i {
-        transform: rotate(90deg);
-        font-size: x-large;
-      }
-    }
-
-
     .form-group {
       display: grid;
       place-items: center;
       row-gap: 10px;
 
-      &.input-control {
-        &:nth-child(3) {
-
+      .input-control {
+        &:nth-child(2) {
+          border:2px solid blue;
           &.icon-control {
             &:nth-child(4) {
               position: absolute;
@@ -1458,6 +1441,7 @@
   width: 200px;
   height: 200px;
 }
+
 
 
 /*mobile css */
