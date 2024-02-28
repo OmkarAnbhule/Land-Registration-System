@@ -4,11 +4,13 @@ import About from './About'
 import Steps from './Steps'
 import Animation from './HomeAnimation2'
 import Footer from './Footer'
+import Features from './Features'
 
 export default function Main() {
   return (
     <div className='main'>
         <Home/>
+        <Features/>
         <About/>
         <Steps/>
         <Footer/>

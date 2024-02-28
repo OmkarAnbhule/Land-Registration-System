@@ -118,8 +118,8 @@
           padding: 0;
           position: relative;
 
-          &:nth-child(4) {F
-            p {
+          &:nth-child(4) {
+            F p {
               position: absolute;
               left: 30px;
               top: 30px;
@@ -514,6 +514,7 @@
       align-items: center;
       column-gap: 10px;
       row-gap: 10px;
+
       button {
         font-family: inherit;
         font-size: 18px;
@@ -530,6 +531,7 @@
         cursor: pointer;
         width: 180px;
         height: 60px;
+
         &:hover {
           background: rgb(4, 121, 255);
         }
@@ -553,6 +555,7 @@
     border: 2px solid rgb(199, 197, 197);
     height: 95%;
     width: max-content;
+    min-width: 450px;
     margin: 0;
     display: grid;
     place-items: center;
@@ -600,6 +603,7 @@
   .form {
     width: 350px;
     height: auto;
+    min-height: 450px;
     align-items: center;
     justify-content: center;
     display: grid;
@@ -612,14 +616,16 @@
       row-gap: 10px;
 
       .input-control {
+        input {
+          width: 25em;
+        }
+
         &:nth-child(2) {
-          border:2px solid blue;
-          &.icon-control {
-            &:nth-child(4) {
-              position: absolute;
-              right: 0px;
-              border: none;
-            }
+          .icon-control {
+            position: absolute;
+            right: 0px;
+            border: none;
+
           }
         }
       }
@@ -630,12 +636,7 @@
         align-items: center;
       }
 
-      &>div:not(:nth-child(1), :nth-child(5)) {
-        input {
-          width: 36em;
-          height: 40px;
-        }
-      }
+
 
       &>div:last-child {
         color: rgb(117, 115, 115);
@@ -728,11 +729,19 @@
       }
 
       button {
+        background: royalblue;
+        font-family: inherit;
         font-size: 18px;
-        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-        letter-spacing: 2px;
-        width: 200px;
-        height: 40px;
+        color: white;
+        padding: 0.7em 1em;
+        padding-left: 0.9em;
+        display: flex;
+        align-items: center;
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s;
+        cursor: pointer;
       }
     }
   }
@@ -1079,6 +1088,100 @@
   }
 }
 
+.about-root {
+  height: auto;
+  padding: 20px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+
+  &>div {
+    display: flex;
+    column-gap: 100px;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+
+    div {
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      width: max-content;
+      border: 2px solid rgb(212, 208, 208);
+      margin: 10px;
+      padding: 10px;
+      border-radius: 20px;
+
+      img {
+        border-radius: 50%;
+        padding: 20px;
+        object-fit: cover;
+        overflow: hidden;
+        width: 300px;
+        height: 300px;
+      }
+
+      p {
+        font-size: larger;
+        border: 2px solid;
+
+        &:hover {
+          transform: scale(1.1);
+          cursor: pointer;
+          transition: transform .5s;
+          font-style: italic;
+          outline: 2px solid;
+          outline-offset: 5px;
+          border: none;
+        }
+      }
+
+      &:nth-child(1) {
+        img {
+          border: 4px solid violet;
+        }
+
+        p {
+          background: rgba(243, 10, 200, 0.23);
+          border-radius: 20px;
+          padding: 10px;
+          color: rgb(239, 26, 239);
+        }
+      }
+
+      &:nth-child(2) {
+        img {
+          border: 4px solid rgb(119, 119, 250);
+        }
+
+        p {
+          background: rgba(72, 72, 250, .23);
+          border-radius: 20px;
+          padding: 10px;
+          color: blue;
+        }
+      }
+
+      &:nth-child(3) {
+        img {
+          border: 4px solid rgb(139, 232, 139);
+        }
+
+        p {
+          background: rgba(68, 215, 68, .23);
+          border-radius: 20px;
+          padding: 10px;
+          color: green;
+        }
+      }
+    }
+  }
+}
+
+
 .home-root {
   height: auto;
   display: grid;
@@ -1423,26 +1526,216 @@
   }
 }
 
-.container2 {
+.registration-form-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding:30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+
+
+  .registration-form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .btn-submit {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn-submit:hover {
+    background-color: #45a049;
+  }
+
+  .display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    column-gap: 10px;
+    margin: 10px;
+    max-width: 400px;
+    height: auto;
+
+    div {
+      position: relative;
+
+      &:hover {
+        i {
+          opacity: 1;
+          transition: all .5s;
+        }
+      }
+
+      img {
+        z-index: 0;
+
+      }
+
+      i {
+        opacity: 0;
+        position: absolute;
+        color: white;
+        z-index: 1;
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 0, 0, .43);
+        left: 0;
+        top: 0;
+        display: grid;
+        place-items: center;
+      }
+    }
+  }
+
+}
+
+.sell-land {
+  height: auto;
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  row-gap: 20px;
   position: relative;
 
-  img {
-    z-index: 1;
+
+  .container {
+    margin: 15px;
+    width: 300px;
+    height: 370px;
+    border: 2px solid rgb(195, 194, 194);
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+
+    .location {
+      width: 280px;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: end;
+      column-gap: 15px;
+      position: relative;
+      top: -70px;
+
+      i {
+        font-size: 50px;
+      }
+
+      p {
+        text-align: center;
+        font-size: 18px;
+      }
+
+    }
+
+    button {
+      width: 150px;
+      height: 60px;
+      font-weight: bold;
+      background: royalblue;
+      color:white;
+      font-size: 20px;
+      border:none;
+      border-radius: 50px;
+    }
+  }
+  .center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:100vw;
+    height: 700px;
+    margin:0;
+    position: absolute;
+    top:0;
+    font-size:30px;
   }
 }
 
-.highlighted {
-  background-color: rgba(255, 0, 0, 0.5);
-  border: 2px solid;
-  z-index: 5;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 200px;
-  height: 200px;
+.buy-land {
+  height: auto;
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  row-gap: 20px;
+  position: relative;
+
+  .container {
+    margin: 15px;
+    width: 300px;
+    height: 370px;
+    border: 2px solid rgb(195, 194, 194);
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+
+    .location {
+      width: 280px;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: end;
+      column-gap: 15px;
+      position: relative;
+      top: -70px;
+
+      i {
+        font-size: 50px;
+      }
+
+      p {
+        text-align: center;
+        font-size: 18px;
+      }
+
+    }
+
+    button {
+      width: 150px;
+      height: 60px;
+      font-weight: bold;
+      background: royalblue;
+      color:white;
+      font-size: 20px;
+      border:none;
+      border-radius: 50px;
+    }
+  }
+  .center{
+    display: grid;
+    place-items: center;
+    width:100vw;
+    height: 700px;
+    margin:0;
+    position: absolute;
+    top:0;
+    font-size:30px;
+  }
 }
-
-
 
 /*mobile css */
 @media only screen and (max-width:780px) {

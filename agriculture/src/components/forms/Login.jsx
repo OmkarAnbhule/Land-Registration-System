@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
 import img from '../../assets/home_assets/register_form/register.jpg'
 
 export default function Login() {
+    const navigate = useNavigate()
     const [email, setEmail] = useState('');
     const [password, setPassowrd] = useState('');
     const [isShow, setShow] = useState(false)
     const [isfocus, setFocus] = useState(null)
 
     const handleEmail = (e) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const temp = e.target.value.replace(/\s/g, '').toLowerCase()
         setEmail(temp)
     }
@@ -18,9 +19,25 @@ export default function Login() {
     }
 
     const handleClick = () => {
-        if (isComplete && checkbox) {
-            setStep(step + 1)
-            setFocus(false)
+        if(email!='' && password != '')
+        {
+            sendData()
+        }
+    }
+
+    const sendData = async() => {
+        let result = fetch('http://localhost:5000/login',{
+            method:'post',
+            body:JSON.stringify({email,password}),
+            headers:{
+                "Content-Type":"application/json"
+            }
+        })
+        result = result.json()
+        if(result.success == true){
+            navigate('/')
+            localStorage.setItem('isloggedin',true)
+            localStorage.setItem('id',email)
         }
     }
 
@@ -31,11 +48,14 @@ export default function Login() {
         setFocus(null)
         checkFields()
     }
-
+    const handleRegister = () => {
+        navigate('/register')
+        
+    }
     return (
         <div className='login-root'>
             <div>
-                <h1>Create your free account</h1>
+                <h1>Login to your account</h1>
 
                 <div className='form'>
 
@@ -53,9 +73,9 @@ export default function Login() {
                             </div>
                         </div>
 
-                        <button onClick={handleClick}>Submit</button>
+                        <button onClick={handleClick}>Log in</button>
                         <div>
-                            Already have an account click to login
+                            Don't have an account <b onClick={handleRegister}>click to signup</b>
                         </div>
                     </div>
                 </div>
@@ -63,8 +83,6 @@ export default function Login() {
             <div>
                 <img width={400} height={380} src={img}></img>
                 <h2>Welcome Back to Land Ledger</h2>
-                <p>Welcome to Land Ledger ! Before you proceed with your registration, please take a moment to review our <b>Privacy Policy.</b> This policy outlines how we collect, use, and safeguard your personal information.
-                    By clicking <b>"I Agree"</b> or similar language, you acknowledge that you have read and understood our Privacy Policy. If you do not agree with the terms outlined in the policy, please refrain from registering on our platform.</p>
             </div>
         </div>
     )

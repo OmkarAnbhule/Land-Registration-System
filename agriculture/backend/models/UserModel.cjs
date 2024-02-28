@@ -23,6 +23,9 @@ const UserSchema = new mongoose.Schema({
     panNo:{
         type:String,
     },
+	gender:{
+		type:String,
+	},
 	date: {
 		type: Date,
 		default: Date.now,

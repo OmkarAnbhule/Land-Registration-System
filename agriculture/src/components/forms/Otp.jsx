@@ -75,6 +75,7 @@ export default function Otp(props) {
     if(result.success == true){
       navigate('/')
       localStorage.setItem('isloggedin',true)
+      localStorage.setItem('id',props.email)
     }
   }
 
