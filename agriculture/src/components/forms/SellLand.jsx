@@ -5,13 +5,11 @@ export default function SellLand(){
     const navigate = useNavigate()
     const [land,setLand] = useState([])
     useEffect(()=>{
-        let res = getLand()
-        if(res.success == true){
-            setLand(res.data)
-        }
-    })
+         getLand()
+        
+    },[])
     const getLand = async() =>{
-        let result = fetch('http://localhost:5000/get-land',{
+        let result = await fetch('http://localhost:5000/get-land',{
             method:'post',
             body:JSON.stringify({email:localStorage.getItem('id')}),
             headers:{
@@ -19,7 +17,10 @@ export default function SellLand(){
             }
         })
         result = await result.json()
-        return result
+        console.log(result)
+        setLand((pre)=>[...pre , ...result.data])
+        console.log(land)
+        
     }
     const handleRegistry = () => {
         navigate('/Registryform')   

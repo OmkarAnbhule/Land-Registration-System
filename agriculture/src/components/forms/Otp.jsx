@@ -68,7 +68,7 @@ export default function Otp(props) {
       method: 'post',
       body:formdata
     })
-    result = result.json()
+    result =  await result.json()
     console.log(result)
     if(result.success == true){
       navigate('/')

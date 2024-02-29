@@ -186,7 +186,7 @@ export default function Register() {
                 "Content-Type": "application/json"
             }
         })
-        result = result.json()
+        result =  await result.json()
         console.log(result)
         return result
     }
@@ -199,7 +199,7 @@ export default function Register() {
                 "Content-Type": "application/json"
             }
         })
-        result = result.json()
+        result =  await result.json()
         console.log(result)
         return result
     }

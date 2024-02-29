@@ -9,19 +9,19 @@ const LandRegistrationForm = () => {
   const [propertyid,setPropertyId] = useState('');
   const [survey,setSurvey] = useState('');
   const [files,setFiles] = useState([])
+  const navigate = useNavigate()
 
   const handleSubmit = async(event) => {
-    const navigate = useNavigate()
     event.preventDefault();
     let formdata = new FormData()
     formdata.append('files',files)
-    formdata.append('data',JSON.stringify({area,state,district,propertyid,survey}))
+    formdata.append('data',JSON.stringify({email:localStorage.getItem('id'),area,state,district,propertyid,survey}))
     // You can handle form submission here, for example, sending data to an API
     let result = await fetch('http://localhost:5000/add-land',{
       method:'post',
       body:formdata
     })
-    result = result.json()
+    result = await result.json()
     if(result.success == true){
       navigate('/')
     }
@@ -48,7 +48,7 @@ const LandRegistrationForm = () => {
   return (
     <div className="registration-form-container">
       <h2>Land Registration Form</h2>
-      <form onSubmit={handleSubmit} className="registration-form">
+      <form className="registration-form">
         <div className="form-group">
           <label htmlFor="area">Area:</label>
           <input
@@ -125,7 +125,7 @@ const LandRegistrationForm = () => {
             )
           )}
         </div>
-        <button type="submit" className="btn-submit">Register</button>
+        <button onClick={handleSubmit} className="btn-submit">Register</button>
       </form>
     </div>
   );

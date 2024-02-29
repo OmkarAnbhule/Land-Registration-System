@@ -875,7 +875,11 @@
     display: grid;
     place-items: center;
     grid-auto-flow: column;
-
+    img{
+      border-radius: 50%;
+      outline:3px solid royalblue;
+      outline-offset: 10px;
+    }
     button {
       padding: 10px;
       background: rgb(55, 132, 240);

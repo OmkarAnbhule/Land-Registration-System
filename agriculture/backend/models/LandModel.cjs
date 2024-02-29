@@ -23,6 +23,9 @@ const landSchema = new mongoose.Schema({
     files:{
         type: mongoose.Schema.Types.Mixed,
     },
+    isSell:{
+        type:Boolean,
+    },
     date:{
         type:Date,
         default:Date.now

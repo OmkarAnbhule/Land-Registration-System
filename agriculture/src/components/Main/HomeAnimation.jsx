@@ -15,7 +15,7 @@ export default function HomeAnimation() {
             else {
                  setCurrentIndex(currentIndex + 1);
             }
-            console.log(currentIndex)
+           
         }, 8000)
         return () => clearInterval(intervalId);
     }, [currentIndex])

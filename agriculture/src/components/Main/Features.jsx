@@ -10,9 +10,13 @@ export default function Features() {
         navigate('/Registryform')
     }
     const handleBuy = () => {
+        navigate('/buyLand')
+    
 
     }
     const handleSell = () => {
+        navigate('/sellLand')
+    
 
     }
     return (
@@ -20,6 +24,9 @@ export default function Features() {
         {
             localStorage.getItem('isloggedin') ? (
         <div className='about-root' id="about">
+            <div>
+                <h1>Features</h1>
+            </div>
             <div>
                 <div>
                     <img src={uf}></img>

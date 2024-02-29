@@ -7,12 +7,13 @@ export default function BuyLand() {
     useEffect(()=>{
         let res = getData()
         if(res.success == true){
-            navigate('/')
+            setLand((pre)=>[...pre,...res.data])
         }
     })
     const getData = async()=>{
         let result = await fetch('http://localhost:5000/get-land-all',{
             method:'post',
+            body:JSON.stringify({email:localStorage.getItem('id')}),
             headers:{
                 "Content-Type":"application/json"
             }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+
 export default function Navbar() {
     const navigate = useNavigate();
     const [style, setStyle] = useState(false)
@@ -14,21 +15,31 @@ export default function Navbar() {
     const handleLogIn = () => {
         navigate('/login')
     }
-    useEffect(() => {
+    const getdata = async () => {
 
-        if (localStorage.getItem('isloggedin') != undefined || false) {
-            async () => {
-                let result = await fetch('http://localhost:5000/get-image', {
-                    method: 'post',
-                    body: JSON.stringify({ email }),
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                })
-                result = result.json()
-                setImg(result.image)
-            }
+        if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
+
+
+            let result = await fetch('http://localhost:5000/get-image', {
+                method: 'post',
+                body: JSON.stringify({ email: localStorage.getItem("id") }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            result = await result.json()
+            console.log(result);
+            import(`../assets/images/profile/${result.image}`).then(image => {
+                setImg(image.default);
+              });
         }
+    }
+
+
+
+    useEffect(() => {
+        getdata()
+
     }, [])
     return (
         <div className='navbar-root'>
@@ -65,7 +76,7 @@ export default function Navbar() {
             <div className='profile'>
                 {localStorage.getItem('isloggedin') ? (
                     <>
-                        <img width={50} height={50} src={URL.createObjectURL(img)}></img>
+                        <img width={50} height={50} src={img}></img>
                     </>
                 ) : (<>
                     <button onClick={handleLogIn}>Log in</button>

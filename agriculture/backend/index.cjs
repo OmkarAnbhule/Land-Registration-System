@@ -17,6 +17,192 @@ const guid = () => (S4() + S4() + "-" + S4() + "-4" + S4());
 
 const contractABI = [
 	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "InspectorMapping",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_addr",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "age",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "designation",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "city",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "LandRequestMapping",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "reqId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address payable",
+				"name": "sellerId",
+				"type": "address"
+			},
+			{
+				"internalType": "address payable",
+				"name": "buyerId",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "landId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "enum landledger.reqStatus",
+				"name": "requestStatus",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bool",
+				"name": "isPaymentDone",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ReturnAllLandIncpectorList",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ReturnAllLandList",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ReturnAllUserList",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "UserMapping",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "id",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "date",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "gender",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "aadharNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "panNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "email",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "isUserVerified",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -42,28 +228,13 @@ const contractABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "uint256",
-				"name": "landprice",
-				"type": "uint256"
-			},
-			{
 				"internalType": "string",
-				"name": "_allLatiLongi",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
 				"name": "_propertyPID",
-				"type": "uint256"
+				"type": "string"
 			},
 			{
 				"internalType": "string",
 				"name": "_surveyNum",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_document",
 				"type": "string"
 			}
 		],
@@ -125,177 +296,6 @@ const contractABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			}
-		],
-		"name": "makeItforSell",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_requestId",
-				"type": "uint256"
-			}
-		],
-		"name": "makePayment",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address payable",
-				"name": "_reveiver",
-				"type": "address"
-			}
-		],
-		"name": "makePaymentTestFun",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_date",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_gender",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_aadharNumber",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_panNumber",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_email",
-				"type": "string"
-			}
-		],
-		"name": "registerUser",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_requestId",
-				"type": "uint256"
-			}
-		],
-		"name": "rejectRequest",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "removeLandInspector",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_landId",
-				"type": "uint256"
-			}
-		],
-		"name": "requestforBuy",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_requestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "documentUrl",
-				"type": "string"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "verifyLand",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_userId",
-				"type": "address"
-			}
-		],
-		"name": "verifyUser",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"name": "documentId",
 		"outputs": [
@@ -303,50 +303,6 @@ const contractABI = [
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "InspectorMapping",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "_addr",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "age",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "designation",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "city",
-				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -451,69 +407,6 @@ const contractABI = [
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			}
-		],
-		"name": "landPrice",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "LandRequestMapping",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "reqId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address payable",
-				"name": "sellerId",
-				"type": "address"
-			},
-			{
-				"internalType": "address payable",
-				"name": "buyerId",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "landId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "enum landledger.reqStatus",
-				"name": "requestStatus",
-				"type": "uint8"
-			},
-			{
-				"internalType": "bool",
-				"name": "isPaymentDone",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
@@ -536,28 +429,13 @@ const contractABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "uint256",
-				"name": "landPrice",
-				"type": "uint256"
-			},
-			{
 				"internalType": "string",
-				"name": "allLatitudeLongitude",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
 				"name": "propertyPID",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "physicalSurveyNumber",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "document",
+				"name": "surveyNum",
 				"type": "string"
 			},
 			{
@@ -590,6 +468,45 @@ const contractABI = [
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "makeItforSell",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_requestId",
+				"type": "uint256"
+			}
+		],
+		"name": "makePayment",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address payable",
+				"name": "_reveiver",
+				"type": "address"
+			}
+		],
+		"name": "makePaymentTestFun",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -640,6 +557,70 @@ const contractABI = [
 	{
 		"inputs": [
 			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_date",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_gender",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_aadharNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_panNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_email",
+				"type": "string"
+			}
+		],
+		"name": "registerUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_requestId",
+				"type": "uint256"
+			}
+		],
+		"name": "rejectRequest",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "removeLandInspector",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256"
@@ -657,42 +638,16 @@ const contractABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "ReturnAllLandIncpectorList",
-		"outputs": [
+		"inputs": [
 			{
-				"internalType": "address[]",
-				"name": "",
-				"type": "address[]"
+				"internalType": "uint256",
+				"name": "_landId",
+				"type": "uint256"
 			}
 		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "ReturnAllLandList",
-		"outputs": [
-			{
-				"internalType": "uint256[]",
-				"name": "",
-				"type": "uint256[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "ReturnAllUserList",
-		"outputs": [
-			{
-				"internalType": "address[]",
-				"name": "",
-				"type": "address[]"
-			}
-		],
-		"stateMutability": "view",
+		"name": "requestforBuy",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -706,6 +661,30 @@ const contractABI = [
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_requestId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "documentUrl",
+				"type": "string"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -724,55 +703,27 @@ const contractABI = [
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "verifyLand",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
-				"name": "",
+				"name": "_userId",
 				"type": "address"
 			}
 		],
-		"name": "UserMapping",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "id",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "date",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "gender",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "aadharNumber",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "panNumber",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "email",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "isUserVerified",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
+		"name": "verifyUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]
@@ -862,7 +813,7 @@ app.post('/verify-otp', upload.single('image'), async (req, resp) => {
 		else {
 			let hashedPassword = await bcrypt.hash(password, 10);
 			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-			const user = await User.create({ name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender })
+			const user = await User.create({ email, name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender })
 			
 			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
@@ -876,10 +827,10 @@ app.post('/verify-otp', upload.single('image'), async (req, resp) => {
 app.post('/get-image',async(req,resp)=>{
 	const {email} = req.body;
 	try{
-		const res = User.find({ email }).then(res => {
-			const data = res.toJSON()
-			resp.status(200).send({ success:true, image: data.image })
-		})
+		const res = await User.find({ email })
+		
+			resp.status(200).send({ success:true, image: res[0].image })
+		
 	}
 	catch(e){
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
@@ -890,9 +841,10 @@ app.post('/get-image',async(req,resp)=>{
 app.post('/login', async (req, resp) => {
 	const { email, password } = req.body
 	try {
-		const existingUser = User.find({ email })
+		const existingUser =  await User.find({ email:email })
 		if (existingUser) {
-			let result = await bcrypt.compare(password, existingUser.password);
+			
+			let result = await bcrypt.compare(password, existingUser[0].password);
 			if (result) {
 				resp.status(200).send({ success: true, message: 'login success' })
 			}
@@ -913,7 +865,7 @@ app.post('/login', async (req, resp) => {
 
 const storageFiles = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, "../src/posts/");
+		cb(null, "../src/lands/");
 	},
 	filename: function (req, file, cb) {
 		const uniqueSuffix = guid();
@@ -923,7 +875,7 @@ const storageFiles = multer.diskStorage({
 
 const uploadFiles = multer({ storage: storageFiles })
 
-app.post('/upload-files', uploadFiles.array('files'), async (req, resp) => {
+app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
 	const { area, state, district, email, propertyid, survey } = JSON.parse(req.body.data)
 	const files = req.files.map((item, index) => ({
 		filename: item.filename,
@@ -931,10 +883,14 @@ app.post('/upload-files', uploadFiles.array('files'), async (req, resp) => {
 		mimetype: item.mimetype,
 		size: item.size,
 	}))
+	console.log(files,req.files)
 	try {
+		const address = state + ' , ' + district
 		const response = await land.create({ owner: email, state, district, propertyid, survey, area, files })
-		const tx = await contract.methods.addLand(area, state + ' , ' + district, propertyid, survey).send({ from: walletaddr })
-		resp.status(200).send({ success: true, message: 'land registered' })
+		const tx = await contract.methods.addLand(parseInt(area,10), address, propertyid, survey).send({ from: walletaddr })
+		if(response)
+		{resp.status(200).send({ success: true, message: 'land registered' })}
+		
 	}
 	catch (e) {
 		console.log(e)
@@ -946,19 +902,31 @@ app.post('/upload-files', uploadFiles.array('files'), async (req, resp) => {
 
 app.post('/get-land', async (req, resp) => {
 	const { email } = req.body;
-	if (response) {
-		const responses = [];
-		let response = await land.find({ owner: email }).toArray(function (err, docs) {
-			if (err) throw err;
-			for (let i = 0; i < docs.length; i++) {
-				responses.push(docs[i]);
-			}
-		})
-		resp.status(200).send({ success: true, data: responses  })
+	
+		
+		let response = await land.find({ owner: email })
+		console.log(response)
+		if (response.length != 0) 
+		{
+		resp.status(200).send({ success: true, data: response  })
 	}
-	else {
-		resp.status(400).send({ success: false, message: 'no land found' })
-	}
+
 })
 
+app.post('/get-land-all', async (req, resp) => {
+	const { email } = req.body;
+	try{
+		
+		let response = await land.find({owner:{$ne:email} , isSell:true})
+		console.log(response)
+		if (response.length != 0) 
+		{
+		resp.status(200).send({ success: true, data: response  })
+		}
+	}
+	catch(e){
+		console.log(e)
+		resp.status(500).send({success:false,message:'server not responding'})
+	}
+})
 app.listen(5000)

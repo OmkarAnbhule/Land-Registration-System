@@ -26,14 +26,14 @@ export default function Login() {
     }
 
     const sendData = async() => {
-        let result = fetch('http://localhost:5000/login',{
+        let result = await fetch('http://localhost:5000/login',{
             method:'post',
             body:JSON.stringify({email,password}),
             headers:{
                 "Content-Type":"application/json"
             }
         })
-        result = result.json()
+        result =   await result.json();
         if(result.success == true){
             navigate('/')
             localStorage.setItem('isloggedin',true)
