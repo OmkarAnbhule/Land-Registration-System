@@ -6,13 +6,13 @@ const mailSender = async (email, title, body) => {
     let transporter = nodemailer.createTransport({
         service:'gmail',
         auth: {
-            user: 'omkaranbhule68@gmail.com',
-            pass: 'hcrwixkvkacpsssa'
+            user: process.env.GOOGLE_EMAIL,
+            pass: process.env.GOOGLE_API_KEY
         }
     });
     // Send emails to users
     let info = await transporter.sendMail({
-      from: 'omkaranbhule68@gmail.com',
+      from: process.env.GOOGLE_EMAIL,
       to: email,
       subject: title,
       html: body,

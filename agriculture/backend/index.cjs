@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://127.0.0.1:27017/LandLedger');
+console.log(process.env.MONGODB_URL)
+mongoose.connect(process.env.MONGODB_URL);
 const express = require('express');
 const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
@@ -732,13 +733,13 @@ app.use(express.json());
 app.use(cors());
 
 // blockchain credentials
-var web3Provider = new Web3.providers.HttpProvider("http://127.0.0.1:8545")
+var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 const web3 = new Web3(web3Provider)
 // const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
 const contractAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 const contract = new web3.eth.Contract(contractABI, contractAddr)
 // const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+const walletaddr = process.env.WALLET_ADDRESS
 
 const User = require('./models/UserModel.cjs')
 const OTP = require('./models/OtpModel.cjs')
