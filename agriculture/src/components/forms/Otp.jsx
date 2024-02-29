@@ -55,23 +55,21 @@ export default function Otp(props) {
 
   const handleClick = async () => {
     let otp = num1 + num2 + num3 + num4 + num5 + num6
+    const formdata = new FormData()
+    formdata.append('image',props.img)
+    formdata.append('data',JSON.stringify({email: props.email,
+      otp: otp, name: props.name,
+      aadhar: props.aadhar,
+      password: props.password,
+      pan: props.pan,
+      dob: props.date,
+      gender: props.gender}))
     let result = await fetch('http://localhost:5000/verify-otp', {
       method: 'post',
-      body: JSON.stringify({
-        email: props.email,
-        otp: otp, name: props.name,
-        aadhar: props.aadhar,
-        password: props.password,
-        img: props.img,
-        pan: props.pan,
-        dob: props.date,
-        gender: props.gender
-      }),
-      headers: {
-        "Content-Type": "application/json"
-      }
+      body:formdata
     })
     result = result.json()
+    console.log(result)
     if(result.success == true){
       navigate('/')
       localStorage.setItem('isloggedin',true)

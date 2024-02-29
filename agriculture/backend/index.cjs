@@ -353,19 +353,6 @@ const contractABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "inspectorsCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -510,7 +497,7 @@ const contractABI = [
 				"type": "uint256"
 			},
 			{
-				"internalType": "enum landledger.ReqStatus",
+				"internalType": "enum landledger.reqStatus",
 				"name": "requestStatus",
 				"type": "uint8"
 			},
@@ -645,19 +632,6 @@ const contractABI = [
 				"internalType": "uint256[]",
 				"name": "",
 				"type": "uint256[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "requestCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -809,8 +783,10 @@ app.use(cors());
 // blockchain credentials
 var web3Provider = new Web3.providers.HttpProvider("http://127.0.0.1:8545")
 const web3 = new Web3(web3Provider)
-const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+// const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+const contractAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 const contract = new web3.eth.Contract(contractABI, contractAddr)
+// const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
 const User = require('./models/UserModel.cjs')
@@ -874,8 +850,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
-app.post('/verify-otp', upload.single('file'), async (req, resp) => {
-	const { email, otp, name, aadhar, pan, dob, gender } = req.body;
+app.post('/verify-otp', upload.single('image'), async (req, resp) => {
+	console.log(req)
+	const { email, otp, name, aadhar, pan, dob, gender ,password } = JSON.parse(req.body.data);
 	const imageName = req.file.filename
 	try {
 		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
@@ -886,6 +863,7 @@ app.post('/verify-otp', upload.single('file'), async (req, resp) => {
 			let hashedPassword = await bcrypt.hash(password, 10);
 			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
 			const user = await User.create({ name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender })
+			
 			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
 	}
@@ -946,7 +924,7 @@ const storageFiles = multer.diskStorage({
 const uploadFiles = multer({ storage: storageFiles })
 
 app.post('/upload-files', uploadFiles.array('files'), async (req, resp) => {
-	const { area, state, district, email, propertyid, survey } = req.body
+	const { area, state, district, email, propertyid, survey } = JSON.parse(req.body.data)
 	const files = req.files.map((item, index) => ({
 		filename: item.filename,
 		filetype: item.filetype,

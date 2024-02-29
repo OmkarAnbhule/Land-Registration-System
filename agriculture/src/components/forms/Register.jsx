@@ -94,9 +94,6 @@ export default function Register() {
             let res = await sendData()
             console.log(res, res.success)
             if (res.success == true) {
-                console.log(img)
-                formdata.append('file', img)
-                console.log(formdata)
                 setStep(step + 1)
                 setFocus(false)
 
@@ -278,7 +275,7 @@ export default function Register() {
                             </div>
                         </>) : null}
                         {step == 3 ? (
-                            <Otp email={email} name={firstName + ' ' + LastName} aadhar={aadhar} img={formdata} pan={pan} date={date} gender={gender} password={password} />
+                            <Otp email={email} name={firstName + ' ' + LastName} aadhar={aadhar} img={img} pan={pan} date={date} gender={gender} password={password} />
                         ) : null}
                         {step == 2 ? (
                             <div className='second-form'>

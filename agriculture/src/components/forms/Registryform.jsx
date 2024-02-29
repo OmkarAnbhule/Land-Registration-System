@@ -13,13 +13,13 @@ const LandRegistrationForm = () => {
   const handleSubmit = async(event) => {
     const navigate = useNavigate()
     event.preventDefault();
+    let formdata = new FormData()
+    formdata.append('files',files)
+    formdata.append('data',JSON.stringify({area,state,district,propertyid,survey}))
     // You can handle form submission here, for example, sending data to an API
     let result = await fetch('http://localhost:5000/add-land',{
       method:'post',
-      body:JSON.stringify({area,state,district,propertyid,survey,files}),
-      headers:{
-        "Content-Type":"application/json"
-      }
+      body:formdata
     })
     result = result.json()
     if(result.success == true){
