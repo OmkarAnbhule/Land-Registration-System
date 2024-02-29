@@ -1,10 +1,11 @@
+require('dotenv').config()
 var mongoose = require('mongoose');
-console.log(process.env.MONGODB_URL)
-mongoose.connect(process.env.MONGODB_URL);
+mongoose.connect(process.env.MONGODB_URL).then(()=>{
+	console.log('Database connected')
+});
 const express = require('express');
 const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
-require('dotenv').config()
 const { Web3 } = require('web3')
 const cors = require("cors");
 const multer = require('multer')
