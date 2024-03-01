@@ -22,7 +22,10 @@ function App() {
       console.log(accounts)
       let result = await fetch(`${api}send-address`,{
         method:'post',
-        body:JSON.stringify({addr:accounts[0]})
+        body:JSON.stringify({addr:accounts[0]}),
+        headers:{
+          "Content-Type":"application/json" 
+        }
       })
     } else {
       console.log("MetaMask is not installed");

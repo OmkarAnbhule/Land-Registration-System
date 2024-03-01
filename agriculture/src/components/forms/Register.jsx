@@ -3,6 +3,7 @@ import panelimg from '../../assets/home_assets/register_form/register.jpg'
 import { useNavigate } from 'react-router-dom';
 import Otp from './Otp';
 import profile from '../../assets/home_assets/register_form/default.jpg'
+import Snackbar from 'awesome-snackbar'
 
 export default function Register() {
     const api = import.meta.env.VITE_API_URL;
@@ -89,6 +90,30 @@ export default function Register() {
             setStep(step + 1)
             setFocus(false)
         }
+        else {
+            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(246, 58, 93)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', '#eee'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
+        }
     }
     const handleClick2 = async () => {
         if (isComplete2) {
@@ -97,8 +122,31 @@ export default function Register() {
             if (res.success == true) {
                 setStep(step + 1)
                 setFocus(false)
-
             }
+        }
+        else {
+            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(246, 58, 93)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', '#eee'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
         }
     }
     const handleBack = () => {
@@ -187,7 +235,7 @@ export default function Register() {
                 "Content-Type": "application/json"
             }
         })
-        result =  await result.json()
+        result = await result.json()
         console.log(result)
         return result
     }
@@ -200,7 +248,7 @@ export default function Register() {
                 "Content-Type": "application/json"
             }
         })
-        result =  await result.json()
+        result = await result.json()
         console.log(result)
         return result
     }

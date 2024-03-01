@@ -737,8 +737,7 @@ app.use(cors());
 var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 const web3 = new Web3(web3Provider)
 // const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-const contractAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-const contract = new web3.eth.Contract(contractABI, contractAddr)
+
 // const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 let walletaddr = null
 
@@ -750,12 +749,12 @@ app.get("/", (req, resp) => {
 	resp.send("App is Working");
 });
 
-app.post('/send-address',(req,resp)=>{
+app.post('/send-address',async(req,resp)=>{
 	const {addr} = req.body;
 	walletaddr = addr;
-	console.log(walletaddr,addr)
 })
-
+const contractAddr = walletaddr;
+const contract = new web3.eth.Contract(contractABI, contractAddr)
 
 app.get('/verify-old-user', async (req, resp) => {
 	const { email } = req.body;
@@ -822,7 +821,7 @@ app.post('/verify-otp', upload.single('image'), async (req, resp) => {
 		else {
 			let hashedPassword = await bcrypt.hash(password, 10);
 			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-			const user = await User.create({ email, name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender })
+			const user = await User.create({ email, name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender , isLoggedin:true })
 			
 			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
@@ -855,6 +854,7 @@ app.post('/login', async (req, resp) => {
 			
 			let result = await bcrypt.compare(password, existingUser[0].password);
 			if (result) {
+				const response = await User.findByIdAndUpdate({email},{isLoggedin:true})
 				resp.status(200).send({ success: true, message: 'login success' })
 			}
 			else {
@@ -938,4 +938,17 @@ app.post('/get-land-all', async (req, resp) => {
 		resp.status(500).send({success:false,message:'server not responding'})
 	}
 })
+
+app.post('/logout',async(req,resp)=>{
+	const { email } = req.body;
+	try{
+		const response = await User.findOneAndUpdate({email},{isLoggedin:false})
+		resp.status(201).send({success:true,message:'logged out successfully'})
+	}
+	catch(e){
+		console.log(e)
+		resp.status(500).send({success:false,message:'server not responding'})
+	}
+})
+
 app.listen(5000)

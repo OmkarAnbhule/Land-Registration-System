@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema({
 	gender:{
 		type:String,
 	},
+	isLoggedin:{
+		type:Boolean,
+		default:false,
+	},
 	date: {
 		type: Date,
 		default: Date.now,

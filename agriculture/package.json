@@ -11,6 +11,7 @@
     "proxy": "http://localhost:8080"
   },
   "dependencies": {
+    "awesome-snackbar": "^2.0.7",
     "bcrypt": "^5.1.1",
     "bootstrap-icons": "^1.11.3",
     "cors": "^2.8.5",

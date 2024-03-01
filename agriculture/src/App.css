@@ -879,7 +879,8 @@
     grid-area: end;
     width: 20vw;
     display: grid;
-    place-items: center;
+    align-items: center;
+    justify-content: end;
     grid-auto-flow: column;
     img{
       border-radius: 50%;
@@ -896,12 +897,15 @@
       border-radius: 20px;
       width: 80px;
       font-weight: bold;
+      &:nth-child(1){
+        margin-right: 50px;
+      }
 
       &:hover {
         cursor: pointer;
       }
 
-      &:nth-child(2) {
+      &:nth-child(1) {
         &:hover {
           background: none;
           border: 2px solid rgb(55, 132, 240);
@@ -909,7 +913,7 @@
         }
       }
 
-      &:nth-child(3) {
+      &:nth-child(2) {
         background: none;
         color: black;
         border: 2px solid;
@@ -955,6 +959,36 @@
 
       }
     }
+
+    &>p {
+      font-size: 15px;
+      width: 100%;
+      margin: 0;
+      padding: 10px 0px;
+
+
+      &:hover {
+        background: #e0e0e0;
+        box-shadow: 12px 12px 93px #7d7d7d,
+          -12px -12px 93px #ffffff;
+      }
+    }
+  }
+
+
+
+  .sidebar2 {
+    width: 200px;
+    position: absolute;
+    right: 5%;
+    top: 100px;
+    background: #e0e0e0;
+    padding: 20px 0px;
+    z-index: 10;
+    color: black;
+    box-shadow: inset 12px 12px 17px #747474,
+      inset -12px -12px 17px #ffffff;
+
 
     &>p {
       font-size: 15px;

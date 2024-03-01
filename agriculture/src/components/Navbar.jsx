@@ -6,9 +6,13 @@ export default function Navbar() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const [style, setStyle] = useState(false)
+    const [style2, setStyle2] = useState(false)
     const [img, setImg] = useState('')
     const handleSideBar = () => {
         setStyle(!style)
+    }
+    const handleSideBar2 = () => {
+        setStyle2(!style2)
     }
     const handleSignUp = () => {
         navigate('/register')
@@ -32,10 +36,23 @@ export default function Navbar() {
             console.log(result);
             import(`../assets/images/profile/${result.image}`).then(image => {
                 setImg(image.default);
-              });
+            });
         }
     }
 
+    const handleLogout = async() => {
+        let result = await fetch('http://localhost:5000/logout',{
+            method:'post',
+            body:JSON.stringify({email:localStorage.getItem('id')}),
+            headers:{
+                "Content-type":"Application/Json"
+            }
+        })
+        result = await result.json()
+        if(result.success == true){
+            localStorage.clear();
+        }
+    }
 
 
     useEffect(() => {
@@ -55,7 +72,7 @@ export default function Navbar() {
                     </span>
                 </button>
             </div>
-            <div className='sidebar' style={{ display: style ? 'block' : 'none' }}>
+            <div className='sidebar' onMouseLeave={handleSideBar} style={{ display: style ? 'block' : 'none' }}>
                 <div className='logo'>
                     <img width={50} height={50}></img>
                     <p>Land Ledger</p>
@@ -77,7 +94,11 @@ export default function Navbar() {
             <div className='profile'>
                 {localStorage.getItem('isloggedin') ? (
                     <>
-                        <img width={50} height={50} src={img}></img>
+                        <img width={50} height={50} src={img} onClick={handleSideBar2}></img>
+                        <div className='sidebar2' onMouseLeave={handleSideBar2} style={{ display: style2 ? 'block' : 'none' }}>
+                            <p>Profile</p>
+                            <p onClick={handleLogout}>Logout</p>
+                        </div>
                     </>
                 ) : (<>
                     <button onClick={handleLogIn}>Log in</button>
