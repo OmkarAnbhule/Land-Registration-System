@@ -14,7 +14,8 @@ contract landledger {
         string landAddress;
         //string allLongitude;
         string propertyPID;
-        string surveyNum
+        string surveyNum;
+        uint landPrice;
         bool isforSell;
         address payable ownerAddress;
         bool isLandVerified;
@@ -170,10 +171,10 @@ contract landledger {
 
 
     //-----------------------------------------------Land-----------------------------------------------
-    function addLand(uint _area, string memory _address ,uint _propertyPID,string memory _surveyNum) public {
+    function addLand(uint _area, string memory _address ,string memory _propertyPID,string memory _surveyNum , uint _landPrice) public {
         require(isUserVerified(msg.sender));
         landsCount++;
-        lands[landsCount] = Landreg(landsCount, _area, _propertyPID, _surveyNum,  _address,false,payable (msg.sender),false);
+        lands[landsCount] = Landreg(landsCount, _area, _address , _propertyPID, _surveyNum , _landPrice , false,payable (msg.sender) , false);
         MyLands[msg.sender].push(landsCount);
         allLandList[1].push(landsCount);
         // emit AddingLand(landsCount);
@@ -276,7 +277,6 @@ contract landledger {
                 break;
             }
         }
-        lands[LandRequestMapping[_requestId].landId].document=documentUrl;
         lands[LandRequestMapping[_requestId].landId].isforSell=false;
         lands[LandRequestMapping[_requestId].landId].ownerAddress=LandRequestMapping[_requestId].buyerId;
         return true;
