@@ -737,7 +737,8 @@ app.use(cors());
 var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 const web3 = new Web3(web3Provider)
 // const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-
+let contractAddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+const contract = new web3.eth.Contract(contractABI, contractAddr)
 // const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 let walletaddr = null
 
@@ -751,10 +752,9 @@ app.get("/", (req, resp) => {
 
 app.post('/send-address',async(req,resp)=>{
 	const {addr} = req.body;
-	walletaddr = addr;
+	walletaddr = await addr;
+	contractAddr = await addr;
 })
-const contractAddr = walletaddr;
-const contract = new web3.eth.Contract(contractABI, contractAddr)
 
 app.get('/verify-old-user', async (req, resp) => {
 	const { email } = req.body;
@@ -810,7 +810,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.post('/verify-otp', upload.single('image'), async (req, resp) => {
-	console.log(req)
 	const { email, otp, name, aadhar, pan, dob, gender ,password } = JSON.parse(req.body.data);
 	const imageName = req.file.filename
 	try {
@@ -836,9 +835,8 @@ app.post('/get-image',async(req,resp)=>{
 	const {email} = req.body;
 	try{
 		const res = await User.find({ email })
-		
+		console.log(res)
 			resp.status(200).send({ success:true, image: res[0].image })
-		
 	}
 	catch(e){
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
@@ -854,11 +852,11 @@ app.post('/login', async (req, resp) => {
 			
 			let result = await bcrypt.compare(password, existingUser[0].password);
 			if (result) {
-				const response = await User.findByIdAndUpdate({email},{isLoggedin:true})
+				const response = await User.findOneAndUpdate({email},{isLoggedin:true})
 				resp.status(200).send({ success: true, message: 'login success' })
 			}
 			else {
-				resp.status(500).send({ success: false, message: 'invalid credentials' })
+				resp.status(500).send({ success: false, message: 'Wrong Password' })
 			}
 		}
 		else {

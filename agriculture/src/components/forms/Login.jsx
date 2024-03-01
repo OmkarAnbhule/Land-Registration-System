@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import {useNavigate} from 'react-router-dom'
 import img from '../../assets/home_assets/register_form/register.jpg'
+import Snackbar from 'awesome-snackbar'
 
 export default function Login() {
     const api = import.meta.env.VITE_API_URL;
@@ -24,6 +25,30 @@ export default function Login() {
         {
             sendData()
         }
+        else{
+            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(246, 58, 93)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', '#eee'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
+        }
     }
 
     const sendData = async() => {
@@ -36,9 +61,82 @@ export default function Login() {
         })
         result =   await result.json();
         if(result.success == true){
+            new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Login Successful`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(130, 249, 103)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', 'black'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
             navigate('/')
             localStorage.setItem('isloggedin',true)
             localStorage.setItem('id',email)
+        }
+        else{
+            if(result.message === "Wrong Password")
+            {
+                new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Wrong Password`, {
+                    position: 'bottom-center',
+                    style: {
+                        container: [
+                            ['background', 'rgb(246, 58, 93)'],
+                            ['border-radius', '5px'],
+                            ['height', '50px'],
+                            ['padding', '10px'],
+                            ['border-radius', '20px']
+                        ],
+                        message: [
+                            ['color', '#eee'],
+                            ['font-size', '18px']
+                        ],
+                        bold: [
+                            ['font-weight', 'bold'],
+                        ],
+                        actionButton: [
+                            ['color', 'white'],
+                        ],
+                    }
+                });
+            }
+            if(result.message === "User not found"){
+                new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Invalid Credentials`, {
+                    position: 'bottom-center',
+                    style: {
+                        container: [
+                            ['background', 'rgb(246, 58, 93)'],
+                            ['border-radius', '5px'],
+                            ['height', '50px'],
+                            ['padding', '10px'],
+                            ['border-radius', '20px']
+                        ],
+                        message: [
+                            ['color', '#eee'],
+                            ['font-size', '18px']
+                        ],
+                        bold: [
+                            ['font-weight', 'bold'],
+                        ],
+                        actionButton: [
+                            ['color', 'white'],
+                        ],
+                    }
+                });
+            }
         }
     }
 

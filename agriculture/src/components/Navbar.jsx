@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
+import Snackbar from 'awesome-snackbar'
 
 export default function Navbar() {
     const api = import.meta.env.VITE_API_URL;
@@ -50,7 +50,30 @@ export default function Navbar() {
         })
         result = await result.json()
         if(result.success == true){
+            new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Logged out Successfully`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(130, 249, 103)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', 'black'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
             localStorage.clear();
+            navigate('/')
         }
     }
 

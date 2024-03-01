@@ -334,7 +334,7 @@ export default function Register() {
                                         <img width={200} height={200} src={img == '' ? profile : URL.createObjectURL(img)}></img>
                                         <i className='bi bi-camera-fill'></i>
                                     </label>
-                                    <input type='file' id="img" onChange={handleImage} style={{ display: 'none' }}></input>
+                                    <input type='file' id="img" onChange={handleImage} accept='image/*' style={{ display: 'none' }}></input>
                                     <p>{imgErr}</p>
                                 </div>
                                 <div className='input-control'>
