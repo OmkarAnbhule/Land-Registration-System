@@ -5,6 +5,7 @@ import Otp from './Otp';
 import profile from '../../assets/home_assets/register_form/default.jpg'
 
 export default function Register() {
+    const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
     const [firstName, setFirstName] = useState('');
     const [LastName, setLastName] = useState('');
@@ -179,7 +180,7 @@ export default function Register() {
     }
 
     const VerifyEmail = async () => {
-        let result = await fetch('http://localhost:5000/verify-old-user', {
+        let result = await fetch(`${api}verify-old-user`, {
             method: 'post',
             body: JSON.stringify({ email: email }),
             headers: {
@@ -192,7 +193,7 @@ export default function Register() {
     }
 
     const sendData = async () => {
-        let result = await fetch('http://localhost:5000/send-otp', {
+        let result = await fetch(`${api}send-otp`, {
             method: 'post',
             body: JSON.stringify({ email: email }),
             headers: {
@@ -209,7 +210,7 @@ export default function Register() {
                 <img width={400} height={380} src={panelimg}></img>
                 <h2>Get Started with Land Ledger</h2>
                 <p>Welcome to Land Ledger ! Before you proceed with your registration, please take a moment to review our <b>Privacy Policy.</b> This policy outlines how we collect, use, and safeguard your personal information.
-                    By clicking <b>"I Agree"</b> or similar language, you acknowledge that you have read and understood our Privacy Policy. If you do not agree with the terms outlined in the policy, please refrain from registering on our platform.</p>
+                    By clicking <b>I Agree</b> or similar language, you acknowledge that you have read and understood our Privacy Policy. If you do not agree with the terms outlined in the policy, please refrain from registering on our platform.</p>
             </div>
             <div>
                 <h1>Create your free account</h1>

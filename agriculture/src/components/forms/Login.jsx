@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import img from '../../assets/home_assets/register_form/register.jpg'
 
 export default function Login() {
+    const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
     const [email, setEmail] = useState('');
     const [password, setPassowrd] = useState('');
@@ -26,7 +27,7 @@ export default function Login() {
     }
 
     const sendData = async() => {
-        let result = await fetch('http://localhost:5000/login',{
+        let result = await fetch(`${api}login`,{
             method:'post',
             body:JSON.stringify({email,password}),
             headers:{

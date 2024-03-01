@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 const LandRegistrationForm = () => {
+  const api = import.meta.env.VITE_API_URL;
   const [area, setArea] = useState('');
   const [state, setState] = useState('');
   const [district, setDistrict] = useState('');
@@ -17,7 +18,7 @@ const LandRegistrationForm = () => {
     formdata.append('files',files)
     formdata.append('data',JSON.stringify({email:localStorage.getItem('id'),area,state,district,propertyid,survey}))
     // You can handle form submission here, for example, sending data to an API
-    let result = await fetch('http://localhost:5000/add-land',{
+    let result = await fetch(`${api}add-land`,{
       method:'post',
       body:formdata
     })

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 export default function Otp(props) {
+  const api = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
   const [num1, setNum1] = useState();
   const [num2, setNum2] = useState();
@@ -64,7 +65,7 @@ export default function Otp(props) {
       pan: props.pan,
       dob: props.date,
       gender: props.gender}))
-    let result = await fetch('http://localhost:5000/verify-otp', {
+    let result = await fetch(`${api}verify-otp`, {
       method: 'post',
       body:formdata
     })
@@ -78,7 +79,7 @@ export default function Otp(props) {
   }
 
   const handleReset = async () => {
-    let result = await fetch('http://localhost:5000/send-otp', {
+    let result = await fetch(`${api}send-otp`, {
       method: 'post',
       body: JSON.stringify({
         email: props.email,

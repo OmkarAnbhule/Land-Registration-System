@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import Web3 from "web3";
+import fs from 'fs';
 import './App.css'
 import Navbar from './components/Navbar'
 import Main from './components/Main/Main'
@@ -9,7 +11,26 @@ import Registryform from './components/forms/Registryform'
 import SellLand from './components/forms/SellLand'
 import BuyLand from './components/forms/BuyLand'
 
+
 function App() {
+  const api = import.meta.env.VITE_API_URL;
+
+  const connectToMetaMask = async () => {
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      const accounts = await web3.eth.getAccounts();
+      console.log(accounts)
+      let result = await fetch(`${api}send-address`,{
+        method:'post',
+        body:JSON.stringify({addr:accounts[0]})
+      })
+    } else {
+      console.log("MetaMask is not installed");
+    }
+  };
+  useEffect(()=>{
+    connectToMetaMask()
+  })
   return (
     <BrowserRouter>
       <Navbar></Navbar>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SellLand(){
+    const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
     const [land,setLand] = useState([])
     useEffect(()=>{
@@ -9,7 +10,7 @@ export default function SellLand(){
         
     },[])
     const getLand = async() =>{
-        let result = await fetch('http://localhost:5000/get-land',{
+        let result = await fetch(`${api}get-land`,{
             method:'post',
             body:JSON.stringify({email:localStorage.getItem('id')}),
             headers:{

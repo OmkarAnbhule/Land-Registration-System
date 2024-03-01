@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function BuyLand() {
+    const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
     const [land,setLand] = useState([])
     useEffect(()=>{
@@ -11,7 +12,7 @@ export default function BuyLand() {
         }
     })
     const getData = async()=>{
-        let result = await fetch('http://localhost:5000/get-land-all',{
+        let result = await fetch(`${api}get-land-all`,{
             method:'post',
             body:JSON.stringify({email:localStorage.getItem('id')}),
             headers:{

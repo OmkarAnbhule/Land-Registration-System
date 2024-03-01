@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 
 export default function Navbar() {
+    const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const [style, setStyle] = useState(false)
     const [img, setImg] = useState('')
@@ -20,7 +21,7 @@ export default function Navbar() {
         if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
 
 
-            let result = await fetch('http://localhost:5000/get-image', {
+            let result = await fetch(`${api}get-image`, {
                 method: 'post',
                 body: JSON.stringify({ email: localStorage.getItem("id") }),
                 headers: {
