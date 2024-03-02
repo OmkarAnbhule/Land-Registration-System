@@ -9,9 +9,9 @@ export default function Main() {
   return (
     <div className='main'>
         <Home/>
-        <Features/>
-        <About/>
         <Steps/>
+        <About/>
+        <Features/>
         <Footer/>
     </div>
   )

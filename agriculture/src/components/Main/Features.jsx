@@ -11,38 +11,58 @@ export default function Features() {
     }
     const handleBuy = () => {
         navigate('/buyLand')
-    
-
     }
     const handleSell = () => {
         navigate('/sellLand')
-    
-
     }
     return (
         <>
-        {
-            localStorage.getItem('isloggedin') ? (
-        <div className='about-root' id="about">
-            <div>
-                <h1>Features</h1>
-            </div>
-            <div>
-                <div>
-                    <img src={uf}></img>
-                    <p onClick={handleRegister}>Register Land</p>
-                </div>
-                <div>
-                    <img src={reliable}></img>
-                    <p onClick={handleBuy}>Buy Land</p>
-                </div>
-                <div>
-                    <img src={secure} style={{objectFit:'cover'}}></img>
-                    <p onClick={handleSell}>Sell Land</p>
-                </div>
-            </div>
-        </div>):null
-}
+            {
+                localStorage.getItem('isloggedin') ? (
+                    <div className='features-root'>
+                        <div>
+                            <h1>Features</h1>
+                        </div>
+                        <div>
+                            <div>
+                                <img src={uf}></img>
+                                <p onClick={handleRegister}>Register Land</p>
+                            </div>
+                            <div>
+                                <img src={reliable}></img>
+                                <p onClick={handleBuy}>Buy Land</p>
+                            </div>
+                            <div>
+                                <img src={secure} style={{ objectFit: 'cover' }}></img>
+                                <p onClick={handleSell}>Sell Land</p>
+                            </div>
+                        </div>
+                    </div>) : (
+
+                    <div className='features-root'>
+                        <div>
+                            <h1>Features</h1>
+                        </div>
+                        <div style={{pointerEvents:'none'}}>
+                            <div>
+                                <img src={uf}></img>
+                                <p onClick={handleRegister}>Register Land</p>
+                            </div>
+                            <div>
+                                <img src={reliable}></img>
+                                <p onClick={handleBuy}>Buy Land</p>
+                            </div>
+                            <div>
+                                <img src={secure} style={{ objectFit: 'cover' }}></img>
+                                <p onClick={handleSell}>Sell Land</p>
+                            </div>
+                        </div>
+                        <div className="foreground">
+                            <p>Login/SignIn to view</p>
+                        </div>
+                    </div>
+                )
+            }
         </>
     )
 }

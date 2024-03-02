@@ -22,7 +22,8 @@ export default function Home() {
         }
       })
       result = await result.json()
-      setText("Welcome Back ",result.name," !")
+      let name = result.name.split(' ')
+      setText("Welcome Back "+name[0])
     }
   }
   const fadeInAnimationVariants = {
@@ -61,7 +62,7 @@ export default function Home() {
           initial="initial"
           whileInView="animate"
         >
-          Land Registration<br /> System
+          Land Registration System
         </motion.p>
         <motion.p
           variants={fadeInAnimationVariants}

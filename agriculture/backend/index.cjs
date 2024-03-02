@@ -1,6 +1,6 @@
 require('dotenv').config()
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGODB_URL).then(()=>{
+mongoose.connect(process.env.MONGODB_URL).then(() => {
 	console.log('Database connected')
 });
 const express = require('express');
@@ -737,10 +737,10 @@ app.use(cors());
 var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 const web3 = new Web3(web3Provider)
 // const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-let contractAddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+let contractAddr = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 const contract = new web3.eth.Contract(contractABI, contractAddr)
 // const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-let walletaddr = null
+let walletaddr = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 
 const User = require('./models/UserModel.cjs')
 const OTP = require('./models/OtpModel.cjs')
@@ -750,8 +750,8 @@ app.get("/", (req, resp) => {
 	resp.send("App is Working");
 });
 
-app.post('/send-address',async(req,resp)=>{
-	const {addr} = req.body;
+app.post('/send-address', async (req, resp) => {
+	const { addr } = req.body;
 	walletaddr = await addr;
 	contractAddr = await addr;
 })
@@ -797,6 +797,33 @@ app.post('/send-otp', async (req, resp) => {
 	}
 })
 
+app.post('/forgot-password', async (req, resp) => {
+	const { email } = req.body;
+	const existingUser = await User.find({ email })
+	if (existingUser) {
+		let otp = otpGenerator.generate(6, {
+			upperCaseAlphabets: false,
+			lowerCaseAlphabets: false,
+			specialChars: false,
+		});
+		try {
+			let result = await OTP.findOne({ otp: otp });
+			while (result) {
+				otp = otpGenerator.generate(6, {
+					upperCaseAlphabets: false,
+				});
+				result = await OTP.findOne({ otp: otp });
+			}
+			const otpBody = await OTP.create({ email, otp });
+			resp.status(201).send({ success: true, message: 'Otp sent' })
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	}
+})
+
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, "../src/assets/images/profile");
@@ -807,10 +834,42 @@ const storage = multer.diskStorage({
 	}
 })
 
+app.post('/verify-otp-fp', async (req, resp) => {
+	const { email, otp } = req.body;
+	try {
+		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+		if (response.length === 0 || response[0].otp !== otp) {
+			resp.status(500).send({ success: false, message: 'Invalid Otp' })
+		}
+		else {
+			resp.status(201).send({ success: true, message: 'otp successful' })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
+
+app.post('/reset-password', async (req, resp) => {
+	const { email, password } = req.body;
+	try {
+		let hashedPassword = await bcrypt.hash(password, 10);
+		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
+		if (response) {
+			resp.status(201).send({ success: true, message: 'password reset successful' })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
+
 const upload = multer({ storage: storage })
 
 app.post('/verify-otp', upload.single('image'), async (req, resp) => {
-	const { email, otp, name, aadhar, pan, dob, gender ,password } = JSON.parse(req.body.data);
+	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	const imageName = req.file.filename
 	try {
 		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
@@ -820,8 +879,8 @@ app.post('/verify-otp', upload.single('image'), async (req, resp) => {
 		else {
 			let hashedPassword = await bcrypt.hash(password, 10);
 			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-			const user = await User.create({ email, name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender , isLoggedin:true })
-			
+			const user = await User.create({ email, name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
+
 			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
 	}
@@ -831,14 +890,14 @@ app.post('/verify-otp', upload.single('image'), async (req, resp) => {
 	}
 })
 
-app.post('/get-image',async(req,resp)=>{
-	const {email} = req.body;
-	try{
+app.post('/get-image', async (req, resp) => {
+	const { email } = req.body;
+	try {
 		const res = await User.find({ email })
 		console.log(res)
-			resp.status(200).send({ success:true,name:res[0].name, image: res[0].image })
+		resp.status(200).send({ success: true, name: res[0].name, image: res[0].image })
 	}
-	catch(e){
+	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
@@ -847,12 +906,12 @@ app.post('/get-image',async(req,resp)=>{
 app.post('/login', async (req, resp) => {
 	const { email, password } = req.body
 	try {
-		const existingUser =  await User.find({ email:email })
+		const existingUser = await User.find({ email: email })
 		if (existingUser) {
-			
+
 			let result = await bcrypt.compare(password, existingUser[0].password);
 			if (result) {
-				const response = await User.findOneAndUpdate({email},{isLoggedin:true})
+				const response = await User.findOneAndUpdate({ email }, { isLoggedin: true })
 				resp.status(200).send({ success: true, message: 'login success' })
 			}
 			else {
@@ -872,7 +931,7 @@ app.post('/login', async (req, resp) => {
 
 const storageFiles = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, "../src/lands/");
+		cb(null, "../src/assets/lands/");
 	},
 	filename: function (req, file, cb) {
 		const uniqueSuffix = guid();
@@ -883,21 +942,19 @@ const storageFiles = multer.diskStorage({
 const uploadFiles = multer({ storage: storageFiles })
 
 app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
-	const { area, state, district, email, propertyid, survey } = JSON.parse(req.body.data)
+	const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
 	const files = req.files.map((item, index) => ({
 		filename: item.filename,
 		filetype: item.filetype,
 		mimetype: item.mimetype,
 		size: item.size,
 	}))
-	console.log(files,req.files)
+	console.log(files, req.files)
 	try {
 		const address = state + ' , ' + district
-		const response = await land.create({ owner: email, state, district, propertyid, survey, area, files })
-		const tx = await contract.methods.addLand(parseInt(area,10), address, propertyid, survey).send({ from: walletaddr })
-		if(response)
-		{resp.status(200).send({ success: true, message: 'land registered' })}
-		
+		const response = await land.create({ owner: email, state, price, district, propertyid, survey, area, files, isSell: false, isVerified: false })
+		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey).send({ from: walletaddr })
+		if (response) { resp.status(200).send({ success: true, message: 'land registered' }) }
 	}
 	catch (e) {
 		console.log(e)
@@ -909,43 +966,67 @@ app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
 
 app.post('/get-land', async (req, resp) => {
 	const { email } = req.body;
-	
-		
-		let response = await land.find({ owner: email })
-		console.log(response)
-		if (response.length != 0) 
-		{
-		resp.status(200).send({ success: true, data: response  })
+	let response = await land.find({ owner: email })
+	console.log(response)
+	if (response.length != 0) {
+		resp.status(200).send({ success: true, data: response })
 	}
 
 })
 
 app.post('/get-land-all', async (req, resp) => {
 	const { email } = req.body;
-	try{
-		
-		let response = await land.find({owner:{$ne:email} , isSell:true})
+	try {
+		let response = await land.find({ owner: { $ne: email }, isSell: true , isVerified : true })
 		console.log(response)
-		if (response.length != 0) 
-		{
-		resp.status(200).send({ success: true, data: response  })
+		if (response.length != 0) {
+			resp.status(200).send({ success: true, data: response })
 		}
 	}
-	catch(e){
+	catch (e) {
 		console.log(e)
-		resp.status(500).send({success:false,message:'server not responding'})
+		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 })
 
-app.post('/logout',async(req,resp)=>{
-	const { email } = req.body;
-	try{
-		const response = await User.findOneAndUpdate({email},{isLoggedin:false})
-		resp.status(201).send({success:true,message:'logged out successfully'})
+app.post('/sell-land', async (req, resp) => {
+	const { objId } = req.body;
+	try {
+		const response = await land.findByIdAndUpdate(objId, { isSell: true })
+		if (response) {
+			resp.send(201).send({ success: true, message: 'land selled' })
+		}
 	}
-	catch(e){
+	catch (e) {
 		console.log(e)
-		resp.status(500).send({success:false,message:'server not responding'})
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+app.post('/buy-land', async (req, resp) => {
+	const { objId, owner } = req.body;
+	try {
+		const land = await land.findById(objId)
+		const response = await land.findByIdAndUpdate(objId, {owner,$push:{pastOwners:land[0].owner}})
+		if (response) {
+			resp.send(201).send({ success: true, message: 'land purchased' })
+		}
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+app.post('/logout', async (req, resp) => {
+	const { email } = req.body;
+	try {
+		const response = await User.findOneAndUpdate({ email }, { isLoggedin: false })
+		resp.status(201).send({ success: true, message: 'logged out successfully' })
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 })
 

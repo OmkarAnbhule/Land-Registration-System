@@ -8,7 +8,11 @@ export default function BuyLand() {
     useEffect(()=>{
         let res = getData()
         if(res.success == true){
-            setLand((pre)=>[...pre,...res.data])
+            for (var item of res.data) {
+                if (land.find(obj => obj._id !== item._id)) {
+                    setLand((pre) => [...pre, ...res.data])
+                }
+            }
         }
     })
     const getData = async()=>{
@@ -21,6 +25,15 @@ export default function BuyLand() {
         })
         result = await result.json()
         return result
+    }
+    const handleBuy = async(id)=>{
+        let result = await fetch(`${api}buy-land`,{
+            method:'post',
+            body:JSON.stringify({owner:localStorage.getItem('id'),objId:id}),
+            headers:{
+                "Content-Type":"application/json"
+            }
+        })
     }
     return (
         <div className="buy-land">
@@ -37,7 +50,7 @@ export default function BuyLand() {
                             <p><b>Property Number: </b>{item.propertyid}</p>
                             <p><b>Survey Number: </b>{item.survey}</p>
                         </div>
-                        <button>Buy</button>
+                        <button onClick={()=>handleBuy(item._id)}>Buy</button>
                     </div>
                 ))
                 :

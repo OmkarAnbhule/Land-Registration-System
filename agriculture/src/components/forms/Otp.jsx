@@ -57,73 +57,117 @@ export default function Otp(props) {
 
   const handleClick = async () => {
     let otp = num1 + num2 + num3 + num4 + num5 + num6
-    const formdata = new FormData()
-    formdata.append('image',props.img)
-    formdata.append('data',JSON.stringify({email: props.email,
-      otp: otp, name: props.name,
-      aadhar: props.aadhar,
-      password: props.password,
-      pan: props.pan,
-      dob: props.date,
-      gender: props.gender}))
-    let result = await fetch(`${api}verify-otp`, {
-      method: 'post',
-      body:formdata
-    })
-    result =  await result.json()
-    console.log(result)
-    if(result.success == true){
-      new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Registration Successful`, {
-        position: 'bottom-center',
-        style: {
-            container: [
-                ['background', 'rgb(130, 249, 103)'],
+    if (props.type == 'fp') { 
+      let result = await fetch(`${api}verify-otp-fp`,{
+        method:'post',
+        body:JSON.stringify({otp:otp,email:props.email}),
+        headers:{
+          "Content-Type":"application/json"
+        }
+      })
+      result = await result.json()
+      if(result.success == true)
+      {
+        props.btnref.current;
+        props.btnref.current.click()
+      }
+      else{
+        if (result.message == 'Invalid Otp') {
+          new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Invalid Otp`, {
+            position: 'bottom-center',
+            style: {
+              container: [
+                ['background', 'rgb(246, 58, 93)'],
                 ['border-radius', '5px'],
                 ['height', '50px'],
                 ['padding', '10px'],
                 ['border-radius', '20px']
-            ],
-            message: [
-                ['color', 'black'],
-                ['font-size', '18px']
-            ],
-            bold: [
-                ['font-weight', 'bold'],
-            ],
-            actionButton: [
-                ['color', 'white'],
-            ],
-        }
-    });
-      navigate('/')
-      localStorage.setItem('isloggedin',true)
-      localStorage.setItem('id',props.email)
-    }
-    else{
-      if(result.message== 'Invalid Otp')
-      {
-        new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Invalid Otp`, {
-          position: 'bottom-center',
-          style: {
-              container: [
-                  ['background', 'rgb(246, 58, 93)'],
-                  ['border-radius', '5px'],
-                  ['height', '50px'],
-                  ['padding', '10px'],
-                  ['border-radius', '20px']
               ],
               message: [
-                  ['color', '#eee'],
-                  ['font-size', '18px']
+                ['color', '#eee'],
+                ['font-size', '18px']
               ],
               bold: [
-                  ['font-weight', 'bold'],
+                ['font-weight', 'bold'],
               ],
               actionButton: [
-                  ['color', 'white'],
+                ['color', 'white'],
               ],
+            }
+          });
+        }
+      }
+    }
+    else {
+      const formdata = new FormData()
+      formdata.append('image', props.img)
+      formdata.append('data', JSON.stringify({
+        email: props.email,
+        otp: otp, name: props.name,
+        aadhar: props.aadhar,
+        password: props.password,
+        pan: props.pan,
+        dob: props.date,
+        gender: props.gender
+      }))
+      let result = await fetch(`${api}verify-otp`, {
+        method: 'post',
+        body: formdata
+      })
+      result = await result.json()
+      console.log(result)
+      if (result.success == true) {
+        new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Registration Successful`, {
+          position: 'bottom-center',
+          style: {
+            container: [
+              ['background', 'rgb(130, 249, 103)'],
+              ['border-radius', '5px'],
+              ['height', '50px'],
+              ['padding', '10px'],
+              ['border-radius', '20px']
+            ],
+            message: [
+              ['color', 'black'],
+              ['font-size', '18px']
+            ],
+            bold: [
+              ['font-weight', 'bold'],
+            ],
+            actionButton: [
+              ['color', 'white'],
+            ],
           }
-      });
+        });
+        navigate('/')
+        localStorage.setItem('isloggedin', true)
+        localStorage.setItem('id', props.email)
+      }
+      else {
+        if (result.message == 'Invalid Otp') {
+          new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Invalid Otp`, {
+            position: 'bottom-center',
+            style: {
+              container: [
+                ['background', 'rgb(246, 58, 93)'],
+                ['border-radius', '5px'],
+                ['height', '50px'],
+                ['padding', '10px'],
+                ['border-radius', '20px']
+              ],
+              message: [
+                ['color', '#eee'],
+                ['font-size', '18px']
+              ],
+              bold: [
+                ['font-weight', 'bold'],
+              ],
+              actionButton: [
+                ['color', 'white'],
+              ],
+            }
+          });
+        }
       }
     }
   }

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Snackbar from 'awesome-snackbar'
 import { Link } from 'react-scroll'
+import { Link as Router } from 'react-router-dom'
+import logo from '../assets/Navbar/logo.png'
 
 export default function Navbar() {
     const api = import.meta.env.VITE_API_URL;
@@ -85,8 +87,9 @@ export default function Navbar() {
     return (
         <div className='navbar-root'>
             <div className='logo'>
-                <img width={50} height={50}></img>
+                <img width={50} height={50} src={logo}></img>
                 <p>Land Ledger</p>
+                <p>Simplify with land ledger,no more forms!</p>
             </div>
             <div className='icon-control'>
                 <button className={style ? 'hamburger hamburger--elastic is-active' : 'hamburger hamburger--elastic'} type="button" onClick={handleSideBar}>
@@ -97,22 +100,29 @@ export default function Navbar() {
             </div>
             <div className='sidebar' onMouseLeave={handleSideBar} style={{ display: style ? 'block' : 'none' }}>
                 <div className='logo'>
-                    <img width={50} height={50}></img>
+                    <img width={50} height={50} src={logo}></img>
                     <p>Land Ledger</p>
+                    <p>Simplify with land ledger,no more forms!</p>
                 </div>
-                <p>Home</p>
-                <p>About</p>
-                <p>Contact</p>
-                <p>LogOut</p>
-            </div>
-            <div className='links'>
-                <Link to='home' spy={true} smooth={true} offset={-100} duration={500} >
+                <Router to='/' style={{textDecoration:'none',color:'black'}}>
                     <p>Home</p>
-                </Link>
+                </Router>
                 <Link to='about' spy={true} smooth={true} offset={-100} duration={500}>
                     <p>About</p>
                 </Link>
+                <Link to='contact' spy={true} smooth={true} offset={-100} duration={500}>
+                    <p>Contact</p>
+                </Link>
+                <p onClick={handleLogout}>LogOut</p>
+            </div>
+            <div className='links'>
+                <Router to='/' style={{textDecoration:'none',color:'black'}}>
+                    <p>Home</p>
+                </Router>
                 <Link to='about' spy={true} smooth={true} offset={-100} duration={500}>
+                    <p>About</p>
+                </Link>
+                <Link to='contact' spy={true} smooth={true} offset={-100} duration={500}>
                     <p>Contact</p>
                 </Link>
             </div>
