@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Snackbar from 'awesome-snackbar'
+import { Link } from 'react-scroll'
 
 export default function Navbar() {
     const api = import.meta.env.VITE_API_URL;
@@ -23,8 +24,6 @@ export default function Navbar() {
     const getdata = async () => {
 
         if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
-
-
             let result = await fetch(`${api}get-image`, {
                 method: 'post',
                 body: JSON.stringify({ email: localStorage.getItem("id") }),
@@ -34,22 +33,22 @@ export default function Navbar() {
             })
             result = await result.json()
             console.log(result);
-            import(`../assets/images/profile/${result.image}`).then(image => {
+            import(/* @vite-ignore */ `../assets/images/profile/${result.image}`).then(image => {
                 setImg(image.default);
             });
         }
     }
 
-    const handleLogout = async() => {
-        let result = await fetch('http://localhost:5000/logout',{
-            method:'post',
-            body:JSON.stringify({email:localStorage.getItem('id')}),
-            headers:{
-                "Content-type":"Application/Json"
+    const handleLogout = async () => {
+        let result = await fetch('http://localhost:5000/logout', {
+            method: 'post',
+            body: JSON.stringify({ email: localStorage.getItem('id') }),
+            headers: {
+                "Content-type": "Application/Json"
             }
         })
         result = await result.json()
-        if(result.success == true){
+        if (result.success == true) {
             new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Logged out Successfully`, {
                 position: 'bottom-center',
                 style: {
@@ -79,8 +78,9 @@ export default function Navbar() {
 
 
     useEffect(() => {
-        getdata()
-
+        if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
+            getdata()
+        }
     }, [])
     return (
         <div className='navbar-root'>
@@ -106,13 +106,15 @@ export default function Navbar() {
                 <p>LogOut</p>
             </div>
             <div className='links'>
-                <Link to={'/'} style={{ color: 'black', textDecoration: 'none' }}>
+                <Link to='home' spy={true} smooth={true} offset={-100} duration={500} >
                     <p>Home</p>
                 </Link>
-                <Link to={'/'} style={{ color: 'black', textDecoration: 'none' }}>
+                <Link to='about' spy={true} smooth={true} offset={-100} duration={500}>
                     <p>About</p>
                 </Link>
-                <p>Contact</p>
+                <Link to='about' spy={true} smooth={true} offset={-100} duration={500}>
+                    <p>Contact</p>
+                </Link>
             </div>
             <div className='profile'>
                 {localStorage.getItem('isloggedin') ? (

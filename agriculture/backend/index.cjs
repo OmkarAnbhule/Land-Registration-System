@@ -836,7 +836,7 @@ app.post('/get-image',async(req,resp)=>{
 	try{
 		const res = await User.find({ email })
 		console.log(res)
-			resp.status(200).send({ success:true, image: res[0].image })
+			resp.status(200).send({ success:true,name:res[0].name, image: res[0].image })
 	}
 	catch(e){
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
