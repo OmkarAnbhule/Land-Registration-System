@@ -13,7 +13,7 @@ export default function Features() {
         navigate('/buyLand')
     }
     const handleSell = () => {
-        navigate('/sellLand')
+        navigate('/MyLand')
     }
     return (
         <>
@@ -34,7 +34,7 @@ export default function Features() {
                             </div>
                             <div>
                                 <img src={secure} style={{ objectFit: 'cover' }}></img>
-                                <p onClick={handleSell}>Sell Land</p>
+                                <p onClick={handleSell}>My Lands</p>
                             </div>
                         </div>
                     </div>) : (
@@ -54,7 +54,7 @@ export default function Features() {
                             </div>
                             <div>
                                 <img src={secure} style={{ objectFit: 'cover' }}></img>
-                                <p onClick={handleSell}>Sell Land</p>
+                                <p onClick={handleSell}>My Lands</p>
                             </div>
                         </div>
                         <div className="foreground">

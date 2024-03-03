@@ -44,7 +44,7 @@ function App() {
           <Route path='/login' element={<Login/>}></Route>
           <Route path='/Registryform' element={<Registryform/>}></Route>
           <Route path='/buyLand' element={<BuyLand/>}></Route>
-          <Route path='/sellLand' element={<SellLand/>}></Route>
+          <Route path='/MyLand' element={<SellLand/>}></Route>
         </Routes>
       </div>
     </BrowserRouter>

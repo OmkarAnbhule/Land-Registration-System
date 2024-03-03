@@ -74,7 +74,7 @@ contract Land {
     mapping(uint => uint[])  allLandList;
     mapping(uint => uint[])  paymentDoneList;
 
-event PropertyTransferred(uint256 indexed propertyId, address indexed previousOwner, address indexed newOwner);
+
     function isContractOwner(address _addr) public view returns(bool){
         if(_addr==contractOwner)
             return true;
@@ -197,6 +197,7 @@ event PropertyTransferred(uint256 indexed propertyId, address indexed previousOw
         return MyLands[id];
     }
 
+
     function makeItforSell(uint id) public{
         require(lands[id].ownerAddress==msg.sender);
         lands[id].isforSell=true;
@@ -256,9 +257,29 @@ event PropertyTransferred(uint256 indexed propertyId, address indexed previousOw
         return paymentDoneList[1];
     }
 
-    function transferProperty(string memory _propertyPID, address payable _newOwner) public {
-        lands[_propertyPID].ownerAddress = _newOwner;
-        emit PropertyTransferred(_propertyPID, msg.sender, _newOwner);
+    function transferOwnership(uint _requestId,string memory documentUrl) public returns(bool)
+    {
+        require(isLandInspector(msg.sender));
+        if(LandRequestMapping[_requestId].isPaymentDone==false)
+            return false;
+        documentId++;
+        LandRequestMapping[_requestId].requestStatus=reqStatus.commpleted;
+        MyLands[LandRequestMapping[_requestId].buyerId].push(LandRequestMapping[_requestId].landId);
+
+        uint len=MyLands[LandRequestMapping[_requestId].sellerId].length;
+        for(uint i=0;i<len;i++)
+        {
+            if(MyLands[LandRequestMapping[_requestId].sellerId][i]==LandRequestMapping[_requestId].landId)
+            {
+                MyLands[LandRequestMapping[_requestId].sellerId][i]=MyLands[LandRequestMapping[_requestId].sellerId][len-1];
+                //MyLands[LandRequestMapping[_requestId].sellerId].length--;
+                MyLands[LandRequestMapping[_requestId].sellerId].pop();
+                break;
+            }
+        }
+        lands[LandRequestMapping[_requestId].landId].isforSell=false;
+        lands[LandRequestMapping[_requestId].landId].ownerAddress=LandRequestMapping[_requestId].buyerId;
+        return true;
     }
     function makePaymentTestFun(address payable _reveiver) public payable
     {

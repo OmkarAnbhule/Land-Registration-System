@@ -7,8 +7,8 @@ export default function BuyLand() {
     const [land, setLand] = useState([])
     useEffect(() => {
         getData()
-        
-    },[])
+
+    }, [])
     const getData = async () => {
         let result = await fetch(`${api}get-land-all`, {
             method: 'post',
@@ -22,11 +22,16 @@ export default function BuyLand() {
             for (var item of result.data) {
                 if (land.length > 0) {
                     if (land.find(obj => obj._id !== item._id)) {
-                        setLand((pre) => [...pre, item])
+                        if (!item.buyers.include(localStorage.getItem("id"))) {
+                            console.log(item.buyers)
+                            setLand((pre) => [...pre, item])
+                        }
                     }
                 }
                 else {
-                    setLand((pre) => [...pre, ...result.data])
+                    if (!result.data[0].buyers.include(localStorage.getItem('id'))) {
+                        setLand((pre) => [...pre, ...result.data])
+                    }
                 }
             }
         }
