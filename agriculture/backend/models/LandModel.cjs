@@ -39,6 +39,13 @@ const landSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isRejected:{
+        type:Boolean,
+        default:false
+    },
+    buyers:{
+        type:mongoose.Schema.Types.Mixed, 
+    },
     date: {
         type: Date,
         default: Date.now

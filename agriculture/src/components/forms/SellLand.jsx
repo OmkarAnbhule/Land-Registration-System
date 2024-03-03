@@ -19,7 +19,12 @@ export default function SellLand() {
         })
         result = await result.json()
         for (var item of result.data) {
-            if (land.find(obj => obj._id !== item._id)) {
+            if (land.length > 0) {
+                if (land.find(obj => obj._id !== item._id)) {
+                    setLand((pre) => [...pre, ...item])
+                }
+            }
+            else {
                 setLand((pre) => [...pre, ...result.data])
             }
         }
@@ -85,7 +90,7 @@ export default function SellLand() {
                                 <p><b>Registered on: </b>{item.date.split('T')[0]}</p>
                             </div>
                             {
-                                !item.isVerified ?
+                                !item.isVerified  || item.isSell ?
                                     (<button style={{ background: 'gray' }}>Sell</button>) :
                                     (<button onClick={() => handleSell(item._id)} style={{ background: 'royalblue' }}>Sell</button>)
 

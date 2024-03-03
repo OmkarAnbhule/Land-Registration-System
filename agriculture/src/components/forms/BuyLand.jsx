@@ -4,40 +4,45 @@ import { useNavigate } from "react-router-dom";
 export default function BuyLand() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
-    const [land,setLand] = useState([])
-    useEffect(()=>{
-        let res = getData()
-        if(res.success == true){
-            for (var item of res.data) {
-                if (land.find(obj => obj._id !== item._id)) {
-                    setLand((pre) => [...pre, ...res.data])
-                }
-            }
-        }
-    })
-    const getData = async()=>{
-        let result = await fetch(`${api}get-land-all`,{
-            method:'post',
-            body:JSON.stringify({email:localStorage.getItem('id')}),
-            headers:{
-                "Content-Type":"application/json"
+    const [land, setLand] = useState([])
+    useEffect(() => {
+        getData()
+        
+    },[])
+    const getData = async () => {
+        let result = await fetch(`${api}get-land-all`, {
+            method: 'post',
+            body: JSON.stringify({ email: localStorage.getItem('id') }),
+            headers: {
+                "Content-Type": "application/json"
             }
         })
         result = await result.json()
-        return result
+        if (result.success == true) {
+            for (var item of result.data) {
+                if (land.length > 0) {
+                    if (land.find(obj => obj._id !== item._id)) {
+                        setLand((pre) => [...pre, item])
+                    }
+                }
+                else {
+                    setLand((pre) => [...pre, ...result.data])
+                }
+            }
+        }
     }
-    const handleBuy = async(id)=>{
-        let result = await fetch(`${api}buy-land`,{
-            method:'post',
-            body:JSON.stringify({owner:localStorage.getItem('id'),objId:id}),
-            headers:{
-                "Content-Type":"application/json"
+    const handleBuy = async (id) => {
+        let result = await fetch(`${api}buy-land`, {
+            method: 'post',
+            body: JSON.stringify({ owner: localStorage.getItem('id'), objId: id }),
+            headers: {
+                "Content-Type": "application/json"
             }
         })
     }
     return (
         <div className="buy-land">
-            {land.length > 0 ? 
+            {land.length > 0 ?
                 land.map((item, index) => (
                     <div className="container" key={index}>
                         <div className="location">
@@ -50,7 +55,7 @@ export default function BuyLand() {
                             <p><b>Property Number: </b>{item.propertyid}</p>
                             <p><b>Survey Number: </b>{item.survey}</p>
                         </div>
-                        <button onClick={()=>handleBuy(item._id)}>Buy</button>
+                        <button onClick={() => handleBuy(item._id)}>Buy</button>
                     </div>
                 ))
                 :

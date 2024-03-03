@@ -8,7 +8,7 @@ export default function Home() {
   const [text, setText] = useState('');
   useEffect(() => {
     getdata()
-  },[])
+  }, [])
   const getdata = async () => {
 
     if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
@@ -23,7 +23,7 @@ export default function Home() {
       })
       result = await result.json()
       let name = result.name.split(' ')
-      setText("Welcome Back "+name[0])
+      setText("Welcome Back " + name[0])
     }
   }
   const fadeInAnimationVariants = {
@@ -55,22 +55,21 @@ export default function Home() {
           initial="initial"
           whileInView="animate"
         >
-          {text}
+          Welcome to Land Ledger,
         </motion.p>
         <motion.p
           variants={fadeInAnimationVariants}
           initial="initial"
           whileInView="animate"
         >
-          Land Registration System
+          Your Trusted Land Registration Platform
         </motion.p>
         <motion.p
           variants={fadeInAnimationVariants}
           initial="initial"
           whileInView="animate1"
         >
-          Empowering Ownership, Ensuring Transparency & Revolutionizing Land Registration through the Power of Blockchain.
-        </motion.p>
+          At Land Ledger, we're committed to revolutionizing the way land transactions are handled, making them secure, transparent, and efficient through the power of blockchain technology.        </motion.p>
       </div>
       <div className='image'>
         <HomeAnimation />

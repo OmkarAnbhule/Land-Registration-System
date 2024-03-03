@@ -895,7 +895,8 @@ app.post('/get-image', async (req, resp) => {
 	try {
 		const res = await User.find({ email })
 		console.log(res)
-		resp.status(200).send({ success: true, name: res[0].name, image: res[0].image })
+		if (res)
+			resp.status(200).send({ success: true, name: res[0].name, image: res[0].image })
 	}
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
@@ -907,8 +908,8 @@ app.post('/login', async (req, resp) => {
 	const { email, password } = req.body
 	try {
 		const existingUser = await User.find({ email: email })
-		if (existingUser) {
-
+		const tx = await contract.methods.isUserRegistered(walletaddr).send({ from: walletaddr })
+		if (existingUser && tx) {
 			let result = await bcrypt.compare(password, existingUser[0].password);
 			if (result) {
 				const response = await User.findOneAndUpdate({ email }, { isLoggedin: true })
@@ -952,9 +953,11 @@ app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
 	console.log(files, req.files)
 	try {
 		const address = state + ' , ' + district
-		const response = await land.create({ owner: email, state, price, district, propertyid, survey, area, files, isSell: false, isVerified: false })
-		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey).send({ from: walletaddr })
-		if (response) { resp.status(200).send({ success: true, message: 'land registered' }) }
+		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10)).send({ from: walletaddr })
+		if (tx) {
+			const response = await land.create({ owner: email, state, price, district, propertyid, survey, area, files, isSell: false, isVerified: false })
+			if (response) { resp.status(200).send({ success: true, message: 'land registered' }) }
+		}
 	}
 	catch (e) {
 		console.log(e)
@@ -971,13 +974,12 @@ app.post('/get-land', async (req, resp) => {
 	if (response.length != 0) {
 		resp.status(200).send({ success: true, data: response })
 	}
-
 })
 
 app.post('/get-land-all', async (req, resp) => {
 	const { email } = req.body;
 	try {
-		let response = await land.find({ owner: { $ne: email }, isSell: true , isVerified : true })
+		let response = await land.find({ owner: { $ne: email }, isSell: true, isVerified: true })
 		console.log(response)
 		if (response.length != 0) {
 			resp.status(200).send({ success: true, data: response })
@@ -994,7 +996,7 @@ app.post('/sell-land', async (req, resp) => {
 	try {
 		const response = await land.findByIdAndUpdate(objId, { isSell: true })
 		if (response) {
-			resp.send(201).send({ success: true, message: 'land selled' })
+			resp.status(201).send({ success: true, message: 'land selled' })
 		}
 	}
 	catch (e) {
@@ -1006,10 +1008,10 @@ app.post('/sell-land', async (req, resp) => {
 app.post('/buy-land', async (req, resp) => {
 	const { objId, owner } = req.body;
 	try {
-		const land = await land.findById(objId)
-		const response = await land.findByIdAndUpdate(objId, {owner,$push:{pastOwners:land[0].owner}})
+		const response = await land.findByIdAndUpdate(objId, { $push: { buyers: owner } })
+		console.log(response)
 		if (response) {
-			resp.send(201).send({ success: true, message: 'land purchased' })
+			resp.status(201).send({ success: true, message: 'land purchased' })
 		}
 	}
 	catch (e) {
@@ -1029,5 +1031,80 @@ app.post('/logout', async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 })
+
+//admin queries 
+
+app.post('/buy-req', async (req, resp) => {
+	try {
+		const response = await land.find({ isSell: true, isVerified: true, buyers: { $exists: true } })
+		resp.status(201).send({ success: true, data: response })
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+
+app.post('/register-req', async (req, resp) => {
+	try {
+		const response = await land.find({ isVerified: false })
+		resp.status(201).send({ success: true, data: response })
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+app.post('/register-accept', async (req, resp) => {
+	const { id } = req.body;
+	try {
+		const response = await land.findByIdAndUpdate(id, { isVerified: true });
+		resp.status(201).send({ success: true })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+
+})
+
+app.post('/buyer-accept', async (req, resp) => {
+	const { objId, owner } = req.body;
+	try {
+		const Land = await land.findById(objId);
+		const response = await land.findByIdAndUpdate(objId, { owner, isSell: false, $push: { pastOwners: Land.owner } })
+		if (response) {
+			resp.status(201).send({ success: true })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+
+})
+
+app.post('/register-reject', async (req, resp) => {
+	const { id } = req.body;
+	try {
+		const response = await land.findByIdAndUpdate(id, { isRejected: false });
+		resp.status(201).send({ success: true })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+app.post('/buyer-reject', async (req, resp) => {
+	const { id } = req.body;
+	try {
+		const response = await land.findByIdAndUpdate(id, { isRejected: false });
+		resp.status(201).send({ success: true })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
 
 app.listen(5000)

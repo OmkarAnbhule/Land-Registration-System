@@ -131,7 +131,6 @@ export default function Navbar() {
                     <>
                         <img width={50} height={50} src={img} onClick={handleSideBar2}></img>
                         <div className='sidebar2' onMouseLeave={handleSideBar2} style={{ display: style2 ? 'block' : 'none' }}>
-                            <p>Profile</p>
                             <p onClick={handleLogout}>Logout</p>
                         </div>
                     </>
