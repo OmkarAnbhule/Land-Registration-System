@@ -29,9 +29,8 @@ export default function BuyLand() {
                     }
                 }
                 else {
-                    if (!result.data[0].buyers.include(localStorage.getItem('id'))) {
                         setLand((pre) => [...pre, ...result.data])
-                    }
+                    
                 }
             }
         }
