@@ -17,44 +17,59 @@ function S4() {
 	return (((1 + Math.random()) * 0x10000) | 0).toString(32).substring(1);
 }
 
-function updateEnvVariable(key, value) {
-	// Read the .env file
-	fs.readFile('.env', 'utf8', (err, data) => {
-		if (err) {
-			console.error(err);
-			return;
-		}
+function readContractAddress() {
+	const configFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/backend/config.json'
+	try {
+		const configData = fs.readFileSync(configFilePath);
+		const { contractAddress } = JSON.parse(configData);
+		return contractAddress;
+	} catch (error) {
+		console.error('Error reading contract address:', error);
+		return null;
+	}
+}
+function readWalletAddress() {
+	const configFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/backend/config.json'
+	try {
+		const configData = fs.readFileSync(configFilePath);
+		const { walletAddress } = JSON.parse(configData);
+		return walletAddress;
+	} catch (error) {
+		console.error('Error reading contract address:', error);
+		return null;
+	}
+}
+function updateWalletAddress(newAddress) {
+	const configFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/backend/config.json'
+	try {
+		const configData = fs.readFileSync(configFilePath);
+		const config = JSON.parse(configData);
+		config.walletAddress = newAddress;
+		fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2));
+		console.log('Contract address updated successfully.');
+	} catch (error) {
+		console.error('Error updating contract address:', error);
+	}
+}
 
-		// Replace the existing key-value pair with the updated value
-		const updatedData = data.replace(
-			new RegExp(`^${key}=.*`, 'gm'),
-			`${key}=${value}`
-		);
-
-		// Write the updated content back to the .env file
-		fs.writeFile('.env', updatedData, 'utf8', (err) => {
-			if (err) {
-				console.error(err);
-				return;
-			}
-			console.log(`Environment variable '${key}' updated successfully.`);
-		});
-	});
+const createNode = async () => {
+	const { createHelia } = await import('helia')
+	const { unixfs } = await import('@helia/unixfs')
+	const helia = await createHelia();
+	const fs = unixfs(helia)
+	return fs;
 }
 
 const guid = () => (S4() + S4() + "-" + S4() + "-4" + S4());
-let contractABI = []
-const getAbi = async () => {
-	try {
-		fs.readFile('C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/artifacts/contracts/Land.sol/Land.json', (err, data) => {
-			if (err) throw err;
-			const data2 = data.toString('utf8')
-			contractABI = JSON.parse(data2).abi
-		})
-	}
-	catch (e) { }
-}
+let contractABI = null
 
+try {
+	const abiFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/artifacts/contracts/Land.sol/Land.json'
+	const abiData = fs.readFileSync(abiFilePath, 'utf8');
+	contractABI = JSON.parse(abiData).abi;
+} catch (error) {
+	console.error('Error reading ABI:', error);
+}
 app.use(express.json());
 app.use(cors());
 
@@ -62,72 +77,48 @@ app.use(cors());
 var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 const web3 = new Web3(web3Provider)
 // const contractAddr = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-let contractAddr = process.env.CONTRACT_ADDRESS
-const contract = new web3.eth.Contract(contractABI, contractAddr)
+let contractAddr = readContractAddress()
+let walletaddr = readWalletAddress()
+let contract = new web3.eth.Contract(contractABI, contractAddr)
 // const walletaddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-let walletaddr = process.env.WALLET_ADDRESS
 
 const User = require('./models/UserModel.cjs')
 const OTP = require('./models/OtpModel.cjs')
-const land = require('./models/LandModel.cjs')
+const land = require('./models/LandModel.cjs');
+const { default: mailSender } = require('./utils/mailSender.cjs');
 
-app.get("/", (req, resp) => {
-	getAbi()
-	resp.send("App is Working");
-});
 
-app.post('/send-address', async (req, resp) => {
-	console.log(walletaddr)
-	const { addr } = req.body;
-	updateEnvVariable("WALLET_ADDRESS", await addr)
-	//contractAddr = await addr;
-})
 
-app.get('/verify-old-user', async (req, resp) => {
-	const { email } = req.body;
-	try {
-		const existingUser = await User.find({ email: email })
-		if (existingUser) {
-			resp.status(201).send({ success: true, message: 'User Found' })
-		}
-		else {
-			resp.status(400).send({ success: false, message: 'User not found' })
-		}
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
-
-app.post('/send-otp', async (req, resp) => {
-	const { email } = req.body;
-	let otp = otpGenerator.generate(6, {
-		upperCaseAlphabets: false,
-		lowerCaseAlphabets: false,
-		specialChars: false,
+async function run() {
+	const heliaFs = await createNode()
+	app.get("/", (req, resp) => {
+		resp.send("App is Working");
 	});
-	try {
-		let result = await OTP.findOne({ otp: otp });
-		while (result) {
-			otp = otpGenerator.generate(6, {
-				upperCaseAlphabets: false,
-			});
-			result = await OTP.findOne({ otp: otp });
-		}
-		const otpBody = await OTP.create({ email, otp });
-		resp.status(201).send({ success: true, message: 'Otp sent' })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
 
-app.post('/forgot-password', async (req, resp) => {
-	const { email } = req.body;
-	const existingUser = await User.find({ email })
-	if (existingUser) {
+	app.post('/send-address', async (req, resp) => {
+		const { addr } = req.body;
+		updateWalletAddress(await addr)
+	})
+
+	app.get('/verify-old-user', async (req, resp) => {
+		const { email } = req.body;
+		try {
+			const existingUser = await User.find({ email: email })
+			if (existingUser) {
+				resp.status(201).send({ success: true, message: 'User Found' })
+			}
+			else {
+				resp.status(400).send({ success: false, message: 'User not found' })
+			}
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	})
+
+	app.post('/send-otp', async (req, resp) => {
+		const { email } = req.body;
 		let otp = otpGenerator.generate(6, {
 			upperCaseAlphabets: false,
 			lowerCaseAlphabets: false,
@@ -148,290 +139,355 @@ app.post('/forgot-password', async (req, resp) => {
 			resp.status(500).send({ success: false, message: 'Server Not Responding' })
 			console.log(e)
 		}
-	}
-})
+	})
 
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "../src/assets/images/profile");
-	},
-	filename: function (req, file, cb) {
-		const uniqueSuffix = guid();
-		cb(null, uniqueSuffix + file.originalname)
-	}
-})
-
-app.post('/verify-otp-fp', async (req, resp) => {
-	const { email, otp } = req.body;
-	try {
-		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
-		if (response.length === 0 || response[0].otp !== otp) {
-			resp.status(500).send({ success: false, message: 'Invalid Otp' })
+	app.post('/forgot-password', async (req, resp) => {
+		const { email } = req.body;
+		const existingUser = await User.find({ email })
+		if (existingUser) {
+			let otp = otpGenerator.generate(6, {
+				upperCaseAlphabets: false,
+				lowerCaseAlphabets: false,
+				specialChars: false,
+			});
+			try {
+				let result = await OTP.findOne({ otp: otp });
+				while (result) {
+					otp = otpGenerator.generate(6, {
+						upperCaseAlphabets: false,
+					});
+					result = await OTP.findOne({ otp: otp });
+				}
+				const otpBody = await OTP.create({ email, otp });
+				resp.status(201).send({ success: true, message: 'Otp sent' })
+			}
+			catch (e) {
+				resp.status(500).send({ success: false, message: 'Server Not Responding' })
+				console.log(e)
+			}
 		}
-		else {
-			resp.status(201).send({ success: true, message: 'otp successful' })
-		}
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
+	})
 
-app.post('/reset-password', async (req, resp) => {
-	const { email, password } = req.body;
-	try {
-		let hashedPassword = await bcrypt.hash(password, 10);
-		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
-		if (response) {
-			resp.status(201).send({ success: true, message: 'password reset successful' })
-		}
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
 
-const upload = multer({ storage: storage })
 
-app.post('/verify-otp', upload.single('image'), async (req, resp) => {
-	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
-	const imageName = req.file.filename
-	try {
-		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
-		if (response.length === 0 || response[0].otp !== otp) {
-			resp.status(500).send({ success: false, message: 'Invalid Otp' })
-		}
-		else {
-			let hashedPassword = await bcrypt.hash(password, 10);
-			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-			const user = await User.create({ email, name, password: hashedPassword, image: imageName, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
-
-			resp.status(201).send({ success: true, message: 'registration successful' })
-		}
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
-
-app.post('/get-image', async (req, resp) => {
-	const { email } = req.body;
-	try {
-		const res = await User.find({ email })
-		console.log(res)
-		if (res)
-			resp.status(200).send({ success: true, name: res[0].name, image: res[0].image })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
-
-app.post('/login', async (req, resp) => {
-	const { email, password } = req.body
-	try {
-		const existingUser = await User.find({ email: email })
-		const tx = await contract.methods.isUserRegistered(walletaddr).send({ from: walletaddr })
-		if (existingUser && tx) {
-			let result = await bcrypt.compare(password, existingUser[0].password);
-			if (result) {
-				const response = await User.findOneAndUpdate({ email }, { isLoggedin: true })
-				resp.status(200).send({ success: true, message: 'login success' })
+	app.post('/verify-otp-fp', async (req, resp) => {
+		const { email, otp } = req.body;
+		try {
+			const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+			if (response.length === 0 || response[0].otp !== otp) {
+				resp.status(500).send({ success: false, message: 'Invalid Otp' })
 			}
 			else {
-				resp.status(500).send({ success: false, message: 'Wrong Password' })
+				resp.status(201).send({ success: true, message: 'otp successful' })
 			}
 		}
-		else {
-			resp.status(500).send({ success: false, message: 'User not found' })
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	})
+
+	app.post('/reset-password', async (req, resp) => {
+		const { email, password } = req.body;
+		try {
+			let hashedPassword = await bcrypt.hash(password, 10);
+			const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
+			if (response) {
+				resp.status(201).send({ success: true, message: 'password reset successful' })
+			}
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	})
+
+	const storage = multer.diskStorage({
+		destination: function (req, file, cb) {
+			cb(null, "../src/assets/images/profile");
+		},
+		filename: function (req, file, cb) {
+			const uniqueSuffix = guid();
+			cb(null, uniqueSuffix + file.originalname)
+		}
+	})
+
+	const upload = multer({ storage: storage });
+
+	app.post('/verify-otp', upload.single('image'), async (req, resp) => {
+		const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
+		try {
+			const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
+			if (response) {
+				resp.status(201).send({ success: true, message: 'password reset successful' })
+			}
+			else {
+				const cid = await heliaFs.addFile(req.file)
+				let hashedPassword = await bcrypt.hash(password, 10);
+				const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
+				const user = await User.create({ email, name, password: hashedPassword, image: cid, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
+				if (user) {
+					resp.status(201).send({ success: true, message: 'registration successful' })
+				}
+			}
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	})
+
+	app.post('/get-image', async (req, resp) => {
+		try {
+			const tx = await contract.methods.getImage(walletaddr).call()
+			if (tx) {
+				console.log(tx)
+				resp.status(201).send({ success: true, image: tx })
+			}
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	})
+
+	app.post('/login', async (req, resp) => {
+		const { email, password } = req.body
+		try {
+			const tx = await contract.methods.isUserRegistered(walletaddr).call()
+			if (tx) {
+				const user = await contract.methods.getUser(walletaddr).call()
+				if (user) {
+					let result = await bcrypt.compare(password, user.password)
+					if (result)
+						resp.status(200).send({ success: true, message: 'login success' })
+				}
+				else {
+					resp.status(500).send({ success: false, message: 'Wrong Password' })
+				}
+			}
+			else {
+				resp.status(500).send({ success: false, message: 'User not found' })
+			}
+
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
+			console.log(e)
+		}
+	})
+
+	const storageFiles = multer.diskStorage({
+		destination: function (req, file, cb) {
+			cb(null, "../src/assets/lands/");
+		},
+		filename: function (req, file, cb) {
+			const uniqueSuffix = guid();
+			cb(null, uniqueSuffix + file.originalname)
+		}
+	})
+
+	const uploadFiles = multer({ storage: storageFiles })
+
+	app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
+		const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
+		const files = req.files.map((item, index) => (
+			item.filename
+		))
+		console.log(files, req.files)
+		try {
+			const address = state + ' , ' + district
+			const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10), files, Date.now().toString()).send({ from: walletaddr })
+			if (tx) {
+				resp.status(200).send({ success: true, message: 'land registered' })
+			}
+		}
+		catch (e) {
+			console.log(e)
+			resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		}
 
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		console.log(e)
-	}
-})
 
-const storageFiles = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "../src/assets/lands/");
-	},
-	filename: function (req, file, cb) {
-		const uniqueSuffix = guid();
-		cb(null, uniqueSuffix + file.originalname)
-	}
-})
+	})
 
-const uploadFiles = multer({ storage: storageFiles })
-
-app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
-	const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
-	const files = req.files.map((item, index) => ({
-		filename: item.filename,
-		filetype: item.filetype,
-		mimetype: item.mimetype,
-		size: item.size,
-	}))
-	console.log(files, req.files)
-	try {
-		const address = state + ' , ' + district
-		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10)).send({ from: walletaddr })
+	app.post('/get-land', async (req, resp) => {
+		const tx = await contract.methods.getMyLands(walletaddr).call()
 		if (tx) {
-			const response = await land.create({ owner: email, state, price, district, propertyid, survey, area, files, isSell: false, isVerified: false })
-			if (response) { resp.status(200).send({ success: true, message: 'land registered' }) }
+			console.log(tx)
+			for (let i of tx) {
+				for (key in i) {
+					try {
+						if (BigInt(i[key]) === i[key]) {
+							i[key] = Number(i[key])
+						}
+					}
+					catch (e) {
+					}
+				}
+			}
+			resp.status(200).send({ success: true, data: tx })
 		}
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
-	}
+	})
 
-
-})
-
-app.post('/get-land', async (req, resp) => {
-	const { email } = req.body;
-	let response = await land.find({ owner: email })
-	console.log(response)
-	if (response.length != 0) {
-		resp.status(200).send({ success: true, data: response })
-	}
-})
-
-app.post('/get-land-all', async (req, resp) => {
-	const { email } = req.body;
-	try {
-		let response = await land.find({ owner: { $ne: email }, isSell: true, isVerified: true })
-		console.log(response)
-		if (response.length != 0) {
-			resp.status(200).send({ success: true, data: response })
+	app.post('/get-land-all', async (req, resp) => {
+		const tx = await contract.methods.getAllLands(walletaddr).call()
+		if (tx) {
+			for (var i in tx) {
+				for (let key in tx[i]) {
+					try {
+						if (BigInt(tx[i][key]) === tx[i][key]) {
+							tx[i][key] = Number(tx[i][key])
+						}
+					}
+					catch (e) {
+					}
+				}
+			}
+			resp.status(200).send({ success: true, data: tx })
 		}
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
+	})
 
-app.post('/sell-land', async (req, resp) => {
-	const { objId } = req.body;
-	try {
-		const response = await land.findByIdAndUpdate(objId, { isSell: true })
-		if (response) {
-			resp.status(201).send({ success: true, message: 'land selled' })
+	app.post('/sell-land', async (req, resp) => {
+		const { objId } = req.body;
+		try {
+			const tx = await contract.methods.sellReq(walletaddr, parseInt(objId, 10)).send({ from: walletaddr })
+			if (tx) {
+				resp.status(201).send({ success: true, message: 'land selled' })
+			}
 		}
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
-
-app.post('/buy-land', async (req, resp) => {
-	const { objId, owner } = req.body;
-	try {
-		const response = await land.findByIdAndUpdate(objId, { $push: { buyers: owner } })
-		console.log(response)
-		if (response) {
-			resp.status(201).send({ success: true, message: 'land purchased' })
+		catch (e) {
+			console.log(e)
+			resp.status(500).send({ success: false, message: 'server not responding' })
 		}
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
+	})
 
-app.post('/logout', async (req, resp) => {
-	const { email } = req.body;
-	try {
-		const response = await User.findOneAndUpdate({ email }, { isLoggedin: false })
-		resp.status(201).send({ success: true, message: 'logged out successfully' })
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
-
-//admin queries 
-
-app.post('/buy-req', async (req, resp) => {
-	try {
-		const response = await land.find({ isSell: true, isVerified: true, buyers: { $exists: true } })
-		resp.status(201).send({ success: true, data: response })
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
-
-
-app.post('/register-req', async (req, resp) => {
-	try {
-		const response = await land.find({ isVerified: false })
-		resp.status(201).send({ success: true, data: response })
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
-
-app.post('/register-accept', async (req, resp) => {
-	const { id } = req.body;
-	try {
-		const response = await land.findByIdAndUpdate(id, { isVerified: true });
-		resp.status(201).send({ success: true })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-
-})
-
-app.post('/buyer-accept', async (req, resp) => {
-	const { objId, owner } = req.body;
-	try {
-		const Land = await land.findById(objId);
-		const response = await land.findByIdAndUpdate(objId, { owner, isSell: false, $push: { pastOwners: Land.owner } })
-		if (response) {
-			resp.status(201).send({ success: true })
+	app.post('/buy-land', async (req, resp) => {
+		const { owner } = req.body;
+		try {
+			const tx = await contract.methods.buyReq(walletaddr, owner).send({ from: walletaddr })
+			if (tx) {
+				resp.status(201).send({ success: true, message: 'land purchased' })
+			}
 		}
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
+		catch (e) {
+			console.log(e)
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
 
-})
+	app.post('/logout', async (req, resp) => {
+		try {
+			const tx = await contract.methods.logout(walletaddr).call();
+			resp.status(201).send({ success: true, message: 'logged out successfully' })
+		}
+		catch (e) {
+			console.log(e)
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
 
-app.post('/register-reject', async (req, resp) => {
-	const { id } = req.body;
-	try {
-		const response = await land.findByIdAndUpdate(id, { isRejected: false });
-		resp.status(201).send({ success: true })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
+	//admin queries 
 
-app.post('/buyer-reject', async (req, resp) => {
-	const { id } = req.body;
-	try {
-		const response = await land.findByIdAndUpdate(id, { isRejected: false });
-		resp.status(201).send({ success: true })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
+	app.post('/buy-req', async (req, resp) => {
+		try {
+			const tx = await contract.methods.getBuyRequest().call()
+			if (tx) {
+				for (var i in tx) {
+					for (let key in tx[i]) {
+						try {
+							if (BigInt(tx[i][key]) === tx[i][key]) {
+								tx[i][key] = Number(tx[i][key])
+							}
+						}
+						catch (e) {
+						}
+					}
+				}
+				resp.status(201).send({ success: true, data: tx })
+			}
+		}
+		catch (e) {
+			console.log(e)
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
 
 
-app.listen(5000)
+	app.post('/register-req', async (req, resp) => {
+		try {
+			const tx = await contract.methods.getSellRequest().call();
+			console.log(tx)
+			if (tx) {
+				for (var i in tx) {
+					for (let key in tx[i]) {
+						try {
+							if (BigInt(tx[i][key]) === tx[i][key]) {
+								tx[i][key] = Number(tx[i][key])
+							}
+						}
+						catch (e) {
+						}
+					}
+				}
+				resp.status(201).send({ success: true, data: tx })
+			}
+		}
+		catch (e) {
+			console.log(e)
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
+
+	app.post('/register-accept', async (req, resp) => {
+		const { id } = req.body;
+		try {
+			const tx = await contract.methods.acceptReg(walletaddr, parseInt(id, 10)).send({ from: walletaddr })
+			if (tx)
+				resp.status(201).send({ success: true })
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
+
+	app.post('/buyer-accept', async (req, resp) => {
+		const { objId, owner } = req.body;
+		try {
+			const tx = await contract.methods.acceptBuy(walletaddr, owner, parseInt(objId, 10)).call()
+			if (response) {
+				resp.status(201).send({ success: true })
+			}
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+
+	})
+
+	app.post('/register-reject', async (req, resp) => {
+		const { id } = req.body;
+		try {
+			const tx = await contract.methods.rejectReg(parseInt(id, 10)).call()
+			if (tx)
+				resp.status(201).send({ success: true })
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
+
+	app.post('/buyer-reject', async (req, resp) => {
+		const { id } = req.body;
+		try {
+			const tx = await contract.methods.rejectBuy(parseInt(id, 10)).call()
+			if (tx)
+				resp.status(201).send({ success: true })
+		}
+		catch (e) {
+			resp.status(500).send({ success: false, message: 'server not responding' })
+		}
+	})
+
+	app.listen(5000)
+}
+run()

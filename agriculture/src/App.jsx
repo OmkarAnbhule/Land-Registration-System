@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import Web3 from "web3";
-import fs from 'fs';
 import './App.css'
 import Navbar from './components/Navbar'
 import Main from './components/Main/Main'
