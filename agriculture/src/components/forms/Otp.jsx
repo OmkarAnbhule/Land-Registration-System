@@ -56,6 +56,7 @@ export default function Otp(props) {
   }
 
   const handleClick = async () => {
+    props.handleShow()
     let otp = num1 + num2 + num3 + num4 + num5 + num6
     if (props.type == 'fp') { 
       let result = await fetch(`${api}verify-otp-fp`,{

@@ -2333,3 +2333,16 @@
     }
   }
 }
+
+.loader{
+  display: grid;
+  justify-content: center;
+  align-items:center;
+  position: absolute;
+  min-height: 100vh;
+  width:100%;
+  height: 100%;
+  background: rgba(0,0,0,.63);
+  top:100px;
+  z-index:9999;
+}

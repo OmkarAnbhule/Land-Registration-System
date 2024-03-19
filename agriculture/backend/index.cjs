@@ -18,7 +18,7 @@ function S4() {
 }
 
 function readContractAddress() {
-	const configFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/backend/config.json'
+	const configFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/config.json'
 	try {
 		const configData = fs.readFileSync(configFilePath);
 		const { contractAddress } = JSON.parse(configData);
@@ -29,7 +29,7 @@ function readContractAddress() {
 	}
 }
 function readWalletAddress() {
-	const configFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/backend/config.json'
+	const configFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/config.json'
 	try {
 		const configData = fs.readFileSync(configFilePath);
 		const { walletAddress } = JSON.parse(configData);
@@ -40,13 +40,13 @@ function readWalletAddress() {
 	}
 }
 function updateWalletAddress(newAddress) {
-	const configFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/backend/config.json'
+	const configFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/config.json'
 	try {
 		const configData = fs.readFileSync(configFilePath);
 		const config = JSON.parse(configData);
 		config.walletAddress = newAddress;
 		fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2));
-		console.log('Contract address updated successfully.');
+		console.log('Wallet address updated successfully.');
 	} catch (error) {
 		console.error('Error updating contract address:', error);
 	}
@@ -64,7 +64,7 @@ const guid = () => (S4() + S4() + "-" + S4() + "-4" + S4());
 let contractABI = null
 
 try {
-	const abiFilePath = 'C:/Users/rahul/OneDrive/Desktop/land/Land-Registration-System/agriculture/artifacts/contracts/Land.sol/Land.json'
+	const abiFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/artifacts/contracts/Land.sol/Land.json'
 	const abiData = fs.readFileSync(abiFilePath, 'utf8');
 	contractABI = JSON.parse(abiData).abi;
 } catch (error) {
@@ -85,40 +85,48 @@ let contract = new web3.eth.Contract(contractABI, contractAddr)
 const User = require('./models/UserModel.cjs')
 const OTP = require('./models/OtpModel.cjs')
 const land = require('./models/LandModel.cjs');
-const { default: mailSender } = require('./utils/mailSender.cjs');
 
 
 
-async function run() {
-	const heliaFs = await createNode()
-	app.get("/", (req, resp) => {
-		resp.send("App is Working");
+app.get("/", (req, resp) => {
+	resp.send("App is Working");
+});
+
+app.post('/send-address', async (req, resp) => {
+	const { addr } = req.body;
+	console.log(addr)
+	updateWalletAddress(await addr)
+})
+
+
+app.post('/send-otp', async (req, resp) => {
+	const { email } = req.body;
+	let otp = otpGenerator.generate(6, {
+		upperCaseAlphabets: false,
+		lowerCaseAlphabets: false,
+		specialChars: false,
 	});
-
-	app.post('/send-address', async (req, resp) => {
-		const { addr } = req.body;
-		updateWalletAddress(await addr)
-	})
-
-	app.get('/verify-old-user', async (req, resp) => {
-		const { email } = req.body;
-		try {
-			const existingUser = await User.find({ email: email })
-			if (existingUser) {
-				resp.status(201).send({ success: true, message: 'User Found' })
-			}
-			else {
-				resp.status(400).send({ success: false, message: 'User not found' })
-			}
+	try {
+		let result = await OTP.findOne({ otp: otp });
+		while (result) {
+			otp = otpGenerator.generate(6, {
+				upperCaseAlphabets: false,
+			});
+			result = await OTP.findOne({ otp: otp });
 		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-			console.log(e)
-		}
-	})
+		const otpBody = await OTP.create({ email, otp });
+		resp.status(201).send({ success: true, message: 'Otp sent' })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
 
-	app.post('/send-otp', async (req, resp) => {
-		const { email } = req.body;
+app.post('/forgot-password', async (req, resp) => {
+	const { email } = req.body;
+	const existingUser = await User.find({ email })
+	if (existingUser) {
 		let otp = otpGenerator.generate(6, {
 			upperCaseAlphabets: false,
 			lowerCaseAlphabets: false,
@@ -139,198 +147,233 @@ async function run() {
 			resp.status(500).send({ success: false, message: 'Server Not Responding' })
 			console.log(e)
 		}
-	})
+	}
+})
 
-	app.post('/forgot-password', async (req, resp) => {
-		const { email } = req.body;
-		const existingUser = await User.find({ email })
-		if (existingUser) {
-			let otp = otpGenerator.generate(6, {
-				upperCaseAlphabets: false,
-				lowerCaseAlphabets: false,
-				specialChars: false,
-			});
-			try {
-				let result = await OTP.findOne({ otp: otp });
-				while (result) {
-					otp = otpGenerator.generate(6, {
-						upperCaseAlphabets: false,
-					});
-					result = await OTP.findOne({ otp: otp });
-				}
-				const otpBody = await OTP.create({ email, otp });
-				resp.status(201).send({ success: true, message: 'Otp sent' })
-			}
-			catch (e) {
-				resp.status(500).send({ success: false, message: 'Server Not Responding' })
-				console.log(e)
-			}
+
+
+app.post('/verify-otp-fp', async (req, resp) => {
+	const { email, otp } = req.body;
+	try {
+		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+		if (response.length === 0 || response[0].otp !== otp) {
+			resp.status(500).send({ success: false, message: 'Invalid Otp' })
 		}
-	})
-
-
-
-	app.post('/verify-otp-fp', async (req, resp) => {
-		const { email, otp } = req.body;
-		try {
-			const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
-			if (response.length === 0 || response[0].otp !== otp) {
-				resp.status(500).send({ success: false, message: 'Invalid Otp' })
-			}
-			else {
-				resp.status(201).send({ success: true, message: 'otp successful' })
-			}
+		else {
+			resp.status(201).send({ success: true, message: 'otp successful' })
 		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-			console.log(e)
-		}
-	})
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
 
-	app.post('/reset-password', async (req, resp) => {
-		const { email, password } = req.body;
-		try {
+app.post('/reset-password', async (req, resp) => {
+	const { email, password } = req.body;
+	try {
+		let hashedPassword = await bcrypt.hash(password, 10);
+		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
+		if (response) {
+			resp.status(201).send({ success: true, message: 'password reset successful' })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
+
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "../src/assets/images/profile");
+	},
+	filename: function (req, file, cb) {
+		const uniqueSuffix = guid();
+		cb(null, uniqueSuffix + file.originalname)
+	}
+})
+
+const upload = multer({ storage: storage });
+
+app.post('/verify-otp', upload.single('image'), async (req, resp) => {
+	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
+	try {
+		const heliaFs = await createNode()
+		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
+		if (response) {
+			resp.status(201).send({ success: true, message: 'password reset successful' })
+		}
+		else {
+			const cid = await heliaFs.addFile(req.file)
 			let hashedPassword = await bcrypt.hash(password, 10);
-			const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
-			if (response) {
-				resp.status(201).send({ success: true, message: 'password reset successful' })
+			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
+			const user = await User.create({ email, name, password: hashedPassword, image: cid, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
+			if (user) {
+				resp.status(201).send({ success: true, message: 'registration successful' })
 			}
 		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-			console.log(e)
-		}
-	})
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
 
-	const storage = multer.diskStorage({
-		destination: function (req, file, cb) {
-			cb(null, "../src/assets/images/profile");
-		},
-		filename: function (req, file, cb) {
-			const uniqueSuffix = guid();
-			cb(null, uniqueSuffix + file.originalname)
-		}
-	})
-
-	const upload = multer({ storage: storage });
-
-	app.post('/verify-otp', upload.single('image'), async (req, resp) => {
-		const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
-		try {
-			const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
-			if (response) {
-				resp.status(201).send({ success: true, message: 'password reset successful' })
-			}
-			else {
-				const cid = await heliaFs.addFile(req.file)
-				let hashedPassword = await bcrypt.hash(password, 10);
-				const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-				const user = await User.create({ email, name, password: hashedPassword, image: cid, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
-				if (user) {
-					resp.status(201).send({ success: true, message: 'registration successful' })
-				}
-			}
-		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-			console.log(e)
-		}
-	})
-
-	app.post('/get-image', async (req, resp) => {
-		try {
-			const tx = await contract.methods.getImage(walletaddr).call()
-			if (tx) {
-				console.log(tx)
-				resp.status(201).send({ success: true, image: tx })
-			}
-		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-			console.log(e)
-		}
-	})
-
-	app.post('/login', async (req, resp) => {
-		const { email, password } = req.body
-		try {
-			const tx = await contract.methods.isUserRegistered(walletaddr).call()
-			if (tx) {
-				const user = await contract.methods.getUser(walletaddr).call()
-				if (user) {
-					let result = await bcrypt.compare(password, user.password)
-					if (result)
-						resp.status(200).send({ success: true, message: 'login success' })
-				}
-				else {
-					resp.status(500).send({ success: false, message: 'Wrong Password' })
-				}
-			}
-			else {
-				resp.status(500).send({ success: false, message: 'User not found' })
-			}
-
-		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-			console.log(e)
-		}
-	})
-
-	const storageFiles = multer.diskStorage({
-		destination: function (req, file, cb) {
-			cb(null, "../src/assets/lands/");
-		},
-		filename: function (req, file, cb) {
-			const uniqueSuffix = guid();
-			cb(null, uniqueSuffix + file.originalname)
-		}
-	})
-
-	const uploadFiles = multer({ storage: storageFiles })
-
-	app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
-		const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
-		const files = req.files.map((item, index) => (
-			item.filename
-		))
-		console.log(files, req.files)
-		try {
-			const address = state + ' , ' + district
-			const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10), files, Date.now().toString()).send({ from: walletaddr })
-			if (tx) {
-				resp.status(200).send({ success: true, message: 'land registered' })
-			}
-		}
-		catch (e) {
-			console.log(e)
-			resp.status(500).send({ success: false, message: 'Server Not Responding' })
-		}
-
-
-	})
-
-	app.post('/get-land', async (req, resp) => {
-		const tx = await contract.methods.getMyLands(walletaddr).call()
+app.post('/get-image', async (req, resp) => {
+	try {
+		const tx = await contract.methods.getImage(walletaddr).call()
 		if (tx) {
 			console.log(tx)
-			for (let i of tx) {
-				for (key in i) {
-					try {
-						if (BigInt(i[key]) === i[key]) {
-							i[key] = Number(i[key])
-						}
-					}
-					catch (e) {
+			resp.status(201).send({ success: true, image: tx })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
+
+app.post('/login', async (req, resp) => {
+	const { email, password } = req.body
+	try {
+		const tx = await contract.methods.isUserRegistered(walletaddr).call()
+		if (tx) {
+			const user = await contract.methods.getUser(walletaddr).call()
+			if (user) {
+				let result = await bcrypt.compare(password, user.password)
+				if (result)
+					resp.status(200).send({ success: true, message: 'login success' })
+			}
+			else {
+				resp.status(500).send({ success: false, message: 'Wrong Password' })
+			}
+		}
+		else {
+			resp.status(500).send({ success: false, message: 'User not found' })
+		}
+
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+})
+
+const storageFiles = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "../src/assets/lands/");
+	},
+	filename: function (req, file, cb) {
+		const uniqueSuffix = guid();
+		cb(null, uniqueSuffix + file.originalname)
+	}
+})
+
+const uploadFiles = multer({ storage: storageFiles })
+
+app.post('/add-land', uploadFiles.array('files'), async (req, resp) => {
+	const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
+	const files = req.files.map((item, index) => (
+		item.filename
+	))
+	console.log(files, req.files)
+	try {
+		const address = state + ' , ' + district
+		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10), files, Date.now().toString()).send({ from: walletaddr })
+		if (tx) {
+			resp.status(200).send({ success: true, message: 'land registered' })
+		}
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+	}
+
+
+})
+
+app.post('/get-land', async (req, resp) => {
+	const tx = await contract.methods.getMyLands(walletaddr).call()
+	if (tx) {
+		console.log(tx)
+		for (let i of tx) {
+			for (key in i) {
+				try {
+					if (BigInt(i[key]) === i[key]) {
+						i[key] = Number(i[key])
 					}
 				}
+				catch (e) {
+				}
 			}
-			resp.status(200).send({ success: true, data: tx })
 		}
-	})
+		resp.status(200).send({ success: true, data: tx })
+	}
+})
 
-	app.post('/get-land-all', async (req, resp) => {
-		const tx = await contract.methods.getAllLands(walletaddr).call()
+app.post('/get-land-all', async (req, resp) => {
+	const tx = await contract.methods.getAllLands(walletaddr).call()
+	if (tx) {
+		for (var i in tx) {
+			for (let key in tx[i]) {
+				try {
+					if (BigInt(tx[i][key]) === tx[i][key]) {
+						tx[i][key] = Number(tx[i][key])
+					}
+				}
+				catch (e) {
+				}
+			}
+		}
+		resp.status(200).send({ success: true, data: tx })
+	}
+})
+
+app.post('/sell-land', async (req, resp) => {
+	const { objId } = req.body;
+	try {
+		const tx = await contract.methods.sellReq(walletaddr, parseInt(objId, 10)).send({ from: walletaddr })
+		if (tx) {
+			resp.status(201).send({ success: true, message: 'land selled' })
+		}
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+app.post('/buy-land', async (req, resp) => {
+	const { owner } = req.body;
+	try {
+		const tx = await contract.methods.buyReq(walletaddr, owner).send({ from: walletaddr })
+		if (tx) {
+			resp.status(201).send({ success: true, message: 'land purchased' })
+		}
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+app.post('/logout', async (req, resp) => {
+	try {
+		const tx = await contract.methods.logout(walletaddr).call();
+		resp.status(201).send({ success: true, message: 'logged out successfully' })
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
+
+//admin queries 
+
+app.post('/buy-req', async (req, resp) => {
+	try {
+		const tx = await contract.methods.getBuyRequest().call()
 		if (tx) {
 			for (var i in tx) {
 				for (let key in tx[i]) {
@@ -343,151 +386,90 @@ async function run() {
 					}
 				}
 			}
-			resp.status(200).send({ success: true, data: tx })
+			resp.status(201).send({ success: true, data: tx })
 		}
-	})
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
 
-	app.post('/sell-land', async (req, resp) => {
-		const { objId } = req.body;
-		try {
-			const tx = await contract.methods.sellReq(walletaddr, parseInt(objId, 10)).send({ from: walletaddr })
-			if (tx) {
-				resp.status(201).send({ success: true, message: 'land selled' })
-			}
-		}
-		catch (e) {
-			console.log(e)
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
 
-	app.post('/buy-land', async (req, resp) => {
-		const { owner } = req.body;
-		try {
-			const tx = await contract.methods.buyReq(walletaddr, owner).send({ from: walletaddr })
-			if (tx) {
-				resp.status(201).send({ success: true, message: 'land purchased' })
-			}
-		}
-		catch (e) {
-			console.log(e)
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
-
-	app.post('/logout', async (req, resp) => {
-		try {
-			const tx = await contract.methods.logout(walletaddr).call();
-			resp.status(201).send({ success: true, message: 'logged out successfully' })
-		}
-		catch (e) {
-			console.log(e)
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
-
-	//admin queries 
-
-	app.post('/buy-req', async (req, resp) => {
-		try {
-			const tx = await contract.methods.getBuyRequest().call()
-			if (tx) {
-				for (var i in tx) {
-					for (let key in tx[i]) {
-						try {
-							if (BigInt(tx[i][key]) === tx[i][key]) {
-								tx[i][key] = Number(tx[i][key])
-							}
-						}
-						catch (e) {
+app.post('/register-req', async (req, resp) => {
+	try {
+		const tx = await contract.methods.getSellRequest().call();
+		console.log(tx)
+		if (tx) {
+			for (var i in tx) {
+				for (let key in tx[i]) {
+					try {
+						if (BigInt(tx[i][key]) === tx[i][key]) {
+							tx[i][key] = Number(tx[i][key])
 						}
 					}
-				}
-				resp.status(201).send({ success: true, data: tx })
-			}
-		}
-		catch (e) {
-			console.log(e)
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
-
-
-	app.post('/register-req', async (req, resp) => {
-		try {
-			const tx = await contract.methods.getSellRequest().call();
-			console.log(tx)
-			if (tx) {
-				for (var i in tx) {
-					for (let key in tx[i]) {
-						try {
-							if (BigInt(tx[i][key]) === tx[i][key]) {
-								tx[i][key] = Number(tx[i][key])
-							}
-						}
-						catch (e) {
-						}
+					catch (e) {
 					}
 				}
-				resp.status(201).send({ success: true, data: tx })
 			}
+			resp.status(201).send({ success: true, data: tx })
 		}
-		catch (e) {
-			console.log(e)
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
 
-	app.post('/register-accept', async (req, resp) => {
-		const { id } = req.body;
-		try {
-			const tx = await contract.methods.acceptReg(walletaddr, parseInt(id, 10)).send({ from: walletaddr })
-			if (tx)
-				resp.status(201).send({ success: true })
-		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
+app.post('/register-accept', async (req, resp) => {
+	const { id } = req.body;
+	try {
+		const tx = await contract.methods.acceptReg(walletaddr, parseInt(id, 10)).send({ from: walletaddr })
+		if (tx)
+			resp.status(201).send({ success: true })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
 
-	app.post('/buyer-accept', async (req, resp) => {
-		const { objId, owner } = req.body;
-		try {
-			const tx = await contract.methods.acceptBuy(walletaddr, owner, parseInt(objId, 10)).call()
-			if (response) {
-				resp.status(201).send({ success: true })
-			}
+app.post('/buyer-accept', async (req, resp) => {
+	const { objId, owner } = req.body;
+	try {
+		const tx = await contract.methods.acceptBuy(walletaddr, owner, parseInt(objId, 10)).call()
+		if (response) {
+			resp.status(201).send({ success: true })
 		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
 
-	})
+})
 
-	app.post('/register-reject', async (req, resp) => {
-		const { id } = req.body;
-		try {
-			const tx = await contract.methods.rejectReg(parseInt(id, 10)).call()
-			if (tx)
-				resp.status(201).send({ success: true })
-		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
+app.post('/register-reject', async (req, resp) => {
+	const { id } = req.body;
+	try {
+		const tx = await contract.methods.rejectReg(parseInt(id, 10)).call()
+		if (tx)
+			resp.status(201).send({ success: true })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
 
-	app.post('/buyer-reject', async (req, resp) => {
-		const { id } = req.body;
-		try {
-			const tx = await contract.methods.rejectBuy(parseInt(id, 10)).call()
-			if (tx)
-				resp.status(201).send({ success: true })
-		}
-		catch (e) {
-			resp.status(500).send({ success: false, message: 'server not responding' })
-		}
-	})
+app.post('/buyer-reject', async (req, resp) => {
+	const { id } = req.body;
+	try {
+		const tx = await contract.methods.rejectBuy(parseInt(id, 10)).call()
+		if (tx)
+			resp.status(201).send({ success: true })
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+})
 
-	app.listen(5000)
-}
-run()
+app.listen(5000)
+

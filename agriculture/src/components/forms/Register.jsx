@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import Otp from './Otp';
 import profile from '../../assets/home_assets/register_form/default.jpg'
 import Snackbar from 'awesome-snackbar'
+import Loader from '../Loader.jsx';
+import { HideLoading, Loading, ShowLoading } from 'react-loading-ui'
 
-export default function Register() {
+export default function Register(props) {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
     const [firstName, setFirstName] = useState('');
@@ -115,16 +117,46 @@ export default function Register() {
             });
         }
     }
-    const handleClick2 = async () => {
+    const handleClick2 = () => {
+        ShowLoading()
         if (isComplete2) {
-            let res = await sendData()
-            console.log(res, res.success)
-            if (res.success == true) {
-                setStep(step + 1)
-                setFocus(false)
+            try {
+                sendData().then((res) => {
+                    if (res.success == true) {
+                        setStep(step + 1)
+                        setFocus(false)
+                    }
+                })
+            }
+            catch (e) {
+                new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
+                    position: 'bottom-center',
+                    style: {
+                        container: [
+                            ['background', 'rgb(246, 58, 93)'],
+                            ['border-radius', '5px'],
+                            ['height', '50px'],
+                            ['padding', '10px'],
+                            ['border-radius', '20px']
+                        ],
+                        message: [
+                            ['color', '#eee'],
+                            ['font-size', '18px']
+                        ],
+                        bold: [
+                            ['font-weight', 'bold'],
+                        ],
+                        actionButton: [
+                            ['color', 'white'],
+                        ],
+                    }
+                });
             }
         }
         else {
+            setTimeout(()=>{
+                HideLoading()
+            },3000)
             new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
                 position: 'bottom-center',
                 style: {
