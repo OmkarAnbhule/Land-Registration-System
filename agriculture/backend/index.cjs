@@ -94,34 +94,13 @@ app.get("/", (req, resp) => {
 
 
 
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "../src/assets/images/profile");
-	},
-	filename: function (req, file, cb) {
-		const uniqueSuffix = guid();
-		cb(null, uniqueSuffix + file.originalname)
-	}
-})
-
-const upload = multer({ storage: storage });
 
 
 
 
 
 
-const storageFiles = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "../src/assets/lands/");
-	},
-	filename: function (req, file, cb) {
-		const uniqueSuffix = guid();
-		cb(null, uniqueSuffix + file.originalname)
-	}
-})
 
-const uploadFiles = multer({ storage: storageFiles })
 
 
 
