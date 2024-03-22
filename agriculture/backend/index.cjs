@@ -94,21 +94,5 @@ app.get("/", (req, resp) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-//admin queries 
-
-
-
-
 app.listen(5000)
 
