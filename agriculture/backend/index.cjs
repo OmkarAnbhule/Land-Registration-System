@@ -92,11 +92,7 @@ app.get("/", (req, resp) => {
 	resp.send("App is Working");
 });
 
-app.post('/send-address', async (req, resp) => {
-	const { addr } = req.body;
-	console.log(addr)
-	updateWalletAddress(await addr)
-})
+
 
 
 app.post('/send-otp', async (req, resp) => {
