@@ -1707,9 +1707,9 @@
 }
 
 .registration-form-container {
-  max-width: 400px;
+  max-width: 350px;
   margin: 0 auto;
-  padding: 30px;
+  padding: 30px 60px;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f9f9f9;
@@ -1722,6 +1722,13 @@
 
   .form-group {
     margin-bottom: 15px;
+    position: relative;
+    p{
+      color:red;
+      position: absolute;
+      right:0;
+      bottom:-35px;
+    }
   }
 
   label {
@@ -2343,6 +2350,17 @@
   width:100%;
   height: 100%;
   background: rgba(0,0,0,.63);
+  top:100px;
+  z-index:9999;
+}
+
+.loader{
+  display: grid;
+  justify-content: center;
+  align-items:center;
+  position: absolute;
+  width:50%;
+  height: 50%;
   top:100px;
   z-index:9999;
 }

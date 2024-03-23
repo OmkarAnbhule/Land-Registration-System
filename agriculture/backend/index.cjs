@@ -199,19 +199,13 @@ const upload = multer({ storage: storage });
 app.post('/verify-otp', upload.single('image'), async (req, resp) => {
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
+		const image = req.file;
 		const heliaFs = await createNode()
-		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
-		if (response) {
-			resp.status(201).send({ success: true, message: 'password reset successful' })
-		}
-		else {
-			const cid = await heliaFs.addFile(req.file)
-			let hashedPassword = await bcrypt.hash(password, 10);
-			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-			const user = await User.create({ email, name, password: hashedPassword, image: cid, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
-			if (user) {
-				resp.status(201).send({ success: true, message: 'registration successful' })
-			}
+		const cid = await heliaFs.addFile(req.file)
+		let hashedPassword = await bcrypt.hash(password, 10);
+		const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email , hashedPassword , image).send({ from: walletaddr })
+		if (tx) {
+			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
 	}
 	catch (e) {
