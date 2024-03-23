@@ -1,3 +1,14 @@
+const storageFiles = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "../src/assets/lands/");
+	},
+	filename: function (req, file, cb) {
+		const uniqueSuffix = guid();
+		cb(null, uniqueSuffix + file.originalname)
+	}
+})
+const uploadFiles = multer({ storage: storageFiles })
+
 app.addLand('/add-land',uploadFiles.array('files'),userController,addLand)
 app.getland('/get-land',userController,getland)
 app.getAllLands('/get-land-all',userController,getAllLands)
