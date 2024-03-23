@@ -20,12 +20,12 @@ exports.verifyOldUser = async(req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
-	}
+  }
 }
 const OTP = require('./models/OtpModel.cjs')
 
 
-exports.sendOtp('/send-otp', async (req, resp) => {
+exports.sendOtp = async (req, resp) => {
 	const { email } = req.body;
 	let otp = otpGenerator.generate(6, {
 		upperCaseAlphabets: false,
@@ -49,7 +49,7 @@ exports.sendOtp('/send-otp', async (req, resp) => {
 	}
 })
 
-exports.verifyOtp('/verify-otp-fp', async (req, resp) => {
+exports.verifyOtp = async (req, resp) => {
 	const { email, otp } = req.body;
 	try {
 		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
@@ -66,7 +66,7 @@ exports.verifyOtp('/verify-otp-fp', async (req, resp) => {
 	}
 })
 
-exports.forgetpass('/forgot-password', async (req, resp) => {
+exports.forgetpass = async (req, resp) => {
 	const { email } = req.body;
 	const existingUser = await User.find({ email })
 	if (existingUser) {
@@ -93,7 +93,7 @@ exports.forgetpass('/forgot-password', async (req, resp) => {
 	}
 })
 
-exports.resetpass('/reset-password', async (req, resp) => {
+exports.resetpass = async (req, resp) => {
 	const { email, password } = req.body;
 	try {
 		let hashedPassword = await bcrypt.hash(password, 10);
@@ -107,7 +107,7 @@ exports.resetpass('/reset-password', async (req, resp) => {
 		console.log(e)
 	}
 })
-exports.vOtp('/verify-otp', upload.single('image'), async (req, resp) => {
+exports.vOtp = async (req, resp) => {
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
 		const heliaFs = await createNode()
@@ -131,7 +131,7 @@ exports.vOtp('/verify-otp', upload.single('image'), async (req, resp) => {
 	}
 })
 
-exports.getImage('/get-image', async (req, resp) => {
+exports.getImage = async (req, resp) => {
 	try {
 		const tx = await contract.methods.getImage(walletaddr).call()
 		if (tx) {
@@ -144,7 +144,7 @@ exports.getImage('/get-image', async (req, resp) => {
 		console.log(e)
 	}
 })
-exports.login('/login', async (req, resp) => {
+exports.login = async (req, resp) => {
 	const { email, password } = req.body
 	try {
 		const tx = await contract.methods.isUserRegistered(walletaddr).call()

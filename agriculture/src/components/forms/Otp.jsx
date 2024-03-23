@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Snackbar from 'awesome-snackbar'
+import Loader from '../Loader';
 
 export default function Otp(props) {
   const api = import.meta.env.VITE_API_URL;
@@ -11,12 +12,35 @@ export default function Otp(props) {
   const [num4, setNum4] = useState();
   const [num5, setNum5] = useState();
   const [num6, setNum6] = useState();
+  const [status, setStatus] = useState(false);
+  const [minutes, setMinutes] = useState(2);
+  const [seconds, setSeconds] = useState(0);
   const numref1 = useRef();
   const numref2 = useRef();
   const numref3 = useRef();
   const numref4 = useRef();
   const numref5 = useRef();
   const numref6 = useRef();
+
+
+
+  useEffect(() => {
+    let interval = setInterval(() => {
+      if (seconds === 0) {
+        if (minutes === 0) {
+          clearInterval(interval);
+          // Handle countdown finish event here
+        } else {
+          setMinutes(minutes - 1);
+          setSeconds(59);
+        }
+      } else {
+        setSeconds(seconds - 1);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [minutes, seconds]);
 
 
   const handleValue1 = (e) => {
@@ -56,24 +80,25 @@ export default function Otp(props) {
   }
 
   const handleClick = async () => {
-    props.handleShow()
+    setStatus(true)
     let otp = num1 + num2 + num3 + num4 + num5 + num6
-    if (props.type == 'fp') { 
-      let result = await fetch(`${api}verify-otp-fp`,{
-        method:'post',
-        body:JSON.stringify({otp:otp,email:props.email}),
-        headers:{
-          "Content-Type":"application/json"
+    if (props.type == 'fp') {
+      let result = await fetch(`${api}verify-otp-fp`, {
+        method: 'post',
+        body: JSON.stringify({ otp: otp, email: props.email }),
+        headers: {
+          "Content-Type": "application/json"
         }
       })
       result = await result.json()
-      if(result.success == true)
-      {
+      if (result.success == true) {
         props.btnref.current;
         props.btnref.current.click()
+        setStatus(false)
       }
-      else{
+      else {
         if (result.message == 'Invalid Otp') {
+          setStatus(false)
           new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Invalid Otp`, {
             position: 'bottom-center',
             style: {
@@ -118,6 +143,7 @@ export default function Otp(props) {
       result = await result.json()
       console.log(result)
       if (result.success == true) {
+        setStatus(false)
         new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Registration Successful`, {
           position: 'bottom-center',
           style: {
@@ -146,6 +172,7 @@ export default function Otp(props) {
       }
       else {
         if (result.message == 'Invalid Otp') {
+          setStatus(false)
           new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Invalid Otp`, {
             position: 'bottom-center',
             style: {
@@ -183,27 +210,42 @@ export default function Otp(props) {
         "Content-Type": "application/json"
       }
     })
-    result = result.json()
-    console.log(result)
+    result = await result.json()
+    if (result.success == true) {
+      setMinutes(2)
+      setSeconds(0)
+    }
   }
 
   return (
-    <div className='otp-root'>
-      <p>Otp Sent Successfully to <b>{props.email}</b></p>
-      <div className='input-group'>
-        <input type='text' value={num1} onChange={handleValue1} ref={numref1}></input>
-        <input type='text' value={num2} onChange={handleValue2} ref={numref2}></input>
-        <input type='text' value={num3} onChange={handleValue3} ref={numref3}></input>
-        <input type='text' value={num4} onChange={handleValue4} ref={numref4}></input>
-        <input type='text' value={num5} onChange={handleValue5} ref={numref5}></input>
-        <input type='text' value={num6} onChange={handleValue6} ref={numref6}></input>
+    <>
+
+      <div className='otp-root'>
+        <p>Otp Sent Successfully to <b>{props.email}</b></p>
+        <div className='input-group'>
+          <input type='text' value={num1} onChange={handleValue1} ref={numref1}></input>
+          <input type='text' value={num2} onChange={handleValue2} ref={numref2}></input>
+          <input type='text' value={num3} onChange={handleValue3} ref={numref3}></input>
+          <input type='text' value={num4} onChange={handleValue4} ref={numref4}></input>
+          <input type='text' value={num5} onChange={handleValue5} ref={numref5}></input>
+          <input type='text' value={num6} onChange={handleValue6} ref={numref6}></input>
+        </div>
+        <div>
+          <button onClick={handleClick}>
+            Sumbit Otp&nbsp;&nbsp;
+            <Loader status = {status} otp={true}/>
+          </button>
+          {minutes > 0 ? (
+            <button onClick={handleReset} disabled={minutes > 0 ? false : true} style={{ background: minutes > 0 ? 'gray' : '' }}>Resend Otp&nbsp;&nbsp;
+              {minutes < 10 ? '0' + minutes : minutes}:
+              {seconds < 10 ? '0' + seconds : seconds}
+            </button>
+          ) : (
+            <button onClick={handleReset} disabled={minutes > 0 ? true : false} style={{ background: minutes > 0 ? 'gray' : '' }}>Resend Otp
+            </button>
+          )}
+        </div>
       </div>
-      <div>
-        <button onClick={handleClick}>
-          Sumbit Otp
-        </button>
-        <button onClick={handleReset}>Resend Otp</button>
-      </div>
-    </div>
+    </>
   )
 }

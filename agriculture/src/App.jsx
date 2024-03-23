@@ -9,7 +9,7 @@ import Login from './components/forms/Login'
 import Registryform from './components/forms/Registryform'
 import SellLand from './components/forms/SellLand'
 import BuyLand from './components/forms/BuyLand'
-import Loader from './components/Loader.jsx';
+import Otp from './components/forms/Otp';
 
 
 function App() {
@@ -35,18 +35,15 @@ function App() {
   useEffect(() => {
     connectToMetaMask()
   })
-  const handleShow = () => {
-    setShow(!show);
-    console.log(show)
-  }
+
   return (
     <BrowserRouter>
       <Navbar></Navbar>
       <div style={{ marginTop: '100px' }}>
         <Routes>
-          <Route path='/' element={<Main/>}></Route>
-          <Route path='/register' element={<Register/>}></Route>
-          <Route path='/login' element={<Login handleShow/>}></Route>
+          <Route path='/' element={<Main />}></Route>
+          <Route path='/register' element={<Register />}></Route>
+          <Route path='/login' element={<Login handleShow />}></Route>
           <Route path='/Registryform' element={<Registryform />}></Route>
           <Route path='/buyLand' element={<BuyLand />}></Route>
           <Route path='/MyLand' element={<SellLand />}></Route>
