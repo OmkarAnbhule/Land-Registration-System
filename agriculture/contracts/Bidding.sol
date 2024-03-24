@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
-// The Land.sol is still to be imported , this is just for progress report and this contract is isolated for now
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+// The Land.sol is still to be imported , this is just for progress report and this contract is isolated for now
 contract Bidding is  Ownable(msg.sender) {
     struct Bid {
         address payable bidder;
