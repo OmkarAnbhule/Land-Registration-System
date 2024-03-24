@@ -1,15 +1,12 @@
-const User = require('./models/UserModel.cjs')
+const bcrypt = require('bcrypt');
+const otpGenerator = require('otp-generator')
+const OTP = require('../models/OtpModel.cjs')
+const { walletaddr, contract } = require('../utils/contract.cjs')
+const { heliaFs } = require('../utils/heliaNode.cjs')
 
-exports.sendadd('/send-address', async (req, resp) => {
-	const { addr } = req.body;
-	console.log(addr)
-	updateWalletAddress(await addr)
-})
-
-exports.verifyOldUser = async(req, resp) => {
-	const { email } = req.body;
+exports.verifyOldUser = async (req, resp) => {
 	try {
-		const existingUser = await User.find({ email: email })
+		const existingUser = await contract.methods.isUserRegistered(walletaddr);
 		if (existingUser) {
 			resp.status(201).send({ success: true, message: 'User Found' })
 		}
@@ -20,10 +17,8 @@ exports.verifyOldUser = async(req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
-  }
+	}
 }
-const OTP = require('./models/OtpModel.cjs')
-
 
 exports.sendOtp = async (req, resp) => {
 	const { email } = req.body;
@@ -47,7 +42,7 @@ exports.sendOtp = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
-})
+}
 
 exports.verifyOtp = async (req, resp) => {
 	const { email, otp } = req.body;
@@ -64,7 +59,7 @@ exports.verifyOtp = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
-})
+}
 
 exports.forgetpass = async (req, resp) => {
 	const { email } = req.body;
@@ -91,13 +86,13 @@ exports.forgetpass = async (req, resp) => {
 			console.log(e)
 		}
 	}
-})
+}
 
 exports.resetpass = async (req, resp) => {
 	const { email, password } = req.body;
 	try {
 		let hashedPassword = await bcrypt.hash(password, 10);
-		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
+		const response = await contract.methods.resetPass(hashedPassword);
 		if (response) {
 			resp.status(201).send({ success: true, message: 'password reset successful' })
 		}
@@ -106,61 +101,51 @@ exports.resetpass = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
-})
-exports.vOtp = async (req, resp) => {
+}
+exports.registerUser = async (req, resp) => {
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
 		const heliaFs = await createNode()
-		const response = await User.findOneAndUpdate({ email }, { password: hashedPassword })
-		if (response) {
-			resp.status(201).send({ success: true, message: 'password reset successful' })
-		}
-		else {
-			const cid = await heliaFs.addFile(req.file)
-			let hashedPassword = await bcrypt.hash(password, 10);
-			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email).send({ from: walletaddr })
-			const user = await User.create({ email, name, password: hashedPassword, image: cid, dateOfBirth: dob, aadharNo: aadhar, panNo: pan, gender, isLoggedin: true })
-			if (user) {
-				resp.status(201).send({ success: true, message: 'registration successful' })
-			}
+		const cid = await heliaFs.addFile(req.file)
+		let hashedPassword = await bcrypt.hash(password, 10);
+		const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid).send({ from: walletaddr })
+		if (user) {
+			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
 	}
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
-})
+}
 
-exports.getImage = async (req, resp) => {
+exports.getUser = async (req, resp) => {
 	try {
-		const tx = await contract.methods.getImage(walletaddr).call()
+		const tx = await contract.methods.getUser(walletaddr).call()
 		if (tx) {
 			console.log(tx)
-			resp.status(201).send({ success: true, image: tx })
+			resp.status(201).send({ success: true, image: tx.image })
 		}
 	}
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
-})
+}
 exports.login = async (req, resp) => {
 	const { email, password } = req.body
 	try {
-		const tx = await contract.methods.isUserRegistered(walletaddr).call()
-		if (tx) {
-			const user = await contract.methods.getUser(walletaddr).call()
-			if (user) {
-				let result = await bcrypt.compare(password, user.password)
-				if (result)
-					resp.status(200).send({ success: true, message: 'login success' })
-			}
-			else {
-				resp.status(500).send({ success: false, message: 'Wrong Password' })
-			}
+
+		const user = await contract.methods.getUser(walletaddr).call()
+		if (user) {
+			let result = await bcrypt.compare(password, user.password)
+			if (result)
+				resp.status(200).send({ success: true, message: 'login success' })
+			else
+				resp.status(400).send({ success: false, message: 'Wrong Password' })
 		}
 		else {
-			resp.status(500).send({ success: false, message: 'User not found' })
+			resp.status(400).send({ success: false, message: 'User not found' })
 		}
 
 	}
@@ -168,4 +153,4 @@ exports.login = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
 	}
-})
+}

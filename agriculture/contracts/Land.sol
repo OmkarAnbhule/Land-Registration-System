@@ -86,7 +86,6 @@ contract Land {
         string memory _image
     ) public {
         require(!RegisteredUserMapping[msg.sender], "Already resgistered");
-
         RegisteredUserMapping[msg.sender] = true;
         userCount++;
         AllUsers[userCount] = msg.sender;
@@ -102,12 +101,17 @@ contract Land {
             _image,
             true
         );
+        login(msg.sender);
         if (!isElementPresent(msg.sender)) {
             ownerMapping.push(msg.sender);
         }
     }
 
-    function isUserRegistered(address _addr) public returns (bool) {
+    function getUser() public view returns (User memory) {
+        return UserMapping[msg.sender];
+    }
+
+    function login(address _addr) public returns (bool) {
         if (RegisteredUserMapping[_addr]) {
             UserMapping[_addr].isloggedin = true;
             return true;
@@ -119,17 +123,11 @@ contract Land {
     function logout(address _addr) public {
         UserMapping[_addr].isloggedin = false;
     }
-
-    function getImage(address _addr) public view returns (string memory) {
-        if (RegisteredUserMapping[_addr]) {
-            return UserMapping[_addr].image;
-        }
-        return "";
+    
+    function resetPass(string memory password) public {
+        UserMapping[msg.sender].password = password;
     }
 
-    function getUser(address _addr) public view returns (User memory) {
-        return UserMapping[_addr];
-    }
 
     function isElementPresent(address _element) public view returns (bool) {
         for (uint256 i = 0; i < ownerMapping.length; i++) {
@@ -253,11 +251,7 @@ contract Land {
         buyreqcount++;
     }
 
-    function acceptReg(
-        address _addr,
-        uint256 id,
-        uint256 price
-    ) public {
+    function acceptReg(address _addr, uint256 id, uint256 price) public {
         lands[_addr][id].isLandVerified = true;
         if (price > 0) {
             lands[_addr][id].landPrice = price;
@@ -281,11 +275,7 @@ contract Land {
         Registerreqcount--;
     }
 
-    function acceptBuy(
-        address buyer,
-        address seller,
-        uint256 index
-    ) public {
+    function acceptBuy(address buyer, address seller, uint256 index) public {
         Landreg[] memory land = lands[seller];
         for (uint256 i = 0; i < land.length; i++) {
             lands[buyer].push(land[i]);

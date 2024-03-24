@@ -11,6 +11,7 @@
     "proxy": "http://localhost:8080"
   },
   "dependencies": {
+    "@helia/core": "^0.0.0",
     "@helia/unixfs": "^3.0.2",
     "awesome-snackbar": "^2.0.7",
     "bcrypt": "^5.1.1",

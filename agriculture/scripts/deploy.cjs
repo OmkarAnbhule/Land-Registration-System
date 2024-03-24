@@ -41,7 +41,7 @@ async function main() {
 
   // Wait for the deployment transaction to be mined
   await contract.waitForDeployment();
-  const filePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/.env'
+  const filePath = '../agriculture/backend/.env'
   updateEnvVariable(filePath, "CONTRACT_ADDRESS", await contract.getAddress())
   console.log('deployed to: ', await contract.getAddress())
 }
