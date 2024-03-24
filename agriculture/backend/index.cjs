@@ -18,7 +18,7 @@ function S4() {
 }
 
 function readContractAddress() {
-	const configFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/config.json'
+	const configFilePath = 'agriculture/backend/config.json'
 	try {
 		const configData = fs.readFileSync(configFilePath);
 		const { contractAddress } = JSON.parse(configData);
@@ -29,7 +29,7 @@ function readContractAddress() {
 	}
 }
 function readWalletAddress() {
-	const configFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/config.json'
+	const configFilePath = 'agriculture/backend/config.json'
 	try {
 		const configData = fs.readFileSync(configFilePath);
 		const { walletAddress } = JSON.parse(configData);
@@ -40,7 +40,7 @@ function readWalletAddress() {
 	}
 }
 function updateWalletAddress(newAddress) {
-	const configFilePath = 'C:/Users/ASUS/OneDrive/Desktop/Land-Registration-System-1/agriculture/backend/config.json'
+	const configFilePath = 'agriculture/backend/config.json'
 	try {
 		const configData = fs.readFileSync(configFilePath);
 		const config = JSON.parse(configData);
