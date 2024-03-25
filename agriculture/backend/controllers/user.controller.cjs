@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
-const IPFS = await import('ipfs-core');
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
@@ -119,10 +118,12 @@ exports.resetpass = async (req, resp) => {
 	}
 }
 exports.registerUser = async (req, resp) => {
+	const IPFS = await import('ipfs-core');
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
 		const ipfs = await IPFS.create()
-		const result = await ipfs.add(req.file.buffer)
+		console.log(req.file)
+		const cid = await ipfs.add(req.file)
 		let hashedPassword = await bcrypt.hash(password, 10);
 		const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid.toString()).send({ from: walletaddr })
 		if (tx) {
@@ -139,6 +140,7 @@ exports.getUserDetails = async (req, resp) => {
 	try {
 		const tx = await contract.methods.getUser(walletaddr).call()
 		if (tx) {
+			console.log(tx)
 			resp.status(201).send({ success: true, image: tx.image })
 		}
 	}
