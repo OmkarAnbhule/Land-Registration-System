@@ -3,17 +3,18 @@ var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
 	console.log('Database connected')
 });
+const { walletAddress, contract } = require('./utils/contract.cjs')
 const express = require('express');
 const cors = require('cors')
 const app = express();
 const fs = require('fs')
-
 app.use(express.json());
 app.use(cors());
 
-const userRoute = require('./routes/user.route.cjs')(app)
-const landRoute = require('./routes/land.route.cjs')(app)
-console.log('app is listening at http://localhost:5000');
+
+app.listen(5000, () => {
+	console.log('app is listening at http://localhost:5000');
+})
 
 function updateWalletAddress(newAddress) {
 	const configFilePath = '../backend/config.json'
@@ -27,9 +28,10 @@ function updateWalletAddress(newAddress) {
 		console.error('Error updating contract address:', error);
 	}
 }
-app.post('/send-address', async (req, resp) => {
+app.post('/sendaddress', async (req, resp) => {
 	try {
 		const { addr } = req.body;
+		if(walletAddress == undefined)
 		updateWalletAddress(await addr)
 	}
 	catch (e) {
@@ -40,5 +42,6 @@ app.post('/send-address', async (req, resp) => {
 app.get('/', (req, res) => {
 	res.send('Hello World!')
 })
+app.use('/', require('./routes/user.route.cjs'))
+app.use('/', require('./routes/land.route.cjs'))
 
-app.listen(5000)

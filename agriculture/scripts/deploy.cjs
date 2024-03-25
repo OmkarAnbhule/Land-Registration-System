@@ -7,29 +7,12 @@
 const hre = require("hardhat");
 const fs = require('fs')
 
-function updateEnvVariable(filePath, key, value) {
+function updateEnvVariable(filePath , newAddress) {
   // Read the .env file
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
-    // Replace the existing key-value pair with the updated value
-    const updatedData = data.replace(
-      new RegExp(`^${key}=.*`, 'gm'),
-      `${key}=${value}`
-    );
-
-    // Write the updated content back to the .env file
-    fs.writeFile(filePath, updatedData, 'utf8', (err) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      console.log(`Environment variable '${key}' updated successfully.`);
-    });
-  });
+  const configData = fs.readFileSync(filePath);
+  const config = JSON.parse(configData);
+  config.contractAddress = newAddress;
+  fs.writeFileSync(filePath, JSON.stringify(config, null, 2));
 }
 
 
@@ -41,8 +24,8 @@ async function main() {
 
   // Wait for the deployment transaction to be mined
   await contract.waitForDeployment();
-  const filePath = '../agriculture/backend/.env'
-  updateEnvVariable(filePath, "CONTRACT_ADDRESS", await contract.getAddress())
+  const filePath = '../agriculture/backend/config.json'
+  updateEnvVariable(filePath, await contract.getAddress())
   console.log('deployed to: ', await contract.getAddress())
 }
 

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
-const { heliaFs } = require('../utils/heliaNode.cjs')
+const IPFS = await import('ipfs-core');
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
@@ -105,11 +105,11 @@ exports.resetpass = async (req, resp) => {
 exports.registerUser = async (req, resp) => {
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
-		const heliaFs = await createNode()
-		const cid = await heliaFs.addFile(req.file)
+		const ipfs = await IPFS.create()
+		const result = await ipfs.add(req.file.buffer)
 		let hashedPassword = await bcrypt.hash(password, 10);
-		const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid).send({ from: walletaddr })
-		if (user) {
+		const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid.toString()).send({ from: walletaddr })
+		if (tx) {
 			resp.status(201).send({ success: true, message: 'registration successful' })
 		}
 	}
@@ -119,17 +119,16 @@ exports.registerUser = async (req, resp) => {
 	}
 }
 
-exports.getUser = async (req, resp) => {
+exports.getUserDetails = async (req, resp) => {
 	try {
 		const tx = await contract.methods.getUser(walletaddr).call()
 		if (tx) {
-			console.log(tx)
 			resp.status(201).send({ success: true, image: tx.image })
 		}
 	}
 	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 	}
 }
 exports.login = async (req, resp) => {

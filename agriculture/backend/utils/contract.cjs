@@ -7,7 +7,6 @@ function readContractAddress() {
     try {
         const configData = fs.readFileSync(configFilePath);
         const { contractAddress } = JSON.parse(configData);
-        console.log(contractAddress)
         return contractAddress;
     } catch (error) {
         console.error('Error reading contract address:', error);
@@ -20,7 +19,6 @@ function readWalletAddress() {
     try {
         const configData = fs.readFileSync(configFilePath);
         const { walletAddress } = JSON.parse(configData);
-        console.log(walletAddress)
         return walletAddress;
     } catch (error) {
         console.error('Error reading contract address:', error);
@@ -35,7 +33,6 @@ try {
     contractABI = JSON.parse(abiData).abi;
 } catch (error) {
     console.error('Error reading ABI:', error);
-
 }
 var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 

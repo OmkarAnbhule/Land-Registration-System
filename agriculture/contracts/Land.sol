@@ -107,8 +107,8 @@ contract Land {
         }
     }
 
-    function getUser() public view returns (User memory) {
-        return UserMapping[msg.sender];
+    function getUser(address _addr) public view returns (User memory) {
+        return UserMapping[_addr];
     }
 
     function login(address _addr) public returns (bool) {
@@ -123,11 +123,10 @@ contract Land {
     function logout(address _addr) public {
         UserMapping[_addr].isloggedin = false;
     }
-    
+
     function resetPass(string memory password) public {
         UserMapping[msg.sender].password = password;
     }
-
 
     function isElementPresent(address _element) public view returns (bool) {
         for (uint256 i = 0; i < ownerMapping.length; i++) {
