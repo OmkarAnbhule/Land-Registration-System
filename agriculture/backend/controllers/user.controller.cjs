@@ -61,6 +61,22 @@ exports.verifyOtp = async (req, resp) => {
 	}
 }
 
+exports.logout = async(req,resp)=>{
+	try{
+		const tx = await contract.methods.logout(walletaddr).call();
+		if(tx){
+			resp.status(201).send({success:true,message:'logout successfull'})
+		}
+		else{
+			resp.status(201).send({success:false,message:'logout fail'})
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+		console.log(e)
+	}
+}
+
 exports.forgetpass = async (req, resp) => {
 	const { email } = req.body;
 	const existingUser = await User.find({ email })
