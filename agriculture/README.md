@@ -11,3 +11,11 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
+These commands have to be followed
+```
+npm i 
+npm run dev
+npx nodemon index.cjs
+npx hardhat node 
+npx hardhat run scripts/deploy.cjs --network localhost
+```
