@@ -1,4 +1,10 @@
-exports.addLand('/add-land', uploadFiles.array('files'), async (req, resp) => {
+const bcrypt = require('bcrypt');
+const otpGenerator = require('otp-generator')
+const OTP = require('../models/OtpModel.cjs')
+const { walletaddr, contract } = require('../utils/contract.cjs')
+const { heliaFs } = require('../utils/heliaNode.cjs')
+
+exports.addLand = async (req, resp) => {
 	const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
 	const files = req.files.map((item, index) => (
 		item.filename
@@ -17,8 +23,8 @@ exports.addLand('/add-land', uploadFiles.array('files'), async (req, resp) => {
 	}
 
 
-})
-exports.getland('/get-land', async (req, resp) => {
+}
+exports.getland = async (req, resp) => {
 	const tx = await contract.methods.getMyLands(walletaddr).call()
 	if (tx) {
 		console.log(tx)
@@ -35,8 +41,8 @@ exports.getland('/get-land', async (req, resp) => {
 		}
 		resp.status(200).send({ success: true, data: tx })
 	}
-})
-exports.getAllLands('/get-land-all', async (req, resp) => {
+}
+exports.getAllLands = async (req, resp) => {
 	const tx = await contract.methods.getAllLands(walletaddr).call()
 	if (tx) {
 		for (var i in tx) {
@@ -52,8 +58,8 @@ exports.getAllLands('/get-land-all', async (req, resp) => {
 		}
 		resp.status(200).send({ success: true, data: tx })
 	}
-})
-exports.sellland('/sell-land', async (req, resp) => {
+}
+exports.sellland = async (req, resp) => {
 	const { objId } = req.body;
 	try {
 		const tx = await contract.methods.sellReq(walletaddr, parseInt(objId, 10)).send({ from: walletaddr })
@@ -65,8 +71,8 @@ exports.sellland('/sell-land', async (req, resp) => {
 		console.log(e)
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
-exports.buyland('/buy-land', async (req, resp) => {
+}
+exports.buyland = async (req, resp) => {
 	const { owner } = req.body;
 	try {
 		const tx = await contract.methods.buyReq(walletaddr, owner).send({ from: walletaddr })
@@ -78,20 +84,11 @@ exports.buyland('/buy-land', async (req, resp) => {
 		console.log(e)
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
-exports.logout('/logout', async (req, resp) => {
-	try {
-		const tx = await contract.methods.logout(walletaddr).call();
-		resp.status(201).send({ success: true, message: 'logged out successfully' })
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-})
+}
+
 
 //admin queries
-exports.buyReq('/buy-req', async (req, resp) => {
+exports.buyReq = async (req, resp) => {
 	try {
 		const tx = await contract.methods.getBuyRequest().call()
 		if (tx) {
@@ -113,8 +110,8 @@ exports.buyReq('/buy-req', async (req, resp) => {
 		console.log(e)
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
-exports.registerreq('/register-req', async (req, resp) => {
+}
+exports.registerreq = async (req, resp) => {
 	try {
 		const tx = await contract.methods.getSellRequest().call();
 		console.log(tx)
@@ -137,8 +134,8 @@ exports.registerreq('/register-req', async (req, resp) => {
 		console.log(e)
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
-exports.registeraccept('/register-accept', async (req, resp) => {
+}
+exports.registeraccept = async (req, resp) => {
 	const { id } = req.body;
 	try {
 		const tx = await contract.methods.acceptReg(walletaddr, parseInt(id, 10)).send({ from: walletaddr })
@@ -148,8 +145,8 @@ exports.registeraccept('/register-accept', async (req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
-exports.buyaccept('/buyer-accept', async (req, resp) => {
+}
+exports.buyaccept = async (req, resp) => {
 	const { objId, owner } = req.body;
 	try {
 		const tx = await contract.methods.acceptBuy(walletaddr, owner, parseInt(objId, 10)).call()
@@ -160,10 +157,10 @@ exports.buyaccept('/buyer-accept', async (req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
+}
 
-})
 
-exports.reject('/register-reject', async (req, resp) => {
+exports.reject = async (req, resp) => {
 	const { id } = req.body;
 	try {
 		const tx = await contract.methods.rejectReg(parseInt(id, 10)).call()
@@ -173,8 +170,8 @@ exports.reject('/register-reject', async (req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
-exports.buyerrej('/buyer-reject', async (req, resp) => {
+}
+exports.buyerrej = async (req, resp) => {
 	const { id } = req.body;
 	try {
 		const tx = await contract.methods.rejectBuy(parseInt(id, 10)).call()
@@ -184,4 +181,4 @@ exports.buyerrej('/buyer-reject', async (req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
-})
+}

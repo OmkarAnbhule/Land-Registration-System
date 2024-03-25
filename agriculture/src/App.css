@@ -1706,6 +1706,24 @@
   }
 }
 
+#map {
+  .btn {
+    position: absolute;
+    right: 10%;
+    bottom: 10%;
+    z-index: 20;
+    padding: 10px;
+    background: rgb(14, 94, 254);
+    color:white;
+    border:none;
+    transition: all .5s;
+    &:hover{
+      background: rgb(119, 119, 250);
+      transform: scale(1.2);
+    }
+  }
+}
+
 .registration-form-container {
   max-width: 350px;
   margin: 0 auto;
@@ -1720,16 +1738,34 @@
     flex-direction: column;
   }
 
+
   .form-group {
     margin-bottom: 15px;
     position: relative;
-    p{
-      color:red;
+
+    p {
+      color: red;
       position: absolute;
-      right:0;
-      bottom:-35px;
+      right: 0;
+      bottom: -39px;
+    }
+    i{
+      position: absolute;
+      right: -10px;
+      top:50%;
+      font-size: large;
+      background: white;
+      padding: 0px 5px;
+      padding-left:10px ;
+      height: min-content;
+      margin:0;
+      &:hover{
+        color:gray;
+        cursor: pointer;
+      }
     }
   }
+  
 
   label {
     font-weight: bold;
@@ -1741,6 +1777,14 @@
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
+  }
+  .state{
+    width: 90%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding-right: 50px;
   }
 
   .btn-submit {
@@ -2341,26 +2385,26 @@
   }
 }
 
-.loader{
+.loader {
   display: grid;
   justify-content: center;
-  align-items:center;
+  align-items: center;
   position: absolute;
   min-height: 100vh;
-  width:100%;
+  width: 100%;
   height: 100%;
-  background: rgba(0,0,0,.63);
-  top:100px;
-  z-index:9999;
+  background: rgba(0, 0, 0, .63);
+  top: 100px;
+  z-index: 9999;
 }
 
-.loader{
+.loader {
   display: grid;
   justify-content: center;
-  align-items:center;
+  align-items: center;
   position: absolute;
-  width:50%;
+  width: 50%;
   height: 50%;
-  top:100px;
-  z-index:9999;
+  top: 100px;
+  z-index: 9999;
 }

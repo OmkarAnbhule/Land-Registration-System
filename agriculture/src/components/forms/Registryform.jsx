@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Snackbar from 'awesome-snackbar'
 import { mappls as mappls1 } from 'mappls-web-maps'
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const LandRegistrationForm = () => {
   const api = import.meta.env.VITE_API_URL;
@@ -19,22 +17,67 @@ const LandRegistrationForm = () => {
   const [areaErr, setAreaErr] = useState('')
   const [stateErr, setStateErr] = useState('')
   const [districtErr, setDistrictErr] = useState('')
+  const [addressErr, setAddressErr] = useState('');
+  const [propertyPIDErr, setPropertyPIdErr] = useState('');
   const [surveyErr, setSurveyErr] = useState('')
   const [priceErr, setPriceErr] = useState('')
   const [fileErr, setFileErr] = useState('')
-  const [showMap, setShowMap] = useState('inline-block');
-  const [polygon , setPolygon] = useState('')
+  const [showMap, setShowMap] = useState('none');
+  const [polygon, setPolygon] = useState('')
   const navigate = useNavigate()
 
   const styleMap = {
-    width: '80%', height: '80vh', display: showMap, position: 'absolute', zIndex: '10', left: '10%', top: '15%'
+    width: '80%', height: '80vh', display: showMap, position: 'absolute', zIndex: '10', left: '10%', top: '20%'
   }
   var mapProps = null
   var mapObject;
   var mapplsClassObject = new mappls1();
   mapProps = { traffic: false, zoom: 4, geolocation: true, location: true, clickableIcons: true }
+  function degreesToRadians(degrees) {
+    return degrees * (Math.PI / 180);
+  }
 
-  useEffect(() => {
+  function calculatePolygonArea(vertices) {
+    var totalArea = 0;
+
+    // Convert latitude and longitude from degrees to radians
+    function toRadians(lat, lng) {
+      return {
+        lat: degreesToRadians(lat),
+        lng: degreesToRadians(lng)
+      };
+    }
+
+    // Calculate area of a single triangle formed by three vertices
+    function triangleArea(a, b, c) {
+      var semiperimeter = (a + b + c) / 2;
+      return Math.sqrt(semiperimeter * (semiperimeter - a) * (semiperimeter - b) * (semiperimeter - c));
+    }
+
+    // Iterate over each vertex and calculate triangle areas
+    for (var i = 0; i < vertices.length - 2; i++) {
+      var p1 = toRadians(vertices[0][0], vertices[0][1]);
+      var p2 = toRadians(vertices[i + 1][0], vertices[i + 1][1]);
+      var p3 = toRadians(vertices[i + 2][0], vertices[i + 2][1]);
+
+      var side1 = Math.acos(Math.sin(p1.lat) * Math.sin(p2.lat) +
+        Math.cos(p1.lat) * Math.cos(p2.lat) * Math.cos(p1.lng - p2.lng));
+
+      var side2 = Math.acos(Math.sin(p2.lat) * Math.sin(p3.lat) +
+        Math.cos(p2.lat) * Math.cos(p3.lat) * Math.cos(p2.lng - p3.lng));
+
+      var side3 = Math.acos(Math.sin(p3.lat) * Math.sin(p1.lat) +
+        Math.cos(p3.lat) * Math.cos(p1.lat) * Math.cos(p3.lng - p1.lng));
+
+      var triangleAreaValue = triangleArea(side1, side2, side3);
+      totalArea += triangleAreaValue;
+    }
+
+    // Return the total area
+    return totalArea;
+  }
+  const handleMap = () => {
+    setShowMap('inline-block')
     mapplsClassObject.initialize(token, () => {
       mapObject = mapplsClassObject.Map({ id: "map", properties: mapProps });
       //load map layers/components after map load, inside this callback (Recommended)
@@ -44,82 +87,106 @@ const LandRegistrationForm = () => {
           fillColor: "red",
           lineGap: 10,
           strokeOpacity: 1.0,
-          popupHtml: `<button class="popup-btn" id="popup-btn"><i class="bi bi-check"></i></button>`
+          popupHtml: 'your land'
         }
         mappls.draw({
           map: mapObject,
           type: 'polygon',
           callback: draw_callback,
-          options: options,
-          onclick: handleShowMap
+          options: options
         })
+
+
         function draw_callback(data) {
           polygon1 = data;
           setPolygon(data)
           polygon1.setEditable(true);
-          polygon1.on('click', 'pgon0', handleShowMap())
         }
       });
 
     });
-  }, [])
-  const handleShowMap = () => {
-    confirmAlert({
-      title: 'Confirm to submit',
-      message: 'Are you sure to do this.',
-      buttons: [
-        {
-          label: 'Yes',
-          onClick: () =>setShowMap('none')
-        },
-        {
-          label: 'No',
-          onClick: () =>setShowMap('inline-block')
-        }
-      ]
-    });
   }
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    let formdata = new FormData()
-    for (var item of files) {
-      formdata.append('files', item)
+  const handleShowMap = async () => {
+    let data = await fetch(`https://apis.mapmyindia.com/advancedmaps/v1/${token}/rev_geocode?&lng=${polygon.getPath("pgno0")[0][1][1]}&lat=${polygon.getPath("pgno0")[0][1][0]}&region=IND&lang=en`)
+    data = await data.json()
+    console.log(data)
+    if (data.responseCode == 200) {
+      console.log(data.results)
+      setState(data.results[0].state)
+      setDistrict(data.results[0].district)
+      setAddress(data.results[0].formatted_address)
+      console.log(polygon.getPath("pgno0")[0], Math.round(calculatePolygonArea(polygon.getPath("pgno0")[0]) * 1e12))
+      setArea(Math.round(calculatePolygonArea(polygon.getPath("pgno0")[0]) * 1e12).toString())
+      setShowMap('none')
     }
-    formdata.append('data', JSON.stringify({ email: localStorage.getItem('id'), price, area, state, district, propertyid, survey }))
-    // You can handle form submission here, for example, sending data to an API
-    console.log(formdata, files)
-    let result = await fetch(`${api}add-land`, {
-      method: 'post',
-      body: formdata
-    })
-    result = await result.json()
-    if (result.success == true) {
-      new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Land Registered Successful`, {
-        position: 'bottom-center',
-        style: {
-          container: [
-            ['background', 'rgb(130, 249, 103)'],
-            ['border-radius', '5px'],
-            ['height', '50px'],
-            ['padding', '10px'],
-            ['border-radius', '20px']
-          ],
-          message: [
-            ['color', 'black'],
-            ['font-size', '18px']
-          ],
-          bold: [
-            ['font-weight', 'bold'],
-          ],
-          actionButton: [
-            ['color', 'white'],
-          ],
-        }
-      });
-      navigate('/')
+
+  }
+  const handleSubmit = async () => {
+    if (areaErr == '' && priceErr == '' && addressErr == '' && stateErr == '' && districtErr == '' && propertyPIDErr == '' && surveyErr == '' && fileErr == '' && area != '' && price != '' && address != '' && state != '' && district != '' && propertyid != '' && survey != '' && files.length != 0) {
+      let formdata = new FormData()
+      for (var item of files) {
+        formdata.append('files', item)
+      }
+      formdata.append('data', JSON.stringify({ email: localStorage.getItem('id'), price, area, state, district, propertyid, survey }))
+      // You can handle form submission here, for example, sending data to an API
+      console.log(formdata, files)
+      let result = await fetch(`${api}add-land`, {
+        method: 'post',
+        body: formdata
+      })
+      result = await result.json()
+      if (result.success == true) {
+        new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Land Registered Successful`, {
+          position: 'bottom-center',
+          style: {
+            container: [
+              ['background', 'rgb(130, 249, 103)'],
+              ['border-radius', '5px'],
+              ['height', '50px'],
+              ['padding', '10px'],
+              ['border-radius', '20px']
+            ],
+            message: [
+              ['color', 'black'],
+              ['font-size', '18px']
+            ],
+            bold: [
+              ['font-weight', 'bold'],
+            ],
+            actionButton: [
+              ['color', 'white'],
+            ],
+          }
+        });
+        navigate('/')
+      }
+      else {
+        new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
+          position: 'bottom-center',
+          style: {
+            container: [
+              ['background', 'rgb(246, 58, 93)'],
+              ['border-radius', '5px'],
+              ['height', '50px'],
+              ['padding', '10px'],
+              ['border-radius', '20px']
+            ],
+            message: [
+              ['color', '#eee'],
+              ['font-size', '18px']
+            ],
+            bold: [
+              ['font-weight', 'bold'],
+            ],
+            actionButton: [
+              ['color', 'white'],
+            ],
+          }
+        });
+      }
     }
     else {
-      new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
+      new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
         position: 'bottom-center',
         style: {
           container: [
@@ -187,6 +254,38 @@ const LandRegistrationForm = () => {
       setDistrictErr('')
     }
   }
+  const handleAddress = (e) => {
+    const temp = e.target.value.replace(/\s/g, '')
+    setAddress(temp);
+    if (address == '' && addressErr == '') {
+      setAddressErr('Address not filled')
+    }
+    else {
+      setAddressErr('')
+    }
+  }
+
+  const handlePropertyPID = (e) => {
+    const temp = e.target.value.replace(/\s/g, '')
+    setPropertyId(temp);
+    if (propertyid == '' && propertyPIDErr == '') {
+      setPropertyPIdErr('Property PID not filled')
+    }
+    else {
+      setPropertyPIdErr('')
+    }
+  }
+
+  const handleSurvey = (e) => {
+    const temp = e.target.value.replace(/\s/g, '')
+    setSurvey(temp);
+    if (survey == '' && surveyErr == '') {
+      setSurveyErr('Survey not filled')
+    }
+    else {
+      setSurveyErr('')
+    }
+  }
 
   const handleFiles = (e) => {
     let validFiles = Array.from(e.target.files)
@@ -196,6 +295,12 @@ const LandRegistrationForm = () => {
     setFiles(prevFiles => [...prevFiles, ...validFiles]);
     if (files.length > 7) {
       setFiles(Array.from(files.splice(0, 7)))
+    }
+    if (files.length == 0) {
+      setFileErr('Files not filled')
+    }
+    else {
+      setFileErr('')
     }
   }
   const handleFileDelete = (target) => {
@@ -208,22 +313,24 @@ const LandRegistrationForm = () => {
   return (
     <>
       <div>
-        <div id="map" style={styleMap}></div>
+        <div id="map" style={styleMap}>
+          <button onClick={handleShowMap} className='btn'><i className='bi bi-check-lg' style={{ fontSize: '25px' }}></i></button>
+        </div>
       </div>
       <div className="registration-form-container">
         <h2>Land Registration Form</h2>
-        <form className="registration-form">
+        <div className="registration-form">
           <div className="form-group">
             <label htmlFor="area">Area:</label>
             <input
               type="text"
               id="area"
-              placeholder="Enter area"
+              placeholder="Enter area in (.sqft)"
               value={area}
               onChange={handleArea}
               className="form-control"
             />
-            <p>Error</p>
+            <p>{areaErr}</p>
           </div>
           <div className="form-group">
             <label htmlFor="price">Price:</label>
@@ -232,10 +339,23 @@ const LandRegistrationForm = () => {
               id="price"
               placeholder="Enter price"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={handlePrice}
               className="form-control"
             />
-            <p>Error</p>
+            <p>{priceErr}</p>
+          </div>
+          <div className="form-group">
+            <label htmlFor="address">Address:</label>
+            <input
+              type="text"
+              id="address"
+              placeholder="Enter Address"
+              value={address}
+              onChange={handleAddress}
+              className="form-control state"
+            />
+            <i className='bi bi-map' onClick={handleMap}></i>
+            <p>{addressErr}</p>
           </div>
           <div className="form-group">
             <label htmlFor="state">State:</label>
@@ -244,10 +364,10 @@ const LandRegistrationForm = () => {
               id="state"
               placeholder="Enter state"
               value={state}
-              onChange={(e) => setState(e.target.value)}
+              onChange={handleState}
               className="form-control"
             />
-            <p>Error</p>
+            <p>{stateErr}</p>
           </div>
           <div className="form-group">
             <label htmlFor="district">District:</label>
@@ -259,6 +379,7 @@ const LandRegistrationForm = () => {
               onChange={handleDistrict}
               className="form-control"
             />
+            <p>{districtErr}</p>
           </div>
           <div className="form-group">
             <label htmlFor="property">Property Number:</label>
@@ -267,9 +388,10 @@ const LandRegistrationForm = () => {
               id="property"
               placeholder="Enter property number"
               value={propertyid}
-              onChange={(e) => setPropertyId(e.target.value)}
+              onChange={handlePropertyPID}
               className="form-control"
             />
+            <p>{propertyPIDErr}</p>
           </div>
           <div className="form-group">
             <label htmlFor="survey">Survey Number:</label>
@@ -278,9 +400,10 @@ const LandRegistrationForm = () => {
               id="survey"
               placeholder="Enter survey number"
               value={survey}
-              onChange={(e) => setSurvey(e.target.value)}
+              onChange={handleSurvey}
               className="form-control"
             />
+            <p>{surveyErr}</p>
           </div>
           <div className='form-group'>
             <label htmlFor='files'>Enter Documents:</label>
@@ -293,6 +416,7 @@ const LandRegistrationForm = () => {
               style={{ marginLeft: '10px' }}
               disabled={files.length >= 7 ? true : false}
             />
+            <p>{fileErr}</p>
           </div>
           <div className='display'>
             {files.map((item, index) => (
@@ -304,7 +428,7 @@ const LandRegistrationForm = () => {
             )}
           </div>
           <button onClick={handleSubmit} className="btn-submit">Register</button>
-        </form>
+        </div>
       </div>
     </>
   );

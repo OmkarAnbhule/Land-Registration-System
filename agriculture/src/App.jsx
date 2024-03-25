@@ -9,7 +9,6 @@ import Login from './components/forms/Login'
 import Registryform from './components/forms/Registryform'
 import SellLand from './components/forms/SellLand'
 import BuyLand from './components/forms/BuyLand'
-import Otp from './components/forms/Otp';
 
 
 function App() {
@@ -28,6 +27,7 @@ function App() {
           "Content-Type": "application/json"
         }
       })
+      console.log(result);
     } else {
       console.log("MetaMask is not installed");
     }
