@@ -127,7 +127,7 @@ const LandRegistrationForm = () => {
       for (var item of files) {
         formdata.append('files', item)
       }
-      formdata.append('data', JSON.stringify({ email: localStorage.getItem('id'), price, area, state, district, propertyid, survey }))
+      formdata.append('data', JSON.stringify({ price, area, state, district, propertyid, survey , address}))
       // You can handle form submission here, for example, sending data to an API
       console.log(formdata, files)
       let result = await fetch(`${api}add-land`, {

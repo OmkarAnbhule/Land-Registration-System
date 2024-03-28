@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.5.0 <0.8.7;
+pragma solidity ^0.8.7;
 
 contract Land {
     address contractOwner;
@@ -11,6 +11,8 @@ contract Land {
     struct Landreg {
         uint256 id;
         uint256 area;
+        string state;
+        string district;
         string landAddress;
         string propertyPID;
         string surveyNum;
@@ -30,7 +32,7 @@ contract Land {
         string surveyNum;
         uint256 landPrice;
         string[] files;
-        string timestamp;
+        uint256 timestamp;
         bool isforSell;
         address payable ownerAddress;
         bool isLandVerified;
@@ -139,6 +141,8 @@ contract Land {
 
     function addLand(
         uint256 _area,
+        string memory _state,
+        string memory _district,
         string memory _address,
         string memory _propertyPID,
         string memory _surveyNum,
@@ -150,6 +154,8 @@ contract Land {
             Landreg(
                 landsCount,
                 _area,
+                _state,
+                _district,
                 _address,
                 _propertyPID,
                 _surveyNum,

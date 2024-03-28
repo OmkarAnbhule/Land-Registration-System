@@ -4,14 +4,13 @@ const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
 
 exports.addLand = async (req, resp) => {
-	const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
+	const { area, state, district, propertyid, survey, price , address } = JSON.parse(req.body.data)
 	const files = req.files.map((item, index) => (
 		item.filename
 	))
 	console.log(files, req.files)
 	try {
-		const address = state + ' , ' + district
-		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
+		const tx = await contract.methods.addLand(parseInt(area, 10),state ,district, address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'land registered' })
 		}
