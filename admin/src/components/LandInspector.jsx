@@ -1,5 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+//import faker from 'faker';
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+  );
 const LandInspector = () => {
     const [buyerRequests, setBuyerRequests] = useState([]);
     const [registerRequests, setRegisterRequests] = useState([]);
@@ -134,7 +152,6 @@ const LandInspector = () => {
     const totalBuyerRequests = buyerRequests.length;
     const totalRegisterRequests = registerRequests.length;
 
-    // Chart data for dashboard
     const chartData = {
         labels: ['Buyer Requests', 'Register Requests'],
         datasets: [
