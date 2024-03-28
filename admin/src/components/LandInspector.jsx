@@ -30,7 +30,7 @@ const LandInspector = () => {
         if (result.success == true) {
             if (buyerRequests.length > 0) {
                 for (var item of result.data) {
-                    if (sellerRequests.find(obj => obj._id !== item._id)) {
+                    if (sellerRequests.find(obj => obj.id !== item.id)) {
                         setBuyerRequests((pre) => [...pre, item])
                     }
                 }
@@ -50,10 +50,10 @@ const LandInspector = () => {
         })
         result = await result.json()
         if (result.success == true) {
-            if (RegisterRequests.length > 0) {
+            if (registerRequests.length > 0) {
                 for (var item of result.data) {
                     console.log(item)
-                    if (RegisterRequests.find(obj => obj._id !== item._id)) {
+                    if (registerRequests.find(obj => obj.id !== item.id)) {
                         setRegisterRequests((pre) => [...pre, ...result.data])
                     }
                 }
