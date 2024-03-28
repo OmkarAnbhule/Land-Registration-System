@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
-const { heliaFs } = require('../utils/heliaNode.cjs')
 
 exports.addLand = async (req, resp) => {
 	const { area, state, district, email, propertyid, survey, price } = JSON.parse(req.body.data)
