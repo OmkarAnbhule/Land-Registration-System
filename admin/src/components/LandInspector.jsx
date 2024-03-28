@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
-
 const LandInspector = () => {
     const [buyerRequests, setBuyerRequests] = useState([]);
     const [registerRequests, setRegisterRequests] = useState([]);
