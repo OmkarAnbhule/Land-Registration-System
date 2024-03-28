@@ -8,7 +8,6 @@ exports.addLand = async (req, resp) => {
 	const files = req.files.map((item, index) => (
 		item.filename
 	))
-	console.log(files, req.files)
 	try {
 		const tx = await contract.methods.addLand(parseInt(area, 10),state ,district, address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
 		if (tx) {
