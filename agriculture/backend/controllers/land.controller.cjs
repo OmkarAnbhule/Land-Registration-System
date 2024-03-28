@@ -6,7 +6,7 @@ const { walletaddr, contract } = require('../utils/contract.cjs')
 exports.addLand = async (req, resp) => {
 	const { area, state, district, propertyid, survey, price , address } = JSON.parse(req.body.data)
 	const files = req.files.map((item, index) => (
-		item.filename
+		item.originalname
 	))
 	console.log(files, req.files)
 	try {
