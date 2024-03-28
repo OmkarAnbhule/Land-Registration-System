@@ -11,7 +11,7 @@ exports.addLand = async (req, resp) => {
 	console.log(files, req.files)
 	try {
 		const address = state + ' , ' + district
-		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10), files, Date.now().toString()).send({ from: walletaddr })
+		const tx = await contract.methods.addLand(parseInt(area, 10), address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'land registered' })
 		}

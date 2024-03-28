@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.7;
+pragma solidity >=0.5.0 <0.8.7;
 
 contract Land {
     address contractOwner;
@@ -16,7 +16,7 @@ contract Land {
         string surveyNum;
         uint256 landPrice;
         string[] files;
-        string timestamp;
+        uint256 timestamp;
         bool isforSell;
         address payable ownerAddress;
         bool isLandVerified;
@@ -143,8 +143,8 @@ contract Land {
         string memory _propertyPID,
         string memory _surveyNum,
         uint256 _landPrice,
-        string[] memory _files,
-        string memory _timestamp
+        string[] memory _files
+        //string memory _timestamp
     ) public {
         lands[msg.sender].push(
             Landreg(
@@ -155,7 +155,7 @@ contract Land {
                 _surveyNum,
                 _landPrice,
                 _files,
-                _timestamp,
+                block.timestamp,
                 false,
                 payable(msg.sender),
                 false

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
 
 const LandInspector = () => {
     const [buyerRequests, setBuyerRequests] = useState([]);
-    const [RegisterRequests, setRegisterRequests] = useState([]);
+    const [registerRequests, setRegisterRequests] = useState([]);
     const [showBuyerRequests, setShowBuyerRequests] = useState(false);
     const [showRegisterRequests, setShowRegisterRequests] = useState(false);
 
@@ -129,13 +130,37 @@ const LandInspector = () => {
         }
     };
 
+
+    // Calculate statistics for dashboard
+    const totalBuyerRequests = buyerRequests.length;
+    const totalRegisterRequests = registerRequests.length;
+
+    // Chart data for dashboard
+    const chartData = {
+        labels: ['Buyer Requests', 'Register Requests'],
+        datasets: [
+            {
+                label: 'Total Requests',
+                data: [totalBuyerRequests, totalRegisterRequests],
+                backgroundColor: ['#36A2EB', '#FF6384'],
+            },
+        ],
+    };
+
     return (
         <div className="land-inspector">
             <h2>Land Inspector</h2>
+            <div className="dashboard">
+                <h3>Dashboard</h3>
+                <div className="chart">
+                    <Bar data={chartData} />
+                </div>
+            </div>
             <div className="toggle-buttons">
                 <button onClick={toggleBuyerRequests} className={showBuyerRequests ? 'active' : ''}>Buyer</button>
                 <button onClick={toggleRegisterRequests} className={showRegisterRequests ? 'active' : ''}>Register</button>
             </div>
+
             {showBuyerRequests && (
                 <div className="request-section">
                     <h3>Buyer Requests</h3>
@@ -163,7 +188,7 @@ const LandInspector = () => {
                 <div className="request-section">
                     <h3>Register Requests</h3>
                     <ul className="request-list">
-                        {RegisterRequests.map((item, index) => (
+                        {registerRequests.map((item, index) => (
                             <li key={index} className="request-item">
                                 <div>
                                     <p>area: {item.area}</p>
