@@ -32,8 +32,28 @@ function App() {
       console.log("MetaMask is not installed");
     }
   };
+
+  const checkLogin = async () => {
+    try{
+      let result = await fetch(`${api}check-login`,{
+        method:'post',
+        headers:{
+          "Content-Type":"application/json"
+        }
+      });
+      result = result.json();
+
+      if(result.success == false){
+        localStorage.clear()
+      }
+    }
+    catch(e){
+      console.log(e)
+    }
+  }
   useEffect(() => {
     connectToMetaMask()
+    checkLogin()
   },[])
 
   return (

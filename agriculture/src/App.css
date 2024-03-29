@@ -1714,10 +1714,11 @@
     z-index: 20;
     padding: 10px;
     background: rgb(14, 94, 254);
-    color:white;
-    border:none;
+    color: white;
+    border: none;
     transition: all .5s;
-    &:hover{
+
+    &:hover {
       background: rgb(119, 119, 250);
       transform: scale(1.2);
     }
@@ -1749,23 +1750,25 @@
       right: 0;
       bottom: -39px;
     }
-    i{
+
+    i {
       position: absolute;
       right: -10px;
-      top:50%;
+      top: 50%;
       font-size: large;
       background: white;
       padding: 0px 5px;
-      padding-left:10px ;
+      padding-left: 10px;
       height: min-content;
-      margin:0;
-      &:hover{
-        color:gray;
+      margin: 0;
+
+      &:hover {
+        color: gray;
         cursor: pointer;
       }
     }
   }
-  
+
 
   label {
     font-weight: bold;
@@ -1778,7 +1781,8 @@
     border: 1px solid #ccc;
     border-radius: 5px;
   }
-  .state{
+
+  .state {
     width: 90%;
     padding: 8px;
     font-size: 16px;
@@ -2117,31 +2121,103 @@
       height: 100px;
       display: flex;
       justify-content: center;
-      align-items: end;
+      align-items: center;
       column-gap: 15px;
-      position: relative;
-      top: -70px;
+      margin-top: -50px;
 
       i {
         font-size: 50px;
       }
 
       p {
-        text-align: center;
-        font-size: 18px;
+        width: 240px;
+        text-align: left;
+        font-size: 14px;
+        height: 60px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        overflow: hidden;
       }
 
     }
 
-    button {
-      width: 150px;
-      height: 60px;
-      font-weight: bold;
-      background: royalblue;
-      color: white;
-      font-size: 20px;
-      border: none;
-      border-radius: 50px;
+    .images-div {
+      img {
+        margin: 10px;
+      }
+      .zoomed{
+        width: 300px;
+        height: 300px;
+        position: absolute;
+        left:10%;
+        top:10%;
+      }
+    }
+    .highest-bid{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .button-div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      column-gap: 20px;
+
+      .bid{
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        input{
+          width:80px;
+          height: 35px;
+        }
+        i{
+          border: 2px solid;
+          width:35px;
+          height: 35px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: x-large;
+          padding: 1px;
+          color:gray;
+          &:first-child{
+            &:hover{
+              color:limegreen;
+              font-size: xx-large;
+              border-radius: 50%;
+              transition: all .5s;
+            }
+          }
+          &:last-child{
+            &:hover{
+              color:red;
+              font-size: xx-large;
+              border-radius: 50%;
+              transition: all .5s;
+            }
+          }
+        }
+      }
+
+      button {
+        width: 120px;
+        height: 40px;
+        font-weight: bold;
+        background: royalblue;
+        color: white;
+        font-size: 15px;
+        border: none;
+        border-radius: 50px;
+
+        &:hover{
+          background:#3653f8;
+        }
+      }
     }
   }
 

@@ -52,6 +52,7 @@ export default function Register() {
             setLastNameErr('Last Name not filled');
         }
         else {
+            checkFields()
             setLastNameErr('')
         }
     }
@@ -64,6 +65,7 @@ export default function Register() {
                 setEmailErr('Email Already Found')
             }
             else {
+                checkFields()
                 setEmailErr('')
             }
         }
@@ -75,6 +77,7 @@ export default function Register() {
             setEmailErr('Email not filled');
         }
         else {
+            checkFields()
             setEmailErr('')
         }
     }
@@ -88,6 +91,7 @@ export default function Register() {
             setPasswordErr('Password should have minimum 8 characters')
         }
         else {
+            checkFields()
             setPasswordErr('')
         }
     }
@@ -98,6 +102,7 @@ export default function Register() {
             setAadharErr('Aadhar not filled');
         }
         else {
+            checkFields()
             setAadharErr('')
         }
     }
@@ -116,6 +121,7 @@ export default function Register() {
                 setPanErr('Pan number invalid');
             }
             else {
+                checkFields2()
                 setPanErr('')
             }
         }
@@ -126,6 +132,7 @@ export default function Register() {
             setDateErr('Date not filled')
         }
         else {
+            checkFields2()
             setDateErr('')
         }
     }
@@ -135,15 +142,17 @@ export default function Register() {
             setGenderErr('Gender not filled');
         }
         else {
+            checkFields2()
             setGenderErr('')
         }
     }
     const handleImage = (e) => {
         setImg(e.target.files[0])
-        if (img == '') {
+        if (e.target.files[0] == '') {
             setImgErr('Image not filled')
         }
         else {
+            checkFields2()
             setImgErr('')
         }
     }
@@ -294,18 +303,22 @@ export default function Register() {
                     }
                     else {
                         setGenderErr('Gender not filled')
+                        setIsComplete2(false)
                     }
                 }
                 else {
                     setDateErr('Date not filled')
+                    setIsComplete2(false)
                 }
             }
             else {
                 setPanErr('Pan number not filled')
+                setIsComplete2(false)
             }
         }
         else {
             setImgErr('Img Not Filled')
+            setIsComplete2(false)
         }
     }
     const checkFields = () => {
@@ -322,22 +335,27 @@ export default function Register() {
                             setIsComplete(true)
                         }
                         else {
+                            setIsComplete(false)
                             setPasswordErr('Password not filled')
                         }
                     }
                     else {
+                        setIsComplete(false)
                         setEmailErr('Email not filled')
                     }
                 }
                 else {
+                    setIsComplete(false)
                     setAadharErr('Aadhar not filled')
                 }
             }
             else {
+                setIsComplete(false)
                 setLastNameErr('Last name not filled')
             }
         }
         else {
+            setIsComplete(false)
             setFirstNameErr('First name not filled')
         }
     }

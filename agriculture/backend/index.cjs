@@ -28,7 +28,7 @@ function updateWalletAddress(newAddress) {
 		console.error('Error updating contract address:', error);
 	}
 }
-app.post('/sendaddress', async (req, resp) => {
+app.post('/send-address', async (req, resp) => {
 	try {
 		const { addr } = req.body;
 		if(walletAddress == undefined)
@@ -38,6 +38,23 @@ app.post('/sendaddress', async (req, resp) => {
 		console.log(e);
 	}
 });
+
+app.post('/check-login',async (req,resp)=>{
+	try{
+		const tx = await contract.methods.getUser(walletAddress).call();
+		console.log('login')
+		console.log(tx)
+		if(tx && tx.isloggedin){
+			resp.status(200).send({success:true,messsage:"successful"})
+		}
+		else{
+			resp.status(400).send({success:false,message:'not logged in'})
+		}
+	}
+	catch(e){
+		resp.status(500).send({success:false,message:"internal server error"})
+	}
+})
 
 app.get('/', (req, res) => {
 	res.send('Hello World!')
