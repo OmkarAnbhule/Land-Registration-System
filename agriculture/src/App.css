@@ -730,6 +730,8 @@
         padding-left: 0.9em;
         display: flex;
         align-items: center;
+        justify-content: center;
+        flex-direction: row;
         border: none;
         border-radius: 16px;
         overflow: hidden;
@@ -2474,13 +2476,9 @@
   z-index: 9999;
 }
 
-.loader {
+.loader1 {
   display: grid;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  top: 100px;
   z-index: 9999;
 }

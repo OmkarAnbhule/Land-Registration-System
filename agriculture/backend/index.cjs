@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
 	console.log('Database connected')
 });
-const { walletAddress, contract } = require('./utils/contract.cjs')
+const { contract, walletaddr } = require('./utils/contract.cjs')
 const express = require('express');
 const cors = require('cors')
 const app = express();
@@ -32,21 +32,40 @@ function updateWalletAddress(newAddress) {
 app.post('/send-address', async (req, resp) => {
 	try {
 		const { addr } = req.body;
-		if (walletAddress == undefined) {
+		if (walletaddr === undefined) {
 			if (updateWalletAddress(await addr)) {
+				const tx = await contract.methods.getUser(addr).call();
+				if (tx.id != addr) {
+					resp.status(201).send({ success: true, message: 'address set successfully' });
+				}
+				else {
+					resp.status(400).send({ success: false, message: 'address already used' });
+				}
+			}
+		}
+		else {
+			const tx = await contract.methods.getUser(addr).call();
+			console.log(tx)
+			if (tx.id != addr) {
+				console.log('if ',tx)
 				resp.status(201).send({ success: true, message: 'address set successfully' });
+			}
+			else {
+				console.log(tx)
+				resp.status(400).send({ success: false, message: 'address already used' });
 			}
 		}
 	}
 	catch (e) {
 		console.log(e);
+		resp.status(500).send({ success: false, message: 'internal server error' })
 	}
 });
 
 app.post('/check-login', async (req, resp) => {
 	try {
-		if (walletAddress != '') {
-			const tx = await contract.methods.getUser(walletAddress).call();
+		if (walletaddr != '') {
+			const tx = await contract.methods.getUser(walletaddr).call();
 			if (tx && tx.isloggedin) {
 				resp.status(200).send({ success: true, messsage: "successful" })
 			}

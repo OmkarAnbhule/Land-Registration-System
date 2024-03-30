@@ -60,14 +60,14 @@ exports.verifyOtp = async (req, resp) => {
 	}
 }
 
-exports.logout = async(req,resp)=>{
-	try{
+exports.logout = async (req, resp) => {
+	try {
 		const tx = await contract.methods.logout(walletaddr).call();
-		if(tx){
-			resp.status(201).send({success:true,message:'logout successfull'})
+		if (tx) {
+			resp.status(201).send({ success: true, message: 'logout successfull' })
 		}
-		else{
-			resp.status(201).send({success:false,message:'logout fail'})
+		else {
+			resp.status(201).send({ success: false, message: 'logout fail' })
 		}
 	}
 	catch (e) {
@@ -121,13 +121,21 @@ exports.registerUser = async (req, resp) => {
 	const IPFS = await import('ipfs-core');
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
-		const ipfs = await IPFS.create()
-		console.log(req.file)
-		const cid = await ipfs.add(req.file)
-		let hashedPassword = await bcrypt.hash(password, 10);
-		const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid.toString()).send({ from: walletaddr })
-		if (tx) {
-			resp.status(201).send({ success: true, message: 'registration successful' })
+		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+		if (response.length === 0 || response[0].otp !== otp) {
+			resp.status(500).send({ success: false, message: 'Invalid Otp' })
+		}
+		else {
+
+			const ipfs = await IPFS.create()
+			console.log(req.file)
+			const cid = await ipfs.add(req.file)
+			let hashedPassword = await bcrypt.hash(password, 10);
+			console.log(cid, cid.toString(), typeof cid.toString())
+			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid.toString()).send({ from: walletaddr })
+			if (tx) {
+				resp.status(201).send({ success: true, message: 'registration successful' })
+			}
 		}
 	}
 	catch (e) {
@@ -169,5 +177,17 @@ exports.login = async (req, resp) => {
 	catch (e) {
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
+	}
+}
+
+exports.logout = async (req, resp) => {
+	try {
+		const tx = await contract.methods.logout(walletaddr).call();
+		if (tx) {
+			resp.status(200).send({ success: true, message: 'logout success' })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 	}
 }

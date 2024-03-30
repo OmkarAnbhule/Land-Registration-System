@@ -41,6 +41,16 @@ export default function Register() {
         const today = new Date().toString().split('T')[0];
         setMaxDate(today);
     }, []);
+    useEffect(() => {
+        VerifyEmail().then((res) => {
+            if (res.success) {
+                setEmailErr('Email Already Found')
+            }
+            else {
+                setEmailErr('')
+            }
+        })
+    }, [email])
 
     const handleFirstName = (e) => {
         const temp = e.target.value.replace(/\s/g, '')
@@ -67,14 +77,17 @@ export default function Register() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const temp = e.target.value.replace(/\s/g, '').toLowerCase()
         if (emailRegex.test(temp)) {
-            let res = VerifyEmail()
-            if (res.message == 'User Found') {
-                setEmailErr('Email Already Found')
-            }
-            else {
-                checkFields()
-                setEmailErr('')
-            }
+            VerifyEmail().then(
+                (res) => {
+                    if (res.success) {
+                        setEmailErr('Email Already Found')
+                    }
+                    else {
+                        checkFields()
+                        setEmailErr('')
+                    }
+                }
+            )
         }
         else {
             setEmailErr('Invalid Email')
@@ -145,7 +158,7 @@ export default function Register() {
     }
     const handleGender = (val) => {
         setGender(val)
-        if (gender === '') {
+        if (gender == '') {
             setGenderErr('Gender not filled');
         }
         else {
@@ -262,41 +275,72 @@ export default function Register() {
         checkFields2()
         if (isComplete2) {
             try {
-                connectToMetaMask().then(() => {
-                    sendData().then((res) => {
+                connectToMetaMask()
+                    .then((res) => {
+                        console.log(res, res.success)
                         if (res.success == true) {
-                            setStep(step + 1)
-                            setFocus(false)
-                            setStatus(false)
-                        }
-                        else {
-                            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
-                                position: 'bottom-center',
-                                style: {
-                                    container: [
-                                        ['background', 'rgb(246, 58, 93)'],
-                                        ['border-radius', '5px'],
-                                        ['height', '50px'],
-                                        ['padding', '10px'],
-                                        ['border-radius', '20px']
-                                    ],
-                                    message: [
-                                        ['color', '#eee'],
-                                        ['font-size', '18px']
-                                    ],
-                                    bold: [
-                                        ['font-weight', 'bold'],
-                                    ],
-                                    actionButton: [
-                                        ['color', 'white'],
-                                    ],
+                            sendData().then((res) => {
+                                if (res.success == true) {
+                                    setStep(step + 1)
+                                    setFocus(false)
+                                    setStatus(false)
                                 }
-                            });
+                                else {
+                                    setStatus(false)
+                                    new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
+                                        position: 'bottom-center',
+                                        style: {
+                                            container: [
+                                                ['background', 'rgb(246, 58, 93)'],
+                                                ['border-radius', '5px'],
+                                                ['height', '50px'],
+                                                ['padding', '10px'],
+                                                ['border-radius', '20px']
+                                            ],
+                                            message: [
+                                                ['color', '#eee'],
+                                                ['font-size', '18px']
+                                            ],
+                                            bold: [
+                                                ['font-weight', 'bold'],
+                                            ],
+                                            actionButton: [
+                                                ['color', 'white'],
+                                            ],
+                                        }
+                                    });
+                                }
+                            })
                         }
                     })
-                })
+                    .catch(() => {
+                        setStatus(false)
+                        new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask address already used`, {
+                            position: 'bottom-center',
+                            style: {
+                                container: [
+                                    ['background', 'rgb(246, 58, 93)'],
+                                    ['border-radius', '5px'],
+                                    ['height', '50px'],
+                                    ['padding', '10px'],
+                                    ['border-radius', '20px']
+                                ],
+                                message: [
+                                    ['color', '#eee'],
+                                    ['font-size', '18px']
+                                ],
+                                bold: [
+                                    ['font-weight', 'bold'],
+                                ],
+                                actionButton: [
+                                    ['color', 'white'],
+                                ],
+                            }
+                        });
+                    })
             }
             catch (e) {
+                setStatus(false)
                 new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
                     position: 'bottom-center',
                     style: {
@@ -365,7 +409,7 @@ export default function Register() {
     const checkFields2 = () => {
         if (img != '') {
             setImgErr('')
-            if (pan != '') {
+            if (pan != '' && panErr == '') {
                 setPanErr('')
                 if (date != '') {
                     setDateErr('')
@@ -400,7 +444,7 @@ export default function Register() {
                 setLastNameErr('')
                 if (aadhar != '') {
                     setAadharErr('')
-                    if (email != '') {
+                    if (email != '' && EmailErr == '') {
                         setEmailErr('')
                         if (password != '') {
                             setPasswordErr('')
@@ -457,7 +501,6 @@ export default function Register() {
             }
         })
         result = await result.json()
-        console.log(result)
         return result
     }
     return (

@@ -6,26 +6,7 @@ import { animate, motion } from 'framer-motion'
 export default function Home() {
   const api = import.meta.env.VITE_API_URL;
   const [text, setText] = useState('');
-  useEffect(() => {
-    if (localStorage.getItem('isloggedin') === true) {
-      getdata()
-    }
-  }, [])
-  const getdata = async () => {
 
-    if (localStorage.getItem('isloggedin') === true) {
-      let result = await fetch(`${api}get-image`, {
-        method: 'post',
-        body: JSON.stringify({ email: localStorage.getItem("id") }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      result = await result.json()
-      let name = result.name.split(' ')
-      setText("Welcome Back " + name[0])
-    }
-  }
   const fadeInAnimationVariants = {
     initial: {
       opactiy: 0,

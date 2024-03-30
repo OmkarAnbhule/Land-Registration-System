@@ -24,8 +24,6 @@ export default function Navbar() {
         navigate('/login')
     }
     const getdata = async () => {
-
-        if (localStorage.getItem('isloggedin') === true) {
             let result = await fetch(`${api}get-image`, {
                 method: 'post',
                 body: JSON.stringify({ email: localStorage.getItem("id") }),
@@ -37,7 +35,6 @@ export default function Navbar() {
             console.log(result);
             setImg(result.image)
         }
-    }
 
     const handleLogout = async () => {
         let result = await fetch('http://localhost:5000/logout', {
@@ -78,7 +75,8 @@ export default function Navbar() {
 
 
     useEffect(() => {
-        if (localStorage.getItem('isloggedin') === true) {
+        if (localStorage.getItem('isloggedin') == 'true') {
+            console.log('getdata')
             getdata()
         }
     }, [])
@@ -127,7 +125,7 @@ export default function Navbar() {
             <div className='profile'>
                 {localStorage.getItem('isloggedin') ? (
                     <>
-                        <img width={50} height={50} src={img} onClick={handleSideBar2}></img>
+                        <img width={50} height={50} src={`https://ipfs.io/ipfs/${img}`} onClick={handleSideBar2}></img>
                         <div className='sidebar2' onMouseLeave={handleSideBar2} style={{ display: style2 ? 'block' : 'none' }}>
                             <p onClick={handleLogout}>Logout</p>
                         </div>
