@@ -24,6 +24,7 @@ function updateWalletAddress(newAddress) {
 		config.walletAddress = newAddress;
 		fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2));
 		console.log('Wallet address updated successfully.');
+		return true
 	} catch (error) {
 		console.error('Error updating contract address:', error);
 	}
@@ -31,28 +32,31 @@ function updateWalletAddress(newAddress) {
 app.post('/send-address', async (req, resp) => {
 	try {
 		const { addr } = req.body;
-		if(walletAddress == undefined)
-		updateWalletAddress(await addr)
+		if (walletAddress == undefined) {
+			if (updateWalletAddress(await addr)) {
+				resp.status(201).send({ success: true, message: 'address set successfully' });
+			}
+		}
 	}
 	catch (e) {
 		console.log(e);
 	}
 });
 
-app.post('/check-login',async (req,resp)=>{
-	try{
-		const tx = await contract.methods.getUser(walletAddress).call();
-		console.log('login')
-		console.log(tx)
-		if(tx && tx.isloggedin){
-			resp.status(200).send({success:true,messsage:"successful"})
-		}
-		else{
-			resp.status(400).send({success:false,message:'not logged in'})
+app.post('/check-login', async (req, resp) => {
+	try {
+		if (walletAddress != '') {
+			const tx = await contract.methods.getUser(walletAddress).call();
+			if (tx && tx.isloggedin) {
+				resp.status(200).send({ success: true, messsage: "successful" })
+			}
+			else {
+				resp.status(400).send({ success: false, message: 'not logged in' })
+			}
 		}
 	}
-	catch(e){
-		resp.status(500).send({success:false,message:"internal server error"})
+	catch (e) {
+		resp.status(500).send({ success: false, message: "internal server error" })
 	}
 })
 

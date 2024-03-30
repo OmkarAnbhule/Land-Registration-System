@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage: storage });
 const app = require('express').Router()
-app.get('/verify-old-user', userController.verifyOldUser)
+app.post('/verify-old-user', userController.verifyOldUser)
 app.post('/send-otp', userController.sendOtp)
 app.post('/verify-otp-fp', userController.verifyOtp)
 app.post('/forgot-password', userController.forgetpass)

@@ -25,7 +25,7 @@ export default function Navbar() {
     }
     const getdata = async () => {
 
-        if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
+        if (localStorage.getItem('isloggedin') === true) {
             let result = await fetch(`${api}get-image`, {
                 method: 'post',
                 body: JSON.stringify({ email: localStorage.getItem("id") }),
@@ -35,9 +35,7 @@ export default function Navbar() {
             })
             result = await result.json()
             console.log(result);
-            import(/* @vite-ignore */ `../assets/images/profile/${result.image}`).then(image => {
-                setImg(image.default);
-            });
+            setImg(result.image)
         }
     }
 
@@ -80,7 +78,7 @@ export default function Navbar() {
 
 
     useEffect(() => {
-        if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
+        if (localStorage.getItem('isloggedin') === true) {
             getdata()
         }
     }, [])
@@ -104,7 +102,7 @@ export default function Navbar() {
                     <p>Land Ledger</p>
                     <p>Simplify with land ledger,no more forms!</p>
                 </div>
-                <Router to='/' style={{textDecoration:'none',color:'black'}}>
+                <Router to='/' style={{ textDecoration: 'none', color: 'black' }}>
                     <p>Home</p>
                 </Router>
                 <Link to='about' spy={true} smooth={true} offset={-100} duration={500}>
@@ -116,7 +114,7 @@ export default function Navbar() {
                 <p onClick={handleLogout}>LogOut</p>
             </div>
             <div className='links'>
-                <Router to='/' style={{textDecoration:'none',color:'black'}}>
+                <Router to='/' style={{ textDecoration: 'none', color: 'black' }}>
                     <p>Home</p>
                 </Router>
                 <Link to='about' spy={true} smooth={true} offset={-100} duration={500}>

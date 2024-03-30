@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import Web3 from "web3";
 import './App.css'
 import Navbar from './components/Navbar'
 import Main from './components/Main/Main'
@@ -13,48 +12,26 @@ import BuyLand from './components/forms/BuyLand'
 
 function App() {
   const api = import.meta.env.VITE_API_URL;
-  const [show, setShow] = useState(false);
-
-  const connectToMetaMask = async () => {
-    if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
-      console.log(accounts)
-      let result = await fetch(`${api}send-address`, {
+  const checkLogin = async () => {
+    try {
+      let result = await fetch(`${api}check-login`, {
         method: 'post',
-        body: JSON.stringify({ addr: accounts[0] }),
         headers: {
           "Content-Type": "application/json"
         }
-      })
-      console.log(result);
-    } else {
-      console.log("MetaMask is not installed");
-    }
-  };
-
-  const checkLogin = async () => {
-    try{
-      let result = await fetch(`${api}check-login`,{
-        method:'post',
-        headers:{
-          "Content-Type":"application/json"
-        }
       });
       result = result.json();
-
-      if(result.success == false){
+      if (result.success == false) {
         localStorage.clear()
       }
     }
-    catch(e){
+    catch (e) {
       console.log(e)
     }
   }
   useEffect(() => {
-    connectToMetaMask()
     checkLogin()
-  },[])
+  }, [])
 
   return (
     <BrowserRouter>

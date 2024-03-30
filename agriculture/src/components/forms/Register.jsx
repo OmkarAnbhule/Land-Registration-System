@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import Web3 from "web3";
 import panelimg from '../../assets/home_assets/register_form/register.jpg'
 import { useNavigate } from 'react-router-dom';
 import Otp from './Otp';
@@ -9,6 +10,7 @@ import Loader from '../Loader.jsx';
 export default function Register() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
+    const [maxDate, setMaxDate] = useState('');
     const [firstName, setFirstName] = useState('');
     const [LastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -35,6 +37,11 @@ export default function Register() {
     const [checkbox, setCheckBox] = useState(false)
     const [status, setStatus] = useState(false)
     const formdata = new FormData;
+    useEffect(() => {
+        const today = new Date().toISOString().split('T')[0];
+        setMaxDate(today);
+    }, []);
+
     const handleFirstName = (e) => {
         const temp = e.target.value.replace(/\s/g, '')
         setFirstName(temp)
@@ -138,7 +145,7 @@ export default function Register() {
     }
     const handleGender = (val) => {
         setGender(val)
-        if (gender == '') {
+        if (gender === '') {
             setGenderErr('Gender not filled');
         }
         else {
@@ -187,41 +194,106 @@ export default function Register() {
             });
         }
     }
+    const connectToMetaMask = async () => {
+        try {
+            if (window.ethereum) {
+                const web3 = new Web3(window.ethereum);
+                const accounts = await web3.eth.getAccounts();
+                console.log(accounts)
+                let result = await fetch(`${api}send-address`, {
+                    method: 'post',
+                    body: JSON.stringify({ addr: accounts[0] }),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+            } else {
+                new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
+                    position: 'bottom-center',
+                    style: {
+                        container: [
+                            ['background', 'rgb(246, 58, 93)'],
+                            ['border-radius', '5px'],
+                            ['height', '50px'],
+                            ['padding', '10px'],
+                            ['border-radius', '20px']
+                        ],
+                        message: [
+                            ['color', '#eee'],
+                            ['font-size', '18px']
+                        ],
+                        bold: [
+                            ['font-weight', 'bold'],
+                        ],
+                        actionButton: [
+                            ['color', 'white'],
+                        ],
+                    }
+                });
+            }
+        }
+        catch (e) {
+            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(246, 58, 93)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', '#eee'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
+        }
+    };
     const handleClick2 = () => {
         setStatus(true)
         checkFields2()
         if (isComplete2) {
             try {
-                sendData().then((res) => {
-                    if (res.success == true) {
-                        setStep(step + 1)
-                        setFocus(false)
-                        setStatus(false)
-                    }
-                    else{
-                        new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
-                            position: 'bottom-center',
-                            style: {
-                                container: [
-                                    ['background', 'rgb(246, 58, 93)'],
-                                    ['border-radius', '5px'],
-                                    ['height', '50px'],
-                                    ['padding', '10px'],
-                                    ['border-radius', '20px']
-                                ],
-                                message: [
-                                    ['color', '#eee'],
-                                    ['font-size', '18px']
-                                ],
-                                bold: [
-                                    ['font-weight', 'bold'],
-                                ],
-                                actionButton: [
-                                    ['color', 'white'],
-                                ],
-                            }
-                        });
-                    }
+                connectToMetaMask().then(() => {
+                    sendData().then((res) => {
+                        if (res.success == true) {
+                            setStep(step + 1)
+                            setFocus(false)
+                            setStatus(false)
+                        }
+                        else {
+                            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
+                                position: 'bottom-center',
+                                style: {
+                                    container: [
+                                        ['background', 'rgb(246, 58, 93)'],
+                                        ['border-radius', '5px'],
+                                        ['height', '50px'],
+                                        ['padding', '10px'],
+                                        ['border-radius', '20px']
+                                    ],
+                                    message: [
+                                        ['color', '#eee'],
+                                        ['font-size', '18px']
+                                    ],
+                                    bold: [
+                                        ['font-weight', 'bold'],
+                                    ],
+                                    actionButton: [
+                                        ['color', 'white'],
+                                    ],
+                                }
+                            });
+                        }
+                    })
                 })
             }
             catch (e) {
@@ -482,7 +554,7 @@ export default function Register() {
                                     </div>
                                     <div className='input-control'>
                                         <label htmlFor='dob'>Date of birth:</label>
-                                        <input type='date' id='dob' value={date} onChange={handleDate} onBlur={handleBlur2}></input>
+                                        <input type='date' id='dob' value={date} max={maxDate} onChange={handleDate} onBlur={handleBlur2}></input>
                                         <p>{dateErr}</p>
 
                                     </div>

@@ -5,8 +5,8 @@ const { walletaddr, contract } = require('../utils/contract.cjs')
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
-		const existingUser = await contract.methods.isUserRegistered(walletaddr);
-		if (existingUser) {
+		const existingUser = await contract.methods.getUser(walletaddr).call();
+		if (existingUser && existingUser.email == req.body.email) {
 			resp.status(201).send({ success: true, message: 'User Found' })
 		}
 		else {

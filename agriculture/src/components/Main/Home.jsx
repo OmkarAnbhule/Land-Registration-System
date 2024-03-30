@@ -7,13 +7,13 @@ export default function Home() {
   const api = import.meta.env.VITE_API_URL;
   const [text, setText] = useState('');
   useEffect(() => {
-    getdata()
+    if (localStorage.getItem('isloggedin') === true) {
+      getdata()
+    }
   }, [])
   const getdata = async () => {
 
-    if (localStorage.getItem('isloggedin') != undefined || localStorage.getItem('isloggedin') != false) {
-
-
+    if (localStorage.getItem('isloggedin') === true) {
       let result = await fetch(`${api}get-image`, {
         method: 'post',
         body: JSON.stringify({ email: localStorage.getItem("id") }),
