@@ -38,7 +38,7 @@ export default function Register() {
     const [status, setStatus] = useState(false)
     const formdata = new FormData;
     useEffect(() => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toString().split('T')[0];
         setMaxDate(today);
     }, []);
 
