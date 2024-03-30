@@ -24,21 +24,6 @@ contract Land {
         bool isLandVerified;
     }
 
-    struct Buyer {
-        uint256 id;
-        uint256 area;
-        string landAddress;
-        string propertyPID;
-        string surveyNum;
-        uint256 landPrice;
-        string[] files;
-        uint256 timestamp;
-        bool isforSell;
-        address payable ownerAddress;
-        bool isLandVerified;
-        address buyer;
-    }
-
     struct User {
         address id;
         string name;
@@ -56,25 +41,16 @@ contract Land {
         uint256 id;
         address seller;
     }
-    struct buyReqStruct {
-        uint256 id;
-        address seller;
-        address buyer;
-        uint256 land_id;
-        uint256 price;
-    }
 
     uint256 public userCount;
     uint256 public landsCount;
     uint256 public Registerreqcount;
-    uint256 public buyreqcount;
 
     mapping(address => User) public UserMapping;
     mapping(uint256 => address) AllUsers;
     mapping(address => bool) RegisteredUserMapping;
     mapping(address => Landreg[]) public lands;
     mapping(uint256 => sellReqStruct[]) public Registerrequests;
-    mapping(uint256 => buyReqStruct[]) public Buyrequests;
     address[] public ownerMapping;
 
     function registerUser(
@@ -215,47 +191,6 @@ contract Land {
         return result;
     }
 
-    function getBuyRequest() public view returns (Buyer[] memory) {
-        Buyer[] memory result = new Buyer[](ownerMapping.length);
-        uint256 index = 0;
-        for (uint256 i = 0; i < buyreqcount; i++) {
-            buyReqStruct[] memory buyerLands = Buyrequests[i];
-            for (uint256 k = 0; k < buyerLands.length; k++) {
-                Landreg[] memory ownerLands = lands[buyerLands[k].seller];
-                for (uint256 j = 0; j < ownerLands.length; j++) {
-                    result[index] = Buyer(
-                        ownerLands[j].id,
-                        ownerLands[j].area,
-                        ownerLands[j].landAddress,
-                        ownerLands[j].propertyPID,
-                        ownerLands[j].surveyNum,
-                        ownerLands[j].landPrice,
-                        ownerLands[j].files,
-                        ownerLands[j].timestamp,
-                        ownerLands[j].isforSell,
-                        ownerLands[j].ownerAddress,
-                        ownerLands[j].isLandVerified,
-                        buyerLands[k].buyer
-                    );
-                    index++;
-                }
-            }
-        }
-        return result;
-    }
-
-    function buyReq(
-        address buyer_addr,
-        address seller_addr,
-        uint256 id,
-        uint256 price
-    ) public {
-        Buyrequests[buyreqcount].push(
-            buyReqStruct(buyreqcount, seller_addr, buyer_addr, id, price)
-        );
-        buyreqcount++;
-    }
-
     function acceptReg(address _addr, uint256 id, uint256 price) public {
         lands[_addr][id].isLandVerified = true;
         if (price > 0) {
@@ -280,39 +215,5 @@ contract Land {
         Registerreqcount--;
     }
 
-    function acceptBuy(address buyer, address seller, uint256 index) public {
-        Landreg[] memory land = lands[seller];
-        for (uint256 i = 0; i < land.length; i++) {
-            lands[buyer].push(land[i]);
-        }
-        for (uint256 i = index; i < buyreqcount; i++) {
-            Buyrequests[i] = Buyrequests[i + 1];
-        }
-        if (Buyrequests[buyreqcount].length > 0) {
-            Buyrequests[buyreqcount].pop();
-        }
-        buyreqcount--;
-    }
 
-    function transferOwnership(
-        uint256 id,
-        address seller,
-        address buyer
-    ) public {
-        lands[buyer].push(lands[seller][id]);
-        for (uint256 i = id; i < lands[seller].length - 1; i++) {
-            lands[seller][i] = lands[seller][i + 1];
-        }
-        lands[seller].pop();
-    }
-
-    function rejectBuy(uint256 index) public {
-        for (uint256 i = index; i < buyreqcount; i++) {
-            Buyrequests[i] = Buyrequests[i + 1];
-        }
-        if (Buyrequests[buyreqcount].length > 0) {
-            Buyrequests[buyreqcount].pop();
-        }
-        buyreqcount--;
-    }
 }

@@ -63,6 +63,13 @@ export default function SellLand() {
             });
         }
     }
+    function unixTimestampToDate(unixTimestamp) {
+        // Create a new Date object representing the UNIX timestamp multiplied by 1000 (to convert seconds to milliseconds)
+        var date = new Date(unixTimestamp * 1000);
+      
+        // Return the date as a string in the format "YYYY-MM-DD"
+        return date.toISOString().split('T')[0];
+      }
     const handleRegistry = () => {
         navigate('/Registryform')
     }
@@ -80,17 +87,17 @@ export default function SellLand() {
                                 : null
                             }<div className="location">
                                 <i className="bi bi-geo-alt"></i>
-                                <p>{item.state},{item.district}</p>
+                                <p>{item.landAddress}</p>
                             </div>
                             <div className="details">
                                 <p><b>Area: </b>{item.area}</p>
-                                <p><b>Estimated Price: </b>{item.price}</p>
-                                <p><b>Property Number: </b>{item.propertyid}</p>
-                                <p><b>Survey Number: </b>{item.survey}</p>
-                                <p><b>Registered on: </b>{item.date.split('T')[0]}</p>
+                                <p><b>Land Price: </b>{item.landPrice}</p>
+                                <p><b>Property Number: </b>{item.propertyPID}</p>
+                                <p><b>Survey Number: </b>{item.surveyNum}</p>
+                                <p><b>Registered on: </b>{unixTimestampToDate(item.timestamp)}</p>
                             </div>
                             {
-                                !item.isVerified  || item.isSell ?
+                                !item.isVerified || item.isSell ?
                                     (<button style={{ background: 'gray' }}>Sell</button>) :
                                     (<button onClick={() => handleSell(item._id)} style={{ background: 'royalblue' }}>Sell</button>)
 

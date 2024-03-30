@@ -2059,18 +2059,26 @@
       height: 100px;
       display: flex;
       justify-content: center;
-      align-items: end;
+      align-items: center;
       column-gap: 15px;
       position: relative;
-      top: -50px;
+      top: -10px;
 
       i {
         font-size: 50px;
       }
 
       p {
-        text-align: center;
-        font-size: 18px;
+        margin-top: 25px;
+        width: 240px;
+        text-align: left;
+        font-size: 14px;
+        height: 80px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        overflow: hidden;
       }
 
     }
@@ -2149,15 +2157,17 @@
       img {
         margin: 10px;
       }
-      .zoomed{
+
+      .zoomed {
         width: 300px;
         height: 300px;
         position: absolute;
-        left:10%;
-        top:10%;
+        left: 10%;
+        top: 10%;
       }
     }
-    .highest-bid{
+
+    .highest-bid {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -2169,35 +2179,39 @@
       align-items: center;
       column-gap: 20px;
 
-      .bid{
-        display:flex;
+      .bid {
+        display: flex;
         justify-content: center;
         align-items: center;
-        input{
-          width:80px;
+
+        input {
+          width: 80px;
           height: 35px;
         }
-        i{
+
+        i {
           border: 2px solid;
-          width:35px;
+          width: 35px;
           height: 35px;
           display: flex;
           justify-content: center;
           align-items: center;
           font-size: x-large;
           padding: 1px;
-          color:gray;
-          &:first-child{
-            &:hover{
-              color:limegreen;
+          color: gray;
+
+          &:first-child {
+            &:hover {
+              color: limegreen;
               font-size: xx-large;
               border-radius: 50%;
               transition: all .5s;
             }
           }
-          &:last-child{
-            &:hover{
-              color:red;
+
+          &:last-child {
+            &:hover {
+              color: red;
               font-size: xx-large;
               border-radius: 50%;
               transition: all .5s;
@@ -2216,8 +2230,8 @@
         border: none;
         border-radius: 50px;
 
-        &:hover{
-          background:#3653f8;
+        &:hover {
+          background: #3653f8;
         }
       }
     }

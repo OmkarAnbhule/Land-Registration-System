@@ -3,6 +3,7 @@ const multer = require('multer');
 const uploadFiles = multer()
 const app = require('express').Router()
 
+
 app.post('/add-land', uploadFiles.array('files'), landController.addLand)
 app.post('/get-land', landController.getland)
 app.post('/get-land-all', landController.getAllLands)

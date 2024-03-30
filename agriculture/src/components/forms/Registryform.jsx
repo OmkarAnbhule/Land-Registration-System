@@ -128,8 +128,6 @@ const LandRegistrationForm = () => {
         formdata.append('files', item)
       }
       formdata.append('data', JSON.stringify({ price, area, state, district, propertyid, survey , address}))
-      // You can handle form submission here, for example, sending data to an API
-      console.log(formdata, files)
       let result = await fetch(`${api}add-land`, {
         method: 'post',
         body: formdata
@@ -296,7 +294,7 @@ const LandRegistrationForm = () => {
     if (files.length > 7) {
       setFiles(Array.from(files.splice(0, 7)))
     }
-    if (files.length == 0) {
+    else if (files.length == 0) {
       setFileErr('Files not filled')
     }
     else {
@@ -307,6 +305,11 @@ const LandRegistrationForm = () => {
     setFiles((current) =>
       current.filter((item, index) => index != target)
     )
+  }
+  const handleBlur = () => {
+    if(files.length != 0){
+      setFileErr('')
+    }
   }
 
 
@@ -415,12 +418,13 @@ const LandRegistrationForm = () => {
               accept='image/*'
               style={{ marginLeft: '10px' }}
               disabled={files.length >= 7 ? true : false}
+              onBlur={handleBlur}
             />
             <p>{fileErr}</p>
           </div>
           <div className='display'>
             {files.map((item, index) => (
-              <div>
+              <div key={index}>
                 <img key={index} width={50} height={50} src={URL.createObjectURL(item)}></img>
                 <i className='bi bi-trash' onClick={() => handleFileDelete(index)}></i>
               </div>

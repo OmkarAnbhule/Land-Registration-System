@@ -20,7 +20,7 @@ function App() {
           "Content-Type": "application/json"
         }
       });
-      result = result.json();
+      result = await result.json();
       if (result.success == false) {
         localStorage.clear()
       }

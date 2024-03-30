@@ -37,7 +37,7 @@ export default function Navbar() {
         }
 
     const handleLogout = async () => {
-        let result = await fetch('http://localhost:5000/logout', {
+        let result = await fetch(`${api}logout`, {
             method: 'post',
             body: JSON.stringify({ email: localStorage.getItem('id') }),
             headers: {
@@ -76,7 +76,6 @@ export default function Navbar() {
 
     useEffect(() => {
         if (localStorage.getItem('isloggedin') == 'true') {
-            console.log('getdata')
             getdata()
         }
     }, [])

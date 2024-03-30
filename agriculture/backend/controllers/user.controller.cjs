@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
+const { getIPFSInstance } = require('../utils/ipfsNode.cjs')
+
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
@@ -118,7 +120,6 @@ exports.resetpass = async (req, resp) => {
 	}
 }
 exports.registerUser = async (req, resp) => {
-	const IPFS = await import('ipfs-core');
 	const { email, otp, name, aadhar, pan, dob, gender, password } = JSON.parse(req.body.data);
 	try {
 		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
@@ -126,12 +127,10 @@ exports.registerUser = async (req, resp) => {
 			resp.status(500).send({ success: false, message: 'Invalid Otp' })
 		}
 		else {
-
-			const ipfs = await IPFS.create()
+			const ipfs = await getIPFSInstance();
+			const { cid } = await ipfs.add(req.file)
 			console.log(req.file)
-			const cid = await ipfs.add(req.file)
 			let hashedPassword = await bcrypt.hash(password, 10);
-			console.log(cid, cid.toString(), typeof cid.toString())
 			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid.toString()).send({ from: walletaddr })
 			if (tx) {
 				resp.status(201).send({ success: true, message: 'registration successful' })

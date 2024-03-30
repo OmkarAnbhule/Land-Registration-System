@@ -42,14 +42,16 @@ export default function Register() {
         setMaxDate(today);
     }, []);
     useEffect(() => {
-        VerifyEmail().then((res) => {
-            if (res.success) {
-                setEmailErr('Email Already Found')
-            }
-            else {
-                setEmailErr('')
-            }
-        })
+        if (email != '') {
+            VerifyEmail().then((res) => {
+                if (res.success) {
+                    setEmailErr('Email Already Found')
+                }
+                else {
+                    setEmailErr('')
+                }
+            })
+        }
     }, [email])
 
     const handleFirstName = (e) => {
@@ -220,6 +222,7 @@ export default function Register() {
                         "Content-Type": "application/json"
                     }
                 })
+                return result;
             } else {
                 new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
                     position: 'bottom-center',
@@ -277,8 +280,7 @@ export default function Register() {
             try {
                 connectToMetaMask()
                     .then((res) => {
-                        console.log(res, res.success)
-                        if (res.success == true) {
+                        if (res.status == 201) {
                             sendData().then((res) => {
                                 if (res.success == true) {
                                     setStep(step + 1)
@@ -312,31 +314,31 @@ export default function Register() {
                                 }
                             })
                         }
-                    })
-                    .catch(() => {
-                        setStatus(false)
-                        new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask address already used`, {
-                            position: 'bottom-center',
-                            style: {
-                                container: [
-                                    ['background', 'rgb(246, 58, 93)'],
-                                    ['border-radius', '5px'],
-                                    ['height', '50px'],
-                                    ['padding', '10px'],
-                                    ['border-radius', '20px']
-                                ],
-                                message: [
-                                    ['color', '#eee'],
-                                    ['font-size', '18px']
-                                ],
-                                bold: [
-                                    ['font-weight', 'bold'],
-                                ],
-                                actionButton: [
-                                    ['color', 'white'],
-                                ],
-                            }
-                        });
+                        else {
+                            setStatus(false)
+                            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask address already used`, {
+                                position: 'bottom-center',
+                                style: {
+                                    container: [
+                                        ['background', 'rgb(246, 58, 93)'],
+                                        ['border-radius', '5px'],
+                                        ['height', '50px'],
+                                        ['padding', '10px'],
+                                        ['border-radius', '20px']
+                                    ],
+                                    message: [
+                                        ['color', '#eee'],
+                                        ['font-size', '18px']
+                                    ],
+                                    bold: [
+                                        ['font-weight', 'bold'],
+                                    ],
+                                    actionButton: [
+                                        ['color', 'white'],
+                                    ],
+                                }
+                            });
+                        }
                     })
             }
             catch (e) {

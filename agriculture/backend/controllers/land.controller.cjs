@@ -2,16 +2,23 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
+const { getIPFSInstance } = require('../utils/ipfsNode.cjs')
 
 exports.addLand = async (req, resp) => {
-	const { area, state, district, propertyid, survey, price , address } = JSON.parse(req.body.data)
-	const files = req.files.map((item, index) => (
-		item.originalname
-	))
+	const { area, state, district, propertyid, survey, price, address } = JSON.parse(req.body.data)
 	try {
-		const tx = await contract.methods.addLand(parseInt(area, 10),state ,district, address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
-		if (tx) {
-			resp.status(200).send({ success: true, message: 'land registered' })
+		const ipfs = await getIPFSInstance()
+		console.log(req.files)
+		if (ipfs) {
+			const files = [];
+			for (const item of req.files) {
+				const { cid } = await ipfs.add(item.buffer);
+				files.push(cid.toString());
+			}
+			const tx = await contract.methods.addLand(parseInt(area, 10), state, district, address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
+			if (tx) {
+				resp.status(200).send({ success: true, message: 'land registered' })
+			}
 		}
 	}
 	catch (e) {
