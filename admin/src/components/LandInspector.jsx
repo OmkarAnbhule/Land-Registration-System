@@ -98,23 +98,24 @@ const LandInspector = () => {
                 <div className="request-section">
                     <h3>Register Requests</h3>
                     <ul className="request-list">
-                        {registerRequests.map((item, index) => (
-                            <li key={index} className="request-item">
-                                <div>
-                                    {item.files.map((item1, index1) => (
-                                        <img src={'https://ipfs.io/ipfs/' + item1} key={index1} alt="Land" width={100} height={100} style={{ margin: '20px' }} />
-                                    ))}
-                                    <p>area: {item.area}</p>
-                                    <p>address: {item.landAddress}</p>
-                                    <p>property Id: {item.propertyPID}</p>
-                                    <p>Survey: {item.surveyNum}</p>
-                                </div>
-                                <div className="button-group">
-                                    <button onClick={() => approveRequest(index, item.ownerAddress)}>Approve</button>
-                                    <button onClick={() => rejectRequest(index)}>Reject</button>
-                                </div>
-                            </li>
-                        ))}
+                        {registerRequests[0].area != '' &&
+                            registerRequests.map((item, index) => (
+                                <li key={index} className="request-item">
+                                    <div>
+                                        {item.files.map((item1, index1) => (
+                                            <img src={'https://ipfs.io/ipfs/' + item1} key={index1} alt="Land" width={100} height={100} style={{ margin: '20px', border: '2px solid white' }} />
+                                        ))}
+                                        <p>area: {item.area}</p>
+                                        <p>address: {item.landAddress}</p>
+                                        <p>property Id: {item.propertyPID}</p>
+                                        <p>Survey: {item.surveyNum}</p>
+                                    </div>
+                                    <div className="button-group">
+                                        <button onClick={() => approveRequest(item.id, item.ownerAddress)}>Approve</button>
+                                        <button onClick={() => rejectRequest(item.id)}>Reject</button>
+                                    </div>
+                                </li>
+                            ))}
                     </ul>
                 </div>
             )}

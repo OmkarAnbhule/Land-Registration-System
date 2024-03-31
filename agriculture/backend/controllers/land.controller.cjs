@@ -75,16 +75,40 @@ exports.getAllLands = async (req, resp) => {
 				catch (e) {
 				}
 			}
+			try {
+				const tx1 = await contract.methods.getHighestBid(tx[i].id).call()
+				tx[i].highestBid = Number(tx1);
+			}
+			catch (e) {
+				tx[i].highestBid = 0;
+			}
 		}
 		resp.status(200).send({ success: true, data: tx })
 	}
 }
+
+const timer = (id) => {
+	const timeout = setTimeout(async () => {
+		try {
+			const tx = await contract.methods.finalizeBid(parseInt(id, 10), Date.now()).call();
+			if (tx) {
+				clearTimeout(timeout)
+			}
+		}
+		catch (e) {
+			timer()
+		}
+	}, 2000);
+}
+
 exports.sellland = async (req, resp) => {
-	const { objId } = req.body;
+	const { objId, amt, addr } = req.body;
 	try {
-		const tx = await contract.methods.sellReq(walletaddr, parseInt(objId, 10)).send({ from: walletaddr })
+		console.log(await contract.methods);
+		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(2, 10), parseInt(amt, 10), addr).send({ from: walletaddr })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
+			timer()
 		}
 	}
 	catch (e) {
@@ -93,6 +117,19 @@ exports.sellland = async (req, resp) => {
 	}
 }
 
+exports.placeBid = async (req, resp) => {
+	const { id, bid } = req.body;
+	try {
+		const tx = await contract.methods.placeBid(parseInt(id, 10)).send({ from: walletaddr, value: bid })
+		if (tx) {
+			resp.status(500).send({ success: true })
+		}
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+}
 
 
 //admin queries
@@ -122,9 +159,10 @@ exports.registerreq = async (req, resp) => {
 	}
 }
 exports.registeraccept = async (req, resp) => {
-	const { id , _addr } = req.body;
+	const { id, _addr } = req.body;
 	try {
 		const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: walletaddr })
+		console.log(tx)
 		if (tx)
 			resp.status(201).send({ success: true })
 	}
@@ -132,8 +170,6 @@ exports.registeraccept = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 }
-
-
 
 exports.reject = async (req, resp) => {
 	const { id } = req.body;

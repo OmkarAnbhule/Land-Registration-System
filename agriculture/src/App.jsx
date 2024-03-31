@@ -31,7 +31,7 @@ function App() {
   }
   useEffect(() => {
     checkLogin()
-  }, [])
+  }, [localStorage])
 
   return (
     <BrowserRouter>

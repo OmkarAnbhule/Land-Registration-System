@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.7;
+import "./Bidding.sol";
 
 contract Land {
     address contractOwner;
@@ -7,8 +8,7 @@ contract Land {
 
     constructor() {
         contractOwner = msg.sender;
-        biddingContract = new Bidding();
-        
+        biddingContract = new Bidding(msg.sender);
     }
 
     struct Landreg {
@@ -45,23 +45,15 @@ contract Land {
         address seller;
     }
 
-    struct SellerReqStruct {
-        uint256 id;
-        address seller;
-        uint landId;
-    }
-
     uint256 public userCount;
     uint256 public landsCount;
     uint256 public Registerreqcount;
-    uint256 public sellerrequestcount;
 
     mapping(address => User) public UserMapping;
     mapping(uint256 => address) AllUsers;
     mapping(address => bool) RegisteredUserMapping;
     mapping(address => Landreg[]) public lands;
     mapping(uint256 => RegisterLandStruct[]) public Registerrequests;
-    mapping(uint256 => SellerReqStruct) public SellerRequests;
     address[] public ownerMapping;
 
     function registerUser(
@@ -181,17 +173,6 @@ contract Land {
         return result;
     }
 
-    function sellReq(address _addr, uint256 id) public {
-        if (lands[_addr][id].isLandVerified == true) {
-            lands[_addr][id].isforSell = true;
-            SellerRequests[sellerrequestcount++] = SellerReqStruct(
-                sellerrequestcount++,
-                _addr,
-                id
-            );
-        }
-    }
-
     function getSellRequest() public view returns (Landreg[] memory) {
         Landreg[] memory result = new Landreg[](ownerMapping.length);
         uint256 index = 0;
@@ -228,5 +209,41 @@ contract Land {
             Registerrequests[Registerreqcount].pop();
         }
         Registerreqcount--;
+    }
+
+    function createLandBid(
+        uint256 landId,
+        uint256 closingTime,
+        uint256 amount,
+        address seller
+    ) public {
+        lands[seller][landId].isforSell = true;
+        biddingContract.createLandBid(landId, closingTime, amount, seller);
+    }
+
+    function placeBid(uint256 landId) public payable {
+        biddingContract.placeBid{value: msg.value}(landId);
+    }
+
+    function finalizeBid(uint256 landId, uint256 _timestamp) public {
+        biddingContract.finalizeBid(landId, _timestamp);
+    }
+
+    function getHighestBid(uint256 landId) public view returns(uint256){
+        return biddingContract.getHighestBid(landId);
+    }
+
+    function transferOwnership(
+        uint256 id,
+        address bidder,
+        address seller
+    ) external {
+        Landreg storage soldLand = lands[seller][id];
+        soldLand.ownerAddress = payable(bidder);
+        soldLand.isforSell = false;
+
+        lands[bidder].push(soldLand);
+
+        delete lands[seller][id];
     }
 }
