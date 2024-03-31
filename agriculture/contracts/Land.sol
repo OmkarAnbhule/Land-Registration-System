@@ -191,11 +191,9 @@ contract Land {
         return result;
     }
 
-    function acceptReg(address _addr, uint256 id, uint256 price) public {
+    function acceptReg(address _addr, uint256 id ) public {
         lands[_addr][id].isLandVerified = true;
-        if (price > 0) {
-            lands[_addr][id].landPrice = price;
-        }
+    
         for (uint256 i = id; i < Registerreqcount; i++) {
             Registerrequests[i] = Registerrequests[i + 1];
         }

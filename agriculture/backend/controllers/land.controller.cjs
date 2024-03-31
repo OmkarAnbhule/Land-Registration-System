@@ -122,9 +122,9 @@ exports.registerreq = async (req, resp) => {
 	}
 }
 exports.registeraccept = async (req, resp) => {
-	const { id } = req.body;
+	const { id , _addr } = req.body;
 	try {
-		const tx = await contract.methods.acceptReg(walletaddr, parseInt(id, 10)).send({ from: walletaddr })
+		const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: walletaddr })
 		if (tx)
 			resp.status(201).send({ success: true })
 	}

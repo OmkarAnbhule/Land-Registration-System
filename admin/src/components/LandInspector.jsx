@@ -54,6 +54,34 @@ const LandInspector = () => {
 
     // The rest of your component...
 
+    const approveRequest = (id, addr) => {
+        fetch('http://localhost:5000/register-accept', {
+            method: 'post',
+            body: JSON.stringify({ id: id, _addr: addr }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((res) => {
+            if (res.success == true)
+                registerRequests.filter((item, index) => {
+                    item.id != id
+                })
+        })
+    }
+    const rejectRequest = (id) => {
+        fetch('http://localhost:5000/register-reject', {
+            method: 'post',
+            body: JSON.stringify({ id: id }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((res) => {
+            registerRequests.filter((item, index) => {
+                item.id != id
+            })
+        })
+    }
+
     return (
         <div className="land-inspector">
             <h2>Land Inspector Dashboard</h2>
@@ -73,16 +101,16 @@ const LandInspector = () => {
                         {registerRequests.map((item, index) => (
                             <li key={index} className="request-item">
                                 <div>
-                                    {item.imageURL && (
-                                        <img src={item.imageURL} alt="Land" style={{ width: '100px', height: '100px' }} />
-                                    )}
+                                    {item.files.map((item1, index1) => (
+                                        <img src={'https://ipfs.io/ipfs/' + item1} key={index1} alt="Land" width={100} height={100} style={{ margin: '20px' }} />
+                                    ))}
                                     <p>area: {item.area}</p>
                                     <p>address: {item.landAddress}</p>
                                     <p>property Id: {item.propertyPID}</p>
                                     <p>Survey: {item.surveyNum}</p>
                                 </div>
                                 <div className="button-group">
-                                    <button onClick={() => approveRequest(index)}>Approve</button>
+                                    <button onClick={() => approveRequest(index, item.ownerAddress)}>Approve</button>
                                     <button onClick={() => rejectRequest(index)}>Reject</button>
                                 </div>
                             </li>
@@ -92,77 +120,5 @@ const LandInspector = () => {
             )}
         </div>
     );
-    };
+};
 export default LandInspector;
-
-//import React, { useEffect, useState } from 'react';
-//import CircularProgress from './CircularProgress'; // Assuming CircularProgress is in the same directory
-//
-//const LandInspector = () => {
-//    const [registerRequests, setRegisterRequests] = useState([]);
-//    const [showRegisterRequests, setShowRegisterRequests] = useState(false);
-//    const [dashboardStats, setDashboardStats] = useState({
-//        numberOfLands: 0,
-//        numberOfRegisteredUsers: 0,
-//        numberOfRegisteredLand: 0,
-//        numberOfBidsPlaced: 0
-//    });
-//
-//    const toggleRegisterRequests = () => {
-//        setShowRegisterRequests(!showRegisterRequests);
-//    };
-//
-//    useEffect(() => {
-//        getRegisterReq();
-//        fetchDashboardStats();
-//    }, []);
-//
-//    const getRegisterReq = async () => {
-//        // Your existing code...
-//    };
-//
-//    const fetchDashboardStats = async () => {
-//        // Your existing code...
-//    };
-//
-//    // The rest of your component...
-//
-//    return (
-//        <div className="land-inspector">
-//            <h2>Land Inspector Dashboard</h2>
-//            <div className="dashboard-stats">
-//                <CircularProgress score={dashboardStats.numberOfLands} total={10} />
-//                <CircularProgress score={dashboardStats.numberOfRegisteredUsers} total={10} />
-//                <CircularProgress score={dashboardStats.numberOfRegisteredLand} total={10} />
-//                <CircularProgress score={dashboardStats.numberOfBidsPlaced} total={10} />
-//            </div>
-//            <div className="toggle-buttons">
-//                <button onClick={toggleRegisterRequests} className={showRegisterRequests ? 'active' : ''}>Register</button>
-//            </div>
-//            {showRegisterRequests && (
-//                <div className="request-section">
-//                    <h3>Register Requests</h3>
-//                    <ul className="request-list">
-//                        {registerRequests.map((item, index) => (
-//                            <li key={index} className="request-item">
-//                                <div>
-//                                    <p>area: {item.area}</p>
-//                                    <p>address: {item.landAddress}</p>
-//                                    <p>property Id: {item.propertyPID}</p>
-//                                    <p>Survey: {item.surveyNum}</p>
-//                                </div>
-//                                <div className="button-group">
-//                                    <button onClick={() => approveRequest(index)}>Approve</button>
-//                                    <button onClick={() => rejectRequest(index)}>Reject</button>
-//                                </div>
-//                            </li>
-//                        ))}
-//                    </ul>
-//                </div>
-//            )}
-//        </div>
-//    );
-//};
-//
-//export default LandInspector;
-//

@@ -32,26 +32,12 @@ function updateWalletAddress(newAddress) {
 app.post('/send-address', async (req, resp) => {
 	try {
 		const { addr } = req.body;
-		if (walletaddr === undefined) {
-			if (updateWalletAddress(await addr)) {
-				const tx = await contract.methods.getUser(addr).call();
-				if (tx.id != addr) {
-					resp.status(201).send({ success: true, message: 'address set successfully' });
-				}
-				else {
-					resp.status(400).send({ success: false, message: 'address already used' });
-				}
-			}
-		}
-		else {
+		if (updateWalletAddress(await addr)) {
 			const tx = await contract.methods.getUser(addr).call();
-			console.log(tx)
 			if (tx.id != addr) {
-				console.log('if ',tx)
 				resp.status(201).send({ success: true, message: 'address set successfully' });
 			}
 			else {
-				console.log(tx)
 				resp.status(400).send({ success: false, message: 'address already used' });
 			}
 		}
