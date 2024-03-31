@@ -1,9 +1,12 @@
+require('dotenv').config()
 const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
+const axios = require('axios')
 const OTP = require('../models/OtpModel.cjs')
 const { walletaddr, contract } = require('../utils/contract.cjs')
 const { getIPFSInstance } = require('../utils/ipfsNode.cjs')
-
+const fs = require('fs')
+const FormData = require('form-data');
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
@@ -127,19 +130,29 @@ exports.registerUser = async (req, resp) => {
 			resp.status(500).send({ success: false, message: 'Invalid Otp' })
 		}
 		else {
-			const ipfs = await getIPFSInstance();
-			const { cid } = await ipfs.add(req.file)
-			console.log(req.file)
+			const formData = new FormData()
+			const file = fs.createReadStream(req.file.path);
+			formData.append('file', file)
+			const res = await axios.post(
+				"https://api.pinata.cloud/pinning/pinFileToIPFS",
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${process.env.JWT}`,
+					},
+				}
+			);
+			console.log(res.data.IpfsHash)
 			let hashedPassword = await bcrypt.hash(password, 10);
-			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, cid.toString()).send({ from: walletaddr })
+			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, res.data.IpfsHash).send({ from: walletaddr })
 			if (tx) {
 				resp.status(201).send({ success: true, message: 'registration successful' })
 			}
 		}
 	}
 	catch (e) {
-		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 		console.log(e)
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 	}
 }
 
