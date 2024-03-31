@@ -2,6 +2,7 @@
 pragma solidity ^0.8.7;
 import "./Bidding.sol";
 
+import "./Bidding.sol";
 contract Land {
     address contractOwner;
     Bidding private biddingContract;
