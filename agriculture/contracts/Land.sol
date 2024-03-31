@@ -3,9 +3,12 @@ pragma solidity ^0.8.7;
 
 contract Land {
     address contractOwner;
+    Bidding private biddingContract;
 
     constructor() {
         contractOwner = msg.sender;
+        biddingContract = new Bidding();
+        
     }
 
     struct Landreg {
