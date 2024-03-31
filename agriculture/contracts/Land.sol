@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.7;
 
+import "./Bidding.sol";
 contract Land {
     address contractOwner;
     Bidding private biddingContract;
