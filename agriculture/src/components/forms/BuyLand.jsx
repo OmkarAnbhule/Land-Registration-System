@@ -34,11 +34,8 @@ export default function BuyLand() {
         if (result.success == true) {
             for (var item of result.data) {
                 if (land.length > 0) {
-                    if (land.find(obj => obj._id !== item._id)) {
-                        if (!item.buyers.include(localStorage.getItem("id"))) {
-                            console.log(item.buyers)
+                    if (land.find(obj => obj.id !== item.id)) {
                             setLand((pre) => [...pre, item])
-                        }
                     }
                 }
                 else {

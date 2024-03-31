@@ -37,20 +37,28 @@ contract Land {
         bool isloggedin;
     }
 
-    struct sellReqStruct {
+    struct RegisterLandStruct {
         uint256 id;
         address seller;
+    }
+
+    struct SellerReqStruct {
+        uint256 id;
+        address seller;
+        uint landId;
     }
 
     uint256 public userCount;
     uint256 public landsCount;
     uint256 public Registerreqcount;
+    uint256 public sellerrequestcount;
 
     mapping(address => User) public UserMapping;
     mapping(uint256 => address) AllUsers;
     mapping(address => bool) RegisteredUserMapping;
     mapping(address => Landreg[]) public lands;
-    mapping(uint256 => sellReqStruct[]) public Registerrequests;
+    mapping(uint256 => RegisterLandStruct[]) public Registerrequests;
+    mapping(uint256 => SellerReqStruct) public SellerRequests;
     address[] public ownerMapping;
 
     function registerUser(
@@ -123,8 +131,7 @@ contract Land {
         string memory _propertyPID,
         string memory _surveyNum,
         uint256 _landPrice,
-        string[] memory _files
-        //string memory _timestamp
+        string[] memory _files //string memory _timestamp
     ) public {
         lands[msg.sender].push(
             Landreg(
@@ -145,7 +152,7 @@ contract Land {
         );
         landsCount++;
         Registerrequests[Registerreqcount].push(
-            sellReqStruct(Registerreqcount, msg.sender)
+            RegisterLandStruct(Registerreqcount, msg.sender)
         );
         Registerreqcount++;
     }
@@ -161,8 +168,10 @@ contract Land {
             if (ownerMapping[i] != _addr) {
                 Landreg[] memory ownerLands = lands[ownerMapping[i]];
                 for (uint256 j = 0; j < ownerLands.length; j++) {
-                    result[index] = ownerLands[j];
-                    index++;
+                    if (ownerLands[j].isforSell) {
+                        result[index] = ownerLands[j];
+                        index++;
+                    }
                 }
             }
         }
@@ -172,6 +181,11 @@ contract Land {
     function sellReq(address _addr, uint256 id) public {
         if (lands[_addr][id].isLandVerified == true) {
             lands[_addr][id].isforSell = true;
+            SellerRequests[sellerrequestcount++] = SellerReqStruct(
+                sellerrequestcount++,
+                _addr,
+                id
+            );
         }
     }
 
@@ -179,7 +193,7 @@ contract Land {
         Landreg[] memory result = new Landreg[](ownerMapping.length);
         uint256 index = 0;
         for (uint256 i = 0; i < Registerreqcount; i++) {
-            sellReqStruct[] memory sellerLands = Registerrequests[i];
+            RegisterLandStruct[] memory sellerLands = Registerrequests[i];
             for (uint256 k = 0; k < sellerLands.length; k++) {
                 Landreg[] memory ownerLands = lands[sellerLands[k].seller];
                 for (uint256 j = 0; j < ownerLands.length; j++) {
@@ -191,9 +205,9 @@ contract Land {
         return result;
     }
 
-    function acceptReg(address _addr, uint256 id ) public {
+    function acceptReg(address _addr, uint256 id) public {
         lands[_addr][id].isLandVerified = true;
-    
+
         for (uint256 i = id; i < Registerreqcount; i++) {
             Registerrequests[i] = Registerrequests[i + 1];
         }
@@ -212,6 +226,4 @@ contract Land {
         }
         Registerreqcount--;
     }
-
-
 }

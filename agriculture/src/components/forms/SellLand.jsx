@@ -99,7 +99,7 @@ export default function SellLand() {
                             {
                                 !item.isVerified || item.isSell ?
                                     (<button style={{ background: 'gray' }}>Sell</button>) :
-                                    (<button onClick={() => handleSell(item._id)} style={{ background: 'royalblue' }}>Sell</button>)
+                                    (<button onClick={() => handleSell(item.id)} style={{ background: 'royalblue' }}>Sell</button>)
 
                             }
                         </div>
