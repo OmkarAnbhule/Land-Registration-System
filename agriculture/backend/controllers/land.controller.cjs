@@ -93,6 +93,7 @@ const timer = (id) => {
 			const tx = await contract.methods.finalizeBid(parseInt(id, 10), Date.now()).call();
 			if (tx) {
 				clearTimeout(timeout)
+				console.log('transferred')
 			}
 		}
 		catch (e) {
@@ -100,15 +101,13 @@ const timer = (id) => {
 		}
 	}, 2000);
 }
-
 exports.sellland = async (req, resp) => {
 	const { objId, amt, addr } = req.body;
 	try {
-		console.log(await contract.methods);
 		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(2, 10), parseInt(amt, 10), addr).send({ from: walletaddr })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
-			timer()
+			timer(parseInt(objId,10))
 		}
 	}
 	catch (e) {

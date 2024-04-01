@@ -5,6 +5,7 @@ import Snackbar from 'awesome-snackbar'
 export default function SellLand() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
+    const seen = new Set()
     const [land, setLand] = useState([])
     useEffect(() => {
         getLand()
@@ -19,13 +20,10 @@ export default function SellLand() {
         })
         result = await result.json()
         for (var item of result.data) {
-            if (land.length > 0) {
-                if (land.find(obj => obj._id !== item._id)) {
-                    setLand((pre) => [...pre, ...item])
-                }
-            }
-            else {
-                setLand((pre) => [...pre, ...result.data])
+            const stringifiedObj = JSON.stringify(item);
+            if (!seen.has(stringifiedObj) && item.area != '') {
+                seen.add(stringifiedObj)
+                setLand((pre) => [...pre, JSON.parse(stringifiedObj)])
             }
         }
     }

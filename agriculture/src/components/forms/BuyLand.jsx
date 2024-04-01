@@ -7,8 +7,8 @@ export default function BuyLand() {
     const [bid, setBid] = useState(0);
     const navigate = useNavigate()
     const [style, setStyle] = useState({})
-    const [land, setLand] = useState([
-    ])
+    const seen = new Set();
+    const [land, setLand] = useState([]);
     useEffect(() => {
         getData()
     }, [])
@@ -22,14 +22,10 @@ export default function BuyLand() {
         result = await result.json()
         if (result.success == true) {
             for (var item of result.data) {
-                if (land.length > 0) {
-                    if (land.find(obj => obj.id !== item.id)) {
-                        setLand((pre) => [...pre, item])
-                    }
-                }
-                else {
-                    setLand((pre) => [...pre, ...result.data])
-
+                const stringifiedObj = JSON.stringify(item);
+                if (!seen.has(stringifiedObj) && item.area != '') {
+                    seen.add(stringifiedObj)
+                    setLand((pre) => [...pre, JSON.parse(stringifiedObj)])
                 }
             }
         }
