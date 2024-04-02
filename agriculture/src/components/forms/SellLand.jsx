@@ -5,6 +5,7 @@ import Snackbar from 'awesome-snackbar'
 export default function SellLand() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate()
+    const seen = new Set()
     const [land, setLand] = useState([])
     useEffect(() => {
         getLand()
@@ -19,20 +20,17 @@ export default function SellLand() {
         })
         result = await result.json()
         for (var item of result.data) {
-            if (land.length > 0) {
-                if (land.find(obj => obj._id !== item._id)) {
-                    setLand((pre) => [...pre, ...item])
-                }
-            }
-            else {
-                setLand((pre) => [...pre, ...result.data])
+            const stringifiedObj = JSON.stringify(item);
+            if (!seen.has(stringifiedObj) && item.area != '') {
+                seen.add(stringifiedObj)
+                setLand((pre) => [...pre, JSON.parse(stringifiedObj)])
             }
         }
     }
-    const handleSell = async (id) => {
+    const handleSell = async (id, val, addr) => {
         let result = await fetch(`${api}sell-land`, {
             method: 'post',
-            body: JSON.stringify({ objId: id }),
+            body: JSON.stringify({ objId: id, amt: val, addr: addr }),
             headers: {
                 "Content-Type": "application/json"
             }
@@ -66,10 +64,10 @@ export default function SellLand() {
     function unixTimestampToDate(unixTimestamp) {
         // Create a new Date object representing the UNIX timestamp multiplied by 1000 (to convert seconds to milliseconds)
         var date = new Date(unixTimestamp * 1000);
-      
+
         // Return the date as a string in the format "YYYY-MM-DD"
         return date.toISOString().split('T')[0];
-      }
+    }
     const handleRegistry = () => {
         navigate('/Registryform')
     }
@@ -79,10 +77,10 @@ export default function SellLand() {
                 land.length > 0 ?
                     land.map((item, index) => (
                         <div className="container" key={index}>
-                            {!item.isVerified ?
+                            {!item.isLandVerified ?
                                 (<p className='verify-wrong'><i className="bi bi-x-circle-fill"></i> Not verified</p>) :
                                 (<p className='verify-right'><i className="bi bi-patch-check-fill"></i> verified</p>)}
-                            {item.isSell ?
+                            {item.isforSell ?
                                 (<p className="sale">On Sale</p>)
                                 : null
                             }<div className="location">
@@ -97,9 +95,9 @@ export default function SellLand() {
                                 <p><b>Registered on: </b>{unixTimestampToDate(item.timestamp)}</p>
                             </div>
                             {
-                                !item.isVerified || item.isSell ?
+                                !item.isLandVerified || item.isforSell ?
                                     (<button style={{ background: 'gray' }}>Sell</button>) :
-                                    (<button onClick={() => handleSell(item.id)} style={{ background: 'royalblue' }}>Sell</button>)
+                                    (<button onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress)} style={{ background: 'royalblue' }}>Sell</button>)
 
                             }
                         </div>
