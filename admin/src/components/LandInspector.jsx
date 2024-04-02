@@ -237,12 +237,7 @@ const LandInspector = () => {
     return (
         <div className="land-inspector">
             <h2>Land Inspector Dashboard</h2>
-            <div className="dashboard-stats">
-                <p>Number of Lands: {dashboardStats.numberOfLands}</p>
-                <p>Number of Registered Users: {dashboardStats.numberOfRegisteredUsers}</p>
-                <p>Number of Registered Land: {dashboardStats.numberOfRegisteredLand}</p>
-                <p>Number of Bids Placed: {dashboardStats.numberOfBidsPlaced}</p>
-            </div>
+            
             <div className="toggle-buttons">
                 <button onClick={toggleRegisterRequests} className={showRegisterRequests ? 'active' : ''}>Register Requests</button>
             </div>
