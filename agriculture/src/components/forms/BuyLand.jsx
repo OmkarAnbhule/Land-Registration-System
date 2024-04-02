@@ -1,31 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Snackbar from "awesome-snackbar";
 
 export default function BuyLand() {
     const api = import.meta.env.VITE_API_URL;
-    const [bid, setBid] = useState('');
+    const [bid, setBid] = useState(0);
     const navigate = useNavigate()
     const [style, setStyle] = useState({})
-    const [land, setLand] = useState([
-        {
-            "area": "255",
-            "state": "delhi",
-            "district": "new",
-            "address": "lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ",
-            "price": "100000",
-            "propertyid": "090JKJ",
-            "survey": "KJ878",
-            "id": 0
-        }
-    ])
+    const seen = new Set();
+    const [land, setLand] = useState([]);
     useEffect(() => {
         getData()
-
     }, [])
     const getData = async () => {
         let result = await fetch(`${api}get-land-all`, {
             method: 'post',
-            body: JSON.stringify({ email: localStorage.getItem('id') }),
             headers: {
                 "Content-Type": "application/json"
             }
@@ -33,14 +22,10 @@ export default function BuyLand() {
         result = await result.json()
         if (result.success == true) {
             for (var item of result.data) {
-                if (land.length > 0) {
-                    if (land.find(obj => obj.id !== item.id)) {
-                            setLand((pre) => [...pre, item])
-                    }
-                }
-                else {
-                    setLand((pre) => [...pre, ...result.data])
-
+                const stringifiedObj = JSON.stringify(item);
+                if (!seen.has(stringifiedObj) && item.area != '') {
+                    seen.add(stringifiedObj)
+                    setLand((pre) => [...pre, JSON.parse(stringifiedObj)])
                 }
             }
         }
@@ -54,16 +39,43 @@ export default function BuyLand() {
     const handleInput = (e) => {
         let temp = e.target.value;
         temp = temp.replace(/[^\d]/g, "");
-        setBid(temp)
+        setBid(parseInt(temp))
     }
-    const handleBuy = async (id) => {
-        let result = await fetch(`${api}buy-land`, {
-            method: 'post',
-            body: JSON.stringify({ objId: id }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
+    const handleBuy = async (id, val) => {
+        if (bid < val) {
+            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Bid cannot be less than land price`, {
+                position: 'bottom-center',
+                style: {
+                    container: [
+                        ['background', 'rgb(246, 58, 93)'],
+                        ['border-radius', '5px'],
+                        ['height', '50px'],
+                        ['padding', '10px'],
+                        ['border-radius', '20px']
+                    ],
+                    message: [
+                        ['color', '#eee'],
+                        ['font-size', '18px']
+                    ],
+                    bold: [
+                        ['font-weight', 'bold'],
+                    ],
+                    actionButton: [
+                        ['color', 'white'],
+                    ],
+                }
+            });
+        }
+        else {
+            let result = await fetch(`${api}place-bid`, {
+                method: 'post',
+                body: JSON.stringify({ id: id, bid }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+        }
     }
     return (
         <div className="buy-land">
@@ -72,31 +84,32 @@ export default function BuyLand() {
                     <div className="container" key={index}>
                         <div className="location">
                             <i className="bi bi-geo-alt"></i>
-                            <p>{item.address}</p><br />
+                            <p>{item.landAddress}</p><br />
                         </div>
                         <div className="images-div">
-                            <img width={50} height={50} className={style == 0 ? 'zoomed' : ''} onClick={() => handleImage(0)} onMouseLeave={handleBlur}></img>
-                            <img width={50} height={50} className={style == 1 ? 'zoomed' : ''} onClick={() => handleImage(1)} onMouseLeave={handleBlur}></img>
-                            <img width={50} height={50} className={style == 2 ? 'zoomed' : ''} onClick={() => handleImage(2)} onMouseLeave={handleBlur}></img>
-                            <img width={50} height={50} className={style == 3 ? 'zoomed' : ''} onClick={() => handleImage(3)} onMouseLeave={handleBlur}></img>
+                            {
+                                item.files.map((file, key) => (
+                                    <img src={"https://ipfs.io/ipfs/" + file} key={key} width={50} height={50} className={style == 0 ? 'zoomed' : ''} onClick={() => handleImage(key)} onMouseLeave={handleBlur}></img>
+                                ))
+                            }
                         </div>
                         <div className="details">
                             <p><b>Area: </b>{item.area}</p>
-                            <p><b>Estimated Price: </b>{item.price}</p>
-                            <p><b>Property Number: </b>{item.propertyid}</p>
-                            <p><b>Survey Number: </b>{item.survey}</p>
+                            <p><b>Estimated Price: </b>{item.landPrice}</p>
+                            <p><b>Property Number: </b>{item.propertyPID}</p>
+                            <p><b>Survey Number: </b>{item.surveyNum}</p>
                         </div>
                         <div className="highest-bid">
                             <b>Highest bid:</b>&nbsp;&nbsp;
-                            <p>0829389 Rs.</p>
+                            <p>{item.highestBid} Rs.</p>
                         </div>
                         <div className="button-div">
                             <div className="bid">
-                                <i className="bi bi-plus" onClick={() => setBid(parseInt(bid) + 1)}></i>
-                                <input type="text" value={bid} onChange={handleInput}></input>
-                                <i className="bi bi-dash" onClick={() => setBid(parseInt(bid) - 1)}></i>
+                                <i className="bi bi-plus" key={index} onClick={() => setBid(parseInt(bid) + 1)}></i>
+                                <input key={index} type="text" value={bid == 0 ? item.landPrice : bid} onChange={handleInput}></input>
+                                <i className="bi bi-dash" key={index} onClick={() => setBid(parseInt(bid) - 1)}></i>
                             </div>
-                            <button onClick={() => handleBuy(item.id)}>Bid</button>
+                            <button onClick={() => handleBuy(item.id, item.landPrice)}>Bid</button>
                         </div>
                     </div>
                 ))
