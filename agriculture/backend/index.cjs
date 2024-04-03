@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
 	console.log('Database connected')
 });
-const { contract, walletaddr } = require('./utils/contract.cjs')
+const { contract, walletaddr , assignWallet } = require('./utils/contract.cjs')
 const express = require('express');
 const cors = require('cors')
 const app = express();
@@ -16,23 +16,10 @@ app.listen(5000, () => {
 	console.log('app is listening at http://localhost:5000');
 })
 
-function updateWalletAddress(newAddress) {
-	const configFilePath = '../backend/config.json'
-	try {
-		const configData = fs.readFileSync(configFilePath);
-		const config = JSON.parse(configData);
-		config.walletAddress = newAddress;
-		fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2));
-		console.log('Wallet address updated successfully.');
-		return true
-	} catch (error) {
-		console.error('Error updating contract address:', error);
-	}
-}
 app.post('/send-address', async (req, resp) => {
 	try {
 		const { addr } = req.body;
-		if (updateWalletAddress(await addr)) {
+		if (assignWallet(addr)) {
 			const tx = await contract.methods.getUser(addr).call();
 			if (tx.id != addr) {
 				resp.status(201).send({ success: true, message: 'address set successfully' });

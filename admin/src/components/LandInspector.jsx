@@ -237,7 +237,7 @@ const LandInspector = () => {
     return (
         <div className="land-inspector">
             <h2>Land Inspector Dashboard</h2>
-            
+
             <div className="toggle-buttons">
                 <button onClick={toggleRegisterRequests} className={showRegisterRequests ? 'active' : ''}>Register Requests</button>
             </div>
@@ -245,7 +245,7 @@ const LandInspector = () => {
                 <div className="request-section">
                     <h3>Register Requests</h3>
                     <ul className="request-list">
-                        {registerRequests[0].area != '' &&
+                        {registerRequests &&
                             registerRequests.map((item, index) => (
                                 <li key={index} className="request-item">
                                     <div>

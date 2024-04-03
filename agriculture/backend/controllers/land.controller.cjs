@@ -5,7 +5,7 @@ const otpGenerator = require('otp-generator')
 const fs = require('fs')
 const FormData = require('form-data');
 const OTP = require('../models/OtpModel.cjs')
-const { walletaddr, contract } = require('../utils/contract.cjs')
+const { getaddress, contract } = require('../utils/contract.cjs')
 
 const uploadFile = async (val) => {
 	const formData = new FormData()
@@ -31,7 +31,7 @@ exports.addLand = async (req, resp) => {
 			files.push(await uploadFile(item.path))
 		}
 
-		const tx = await contract.methods.addLand(parseInt(area, 10), state, district, address, propertyid, survey, parseInt(price, 10), files).send({ from: walletaddr })
+		const tx = await contract.methods.addLand(parseInt(area, 10), state, district, address, propertyid, survey, parseInt(price, 10), files).send({ from: getaddress() })
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'land registered' })
 		}
@@ -45,7 +45,7 @@ exports.addLand = async (req, resp) => {
 
 }
 exports.getland = async (req, resp) => {
-	const tx = await contract.methods.getMyLands(walletaddr).call()
+	const tx = await contract.methods.getMyLands(getaddress()).call()
 	if (tx) {
 		console.log(tx)
 		for (let i of tx) {
@@ -63,7 +63,7 @@ exports.getland = async (req, resp) => {
 	}
 }
 exports.getAllLands = async (req, resp) => {
-	const tx = await contract.methods.getAllLands(walletaddr).call()
+	const tx = await contract.methods.getAllLands(getaddress()).call()
 	if (tx) {
 		for (var i in tx) {
 			for (let key in tx[i]) {
@@ -104,7 +104,7 @@ const timer = (id) => {
 exports.sellland = async (req, resp) => {
 	const { objId, amt, addr } = req.body;
 	try {
-		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(2, 10), parseInt(amt, 10), addr).send({ from: walletaddr })
+		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(2, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
 			timer(parseInt(objId,10))
@@ -119,7 +119,7 @@ exports.sellland = async (req, resp) => {
 exports.placeBid = async (req, resp) => {
 	const { id, bid } = req.body;
 	try {
-		const tx = await contract.methods.placeBid(parseInt(id, 10)).send({ from: walletaddr, value: bid })
+		const tx = await contract.methods.placeBid(parseInt(id, 10)).send({ from: getaddress(), value: bid })
 		if (tx) {
 			resp.status(500).send({ success: true })
 		}
@@ -160,7 +160,7 @@ exports.registerreq = async (req, resp) => {
 exports.registeraccept = async (req, resp) => {
 	const { id, _addr } = req.body;
 	try {
-		const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: walletaddr })
+		const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: getaddress() })
 		console.log(tx)
 		if (tx)
 			resp.status(201).send({ success: true })

@@ -14,18 +14,8 @@ function readContractAddress() {
     }
 }
 
-function readWalletAddress() {
-    const configFilePath = "../backend/config.json"
-    try {
-        const configData = fs.readFileSync(configFilePath);
-        const { walletAddress } = JSON.parse(configData);
-        return walletAddress;
-    } catch (error) {
-        console.error('Error reading contract address:', error);
-        return null;
-    }
-}
-let contractABI = null
+let contractABI = null;
+let walletaddr = null;
 
 try {
     const abiFilePath = '../artifacts/contracts/Land.sol/Land.json'
@@ -38,7 +28,14 @@ var web3Provider = new Web3.providers.HttpProvider(process.env.HARDHAT_RPC_URL)
 
 const web3 = new Web3(web3Provider)
 let contractAddr = readContractAddress()
-let walletaddr = readWalletAddress()
 let contract = new web3.eth.Contract(contractABI, contractAddr)
 
-module.exports = { walletaddr, contract }
+const assignWallet = (_addr) => {
+    walletaddr = _addr
+    return true;
+}
+const getaddress = () => {
+    return walletaddr;
+}
+
+module.exports = { getaddress, contract , assignWallet }

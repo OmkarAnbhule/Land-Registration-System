@@ -3,14 +3,14 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const axios = require('axios')
 const OTP = require('../models/OtpModel.cjs')
-const { walletaddr, contract } = require('../utils/contract.cjs')
+const { getaddress , contract } = require('../utils/contract.cjs')
 const { getIPFSInstance } = require('../utils/ipfsNode.cjs')
 const fs = require('fs')
 const FormData = require('form-data');
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
-		const existingUser = await contract.methods.getUser(walletaddr).call();
+		const existingUser = await contract.methods.getUser(getaddress()).call();
 		if (existingUser && existingUser.email == req.body.email) {
 			resp.status(201).send({ success: true, message: 'User Found' })
 		}
@@ -67,7 +67,7 @@ exports.verifyOtp = async (req, resp) => {
 
 exports.logout = async (req, resp) => {
 	try {
-		const tx = await contract.methods.logout(walletaddr).call();
+		const tx = await contract.methods.logout(getaddress()).call();
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'logout successfull' })
 		}
@@ -144,7 +144,7 @@ exports.registerUser = async (req, resp) => {
 			);
 			console.log(res.data.IpfsHash)
 			let hashedPassword = await bcrypt.hash(password, 10);
-			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, res.data.IpfsHash).send({ from: walletaddr })
+			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, res.data.IpfsHash).send({ from: getaddress() })
 			if (tx) {
 				resp.status(201).send({ success: true, message: 'registration successful' })
 			}
@@ -158,7 +158,7 @@ exports.registerUser = async (req, resp) => {
 
 exports.getUserDetails = async (req, resp) => {
 	try {
-		const tx = await contract.methods.getUser(walletaddr).call()
+		const tx = await contract.methods.getUser(getaddress()).call()
 		if (tx) {
 			console.log(tx)
 			resp.status(201).send({ success: true, image: tx.image })
@@ -173,7 +173,7 @@ exports.login = async (req, resp) => {
 	const { email, password } = req.body
 	try {
 
-		const user = await contract.methods.getUser(walletaddr).call()
+		const user = await contract.methods.getUser(getaddress()).call()
 		if (user) {
 			let result = await bcrypt.compare(password, user.password)
 			if (result)
@@ -194,7 +194,7 @@ exports.login = async (req, resp) => {
 
 exports.logout = async (req, resp) => {
 	try {
-		const tx = await contract.methods.logout(walletaddr).call();
+		const tx = await contract.methods.logout(getaddress()).call();
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'logout success' })
 		}
