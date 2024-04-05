@@ -2167,11 +2167,6 @@
       }
     }
 
-    .highest-bid {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
 
     .button-div {
       display: flex;

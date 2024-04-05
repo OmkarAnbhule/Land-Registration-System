@@ -99,10 +99,6 @@ export default function BuyLand() {
                             <p><b>Property Number: </b>{item.propertyPID}</p>
                             <p><b>Survey Number: </b>{item.surveyNum}</p>
                         </div>
-                        <div className="highest-bid">
-                            <b>Highest bid:</b>&nbsp;&nbsp;
-                            <p>{item.highestBid} Rs.</p>
-                        </div>
                         <div className="button-div">
                             <div className="bid">
                                 <i className="bi bi-plus" key={index} onClick={() => setBid(parseInt(bid) + 1)}></i>

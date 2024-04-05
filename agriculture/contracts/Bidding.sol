@@ -24,7 +24,7 @@ contract Bidding is Ownable(msg.sender) {
         mapping(address => Bid) bids;
         address[] bidderAddresses; // Array to store bidder addresses
     }
-    
+
     mapping(uint256 => LandBid) public landBids;
 
     event BidPlaced(uint256 landId, address bidder, uint256 amount);
@@ -73,20 +73,21 @@ contract Bidding is Ownable(msg.sender) {
             }
         }
         // Update previous bid for the sender (if any)
-        if (currentBid.bids[msg.sender].amount > 0) {
-            payable(currentBid.bids[msg.sender].bidder).transfer(
-                currentBid.bids[msg.sender].amount
-            );
-        } else {
-            currentBid.bidderAddresses.push(msg.sender); // Add the bidder address to the array
-        }
-
+        require(currentBid.bids[msg.sender].amount < 0, "Bid already placed");
+        currentBid.bidderAddresses.push(msg.sender); // Add the bidder address to the array
         currentBid.bids[msg.sender] = Bid(
             payable(msg.sender),
             msg.value,
             block.timestamp
         );
         emit BidPlaced(landId, msg.sender, msg.value);
+    }
+
+    function bidPlaced(uint256 landId) public view returns (bool) {
+        if (landBids[landId].bids[msg.sender].amount > 0) {
+            return true;
+        }
+        return false;
     }
 
     function getNumberOfBids(uint256 landId) public view returns (uint256) {
@@ -109,24 +110,6 @@ contract Bidding is Ownable(msg.sender) {
         require(index < getNumberOfBids(currentBid.landId), "Invalid index");
         address[] memory bidderAddresses = currentBid.bidderAddresses;
         return bidderAddresses[index];
-    }
-
-    function getHighestBid(uint256 landId) external view returns (uint256) {
-        LandBid storage currentBid = landBids[landId];
-
-        // Ensure there are bids for this land
-        require(getNumberOfBids(landId) > 0, "No bids placed for this land");
-
-        // Find the highest bid
-        uint256 highestBid = 0;
-        for (uint256 i = 0; i < currentBid.bidderAddresses.length; i++) {
-            address bidderAddress = currentBid.bidderAddresses[i];
-            if (currentBid.bids[bidderAddress].amount > highestBid) {
-                highestBid = currentBid.bids[bidderAddress].amount;
-            }
-        }
-
-        return highestBid;
     }
 
     function finalizeBid(
