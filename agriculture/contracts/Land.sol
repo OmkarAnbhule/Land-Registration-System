@@ -229,9 +229,9 @@ contract Land {
         biddingContract.finalizeBid(landId, _timestamp);
     }
 
-    function getHighestBid(uint256 landId) public view returns(uint256){
-        return biddingContract.getHighestBid(landId);
-    }
+    //function getHighestBid(uint256 landId) public view returns(uint256){
+    //    return biddingContract.getHighestBid(landId);
+   // }
 
     function transferOwnership(
         uint256 id,
