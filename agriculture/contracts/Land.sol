@@ -181,8 +181,10 @@ contract Land {
             for (uint256 k = 0; k < sellerLands.length; k++) {
                 Landreg[] memory ownerLands = lands[sellerLands[k].seller];
                 for (uint256 j = 0; j < ownerLands.length; j++) {
-                    result[index] = ownerLands[j];
-                    index++;
+                    if (ownerLands[j].isVerified == false) {
+                        result[index] = ownerLands[j];
+                        index++;
+                    }
                 }
             }
         }
@@ -231,7 +233,7 @@ contract Land {
 
     //function getHighestBid(uint256 landId) public view returns(uint256){
     //    return biddingContract.getHighestBid(landId);
-   // }
+    // }
 
     function transferOwnership(
         uint256 id,
