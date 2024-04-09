@@ -181,7 +181,7 @@ contract Land {
             for (uint256 k = 0; k < sellerLands.length; k++) {
                 Landreg[] memory ownerLands = lands[sellerLands[k].seller];
                 for (uint256 j = 0; j < ownerLands.length; j++) {
-                    if (ownerLands[j].isVerified == false) {
+                    if (ownerLands[j].isLandVerified == false) {
                         result[index] = ownerLands[j];
                         index++;
                     }
