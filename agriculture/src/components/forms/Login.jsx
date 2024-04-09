@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Web3 from 'web3'
 import img from '../../assets/home_assets/register_form/register.jpg'
 import Snackbar from 'awesome-snackbar'
 import Otp from './Otp'
@@ -28,9 +29,23 @@ export default function Login() {
         setPassowrd(temp)
     }
 
-    const handleClick = () => {
+    const handleClick = async () => {
         if (email != '' && password != '') {
-            sendData()
+            if (window.ethereum) {
+                const web3 = new Web3(window.ethereum);
+                const accounts = await web3.eth.getAccounts();
+                let result = await fetch(`${api}send-address`, {
+                    method: 'post',
+                    body: JSON.stringify({ addr: accounts[0] }),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                result = await result.json();
+                if(result){
+                    sendData()
+                }
+            }
         }
         else {
             new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
@@ -285,8 +300,8 @@ export default function Login() {
 
                         </>)
                 }
-                <button ref={btnref} style={{display:'none'}} onClick={()=>{setIsReset(true);setIsOtp(false)}}></button>
-                <button ref={btnref2} style={{display:'none'}} onClick={()=>{setIsReset(false);setIsOtp(false);setIsForgot(false)}}></button>
+                <button ref={btnref} style={{ display: 'none' }} onClick={() => { setIsReset(true); setIsOtp(false) }}></button>
+                <button ref={btnref2} style={{ display: 'none' }} onClick={() => { setIsReset(false); setIsOtp(false); setIsForgot(false) }}></button>
             </div>
             <div>
                 <img width={400} height={380} src={img}></img>

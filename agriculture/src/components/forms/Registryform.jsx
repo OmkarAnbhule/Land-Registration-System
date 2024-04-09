@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Snackbar from 'awesome-snackbar'
 import { mappls as mappls1 } from 'mappls-web-maps'
+import Loader from '../Loader';
 
 const LandRegistrationForm = () => {
   const api = import.meta.env.VITE_API_URL;
@@ -24,6 +25,7 @@ const LandRegistrationForm = () => {
   const [fileErr, setFileErr] = useState('')
   const [showMap, setShowMap] = useState('none');
   const [polygon, setPolygon] = useState('')
+  const [status, setStatus] = useState(false);
   const navigate = useNavigate()
 
   const styleMap = {
@@ -119,21 +121,22 @@ const LandRegistrationForm = () => {
       setArea(Math.round(calculatePolygonArea(polygon.getPath("pgno0")[0]) * 1e12).toString())
       setShowMap('none')
     }
-
   }
   const handleSubmit = async () => {
+    setStatus(true);
     if (areaErr == '' && priceErr == '' && addressErr == '' && stateErr == '' && districtErr == '' && propertyPIDErr == '' && surveyErr == '' && fileErr == '' && area != '' && price != '' && address != '' && state != '' && district != '' && propertyid != '' && survey != '' && files.length != 0) {
       let formdata = new FormData()
       for (var item of files) {
         formdata.append('files', item)
       }
-      formdata.append('data', JSON.stringify({ price, area, state, district, propertyid, survey , address}))
+      formdata.append('data', JSON.stringify({ price, area, state, district, propertyid, survey, address }))
       let result = await fetch(`${api}add-land`, {
         method: 'post',
         body: formdata
       })
       result = await result.json()
       if (result.success == true) {
+        setStatus(false);
         new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Land Registered Successful`, {
           position: 'bottom-center',
           style: {
@@ -159,6 +162,7 @@ const LandRegistrationForm = () => {
         navigate('/')
       }
       else {
+        setStatus(false)
         new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
           position: 'bottom-center',
           style: {
@@ -184,6 +188,7 @@ const LandRegistrationForm = () => {
       }
     }
     else {
+      setStatus(false);
       new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Empty Fields`, {
         position: 'bottom-center',
         style: {
@@ -238,7 +243,7 @@ const LandRegistrationForm = () => {
       setPriceErr('Price not filled')
     }
     else {
-      setPriceErr('')
+      setStateErr('')
     }
   }
 
@@ -307,7 +312,7 @@ const LandRegistrationForm = () => {
     )
   }
   const handleBlur = () => {
-    if(files.length != 0){
+    if (files.length != 0) {
       setFileErr('')
     }
   }
@@ -315,6 +320,7 @@ const LandRegistrationForm = () => {
 
   return (
     <>
+      <Loader status={status} />
       <div>
         <div id="map" style={styleMap}>
           <button onClick={handleShowMap} className='btn'><i className='bi bi-check-lg' style={{ fontSize: '25px' }}></i></button>

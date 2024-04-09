@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
 	console.log('Database connected')
 });
-const { contract, walletaddr , assignWallet } = require('./utils/contract.cjs')
+const { contract, getaddress, assignWallet } = require('./utils/contract.cjs')
 const express = require('express');
 const cors = require('cors')
 const app = express();
@@ -31,14 +31,14 @@ app.post('/send-address', async (req, resp) => {
 	}
 	catch (e) {
 		console.log(e);
-		resp.status(500).send({ success: false, message: 'internal server error' })
+		resp.status(500).send({ success: false, message: 'internal server error' });
 	}
 });
 
 app.post('/check-login', async (req, resp) => {
-	try {
-		if (walletaddr != '') {
-			const tx = await contract.methods.getUser(walletaddr).call();
+	if (getaddress() != '') {
+		try {
+			const tx = await contract.methods.getUser(getaddress()).call();
 			if (tx && tx.isloggedin) {
 				resp.status(200).send({ success: true, messsage: "successful" })
 			}
@@ -46,9 +46,9 @@ app.post('/check-login', async (req, resp) => {
 				resp.status(400).send({ success: false, message: 'not logged in' })
 			}
 		}
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: "internal server error" })
+		catch (e) {
+			resp.status(500).send({ success: false, message: "internal server error" })
+		}
 	}
 })
 
