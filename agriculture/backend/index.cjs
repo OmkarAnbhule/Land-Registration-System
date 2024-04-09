@@ -30,7 +30,6 @@ app.post('/send-address', async (req, resp) => {
 		}
 	}
 	catch (e) {
-		console.log(e);
 		resp.status(500).send({ success: false, message: 'internal server error' });
 	}
 });

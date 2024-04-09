@@ -129,6 +129,7 @@ import Chart from 'chart.js/auto';
 const LandInspector = () => {
     const [registerRequests, setRegisterRequests] = useState([]);
     const [showRegisterRequests, setShowRegisterRequests] = useState(false);
+    const seen = new Set();
     const [dashboardStats, setDashboardStats] = useState({
         numberOfLands: 0,
         numberOfRegisteredUsers: 0,
@@ -154,7 +155,13 @@ const LandInspector = () => {
         });
         result = await result.json();
         if (result.success === true) {
-            setRegisterRequests(result.data);
+            for (var item of result.data) {
+                const stringifiedObj = JSON.stringify(item);
+                if (!seen.has(stringifiedObj) && item.area != '') {
+                    seen.add(stringifiedObj)
+                    setRegisterRequests((pre) => [...pre, JSON.parse(stringifiedObj)]);
+                }
+            }
         }
     };
 
