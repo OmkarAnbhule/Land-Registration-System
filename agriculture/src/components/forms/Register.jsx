@@ -215,17 +215,8 @@ export default function Register() {
                 const web3 = new Web3(window.ethereum);
                 const accounts = await web3.eth.getAccounts();
                 console.log(accounts)
-                let result = await fetch(`${api}send-address`, {
-                    method: 'post',
-                    body: JSON.stringify({ addr: accounts[0] }),
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                })
-                return result;
-            } else {
-                if (accounts[0] == '') {
-                    new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
+                if (accounts[0] == '' || accounts.length <= 0) {
+                    new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not connected`, {
                         position: 'bottom-center',
                         style: {
                             container: [
@@ -249,29 +240,38 @@ export default function Register() {
                     });
                 }
                 else {
-                    new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
-                        position: 'bottom-center',
-                        style: {
-                            container: [
-                                ['background', 'rgb(246, 58, 93)'],
-                                ['border-radius', '5px'],
-                                ['height', '50px'],
-                                ['padding', '10px'],
-                                ['border-radius', '20px']
-                            ],
-                            message: [
-                                ['color', '#eee'],
-                                ['font-size', '18px']
-                            ],
-                            bold: [
-                                ['font-weight', 'bold'],
-                            ],
-                            actionButton: [
-                                ['color', 'white'],
-                            ],
+                    let result = await fetch(`${api}send-address`, {
+                        method: 'post',
+                        body: JSON.stringify({ addr: accounts[0] }),
+                        headers: {
+                            "Content-Type": "application/json"
                         }
-                    });
+                    })
+                    return result;
                 }
+            } else {
+                new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
+                    position: 'bottom-center',
+                    style: {
+                        container: [
+                            ['background', 'rgb(246, 58, 93)'],
+                            ['border-radius', '5px'],
+                            ['height', '50px'],
+                            ['padding', '10px'],
+                            ['border-radius', '20px']
+                        ],
+                        message: [
+                            ['color', '#eee'],
+                            ['font-size', '18px']
+                        ],
+                        bold: [
+                            ['font-weight', 'bold'],
+                        ],
+                        actionButton: [
+                            ['color', 'white'],
+                        ],
+                    }
+                });
             }
         }
         catch (e) {
