@@ -87,6 +87,19 @@ exports.getAllLands = async (req, resp) => {
 	}
 }
 
+exports.getTime = async (req, resp) => {
+	try {
+		const { id } = req.body;
+		const tx = await contract.methods.getTIme(id).call();
+		if(tx){
+			resp.status(201).send({success:true,time:tx});
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'server not responding' })
+	}
+}
+
 const timer = (id) => {
 	const timeout = setTimeout(async () => {
 		try {
@@ -107,7 +120,7 @@ exports.sellland = async (req, resp) => {
 		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(2, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
-			timer(parseInt(objId,10))
+			timer(parseInt(objId, 10))
 		}
 	}
 	catch (e) {

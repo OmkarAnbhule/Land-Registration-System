@@ -1,12 +1,76 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Snackbar from 'awesome-snackbar'
+import styled from 'styled-components';
+
+const AnimatedButton = styled.button`
+width: 150px;
+height: 60px;
+font-weight: bold;
+background: royalblue;
+color: white;
+font-size: 20px;
+border: none;
+border-radius: 50px;
+position: relative;
+z-index: 1;
+
+&:hover {
+  background: rgba(0, 0, 0, 0.83);
+  transition: all .5s;
+  cursor:pointer;
+}
+&::before {
+    content: '';
+    z-index: -1;
+    background: limegreen;
+    width: 0px;
+    transform:translateX(-1px);
+    height: 60px;
+    border-radius: 50px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transition: all 1s;
+    transform-origin: 0% 100% ;
+}
+${(props => props.isActive ?
+        `&::before {
+          content: '';
+          z-index: -1;
+          transform:translateX(0px);
+          background: limegreen;
+          width: 150px;
+          height: 60px;
+          border-radius: 50px;
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          transition: all 1s;
+        
+      }`
+        : null
+    )}
+`;
 
 export default function SellLand() {
     const api = import.meta.env.VITE_API_URL;
-    const navigate = useNavigate()
-    const seen = new Set()
-    const [land, setLand] = useState([])
+    const navigate = useNavigate();
+    const seen = new Set();
+    const obj = {
+        isLandVerified: true,
+        isforSell: false,
+        landAddress: 'something big big very very big land and property right here',
+        area: 200,
+        landPrice: 10000,
+        propertyPID: 'pid123',
+        surveyNum: 'num34',
+        timestamp: 19239202829
+    }
+    const [btnClass, setBtnClass] = useState(false);
+    const [land, setLand] = useState([obj]);
+    const [onSale, setOnSale] = useState([]);
+    const [selectedDuration, setSelectedDuration] = useState(5);
     useEffect(() => {
         getLand()
     }, [])
@@ -27,7 +91,32 @@ export default function SellLand() {
             }
         }
     }
+    const getTime = async (id) => {
+        let result = await fetch(`${ap}get-time`, {
+            method: 'get',
+            body: JSON.stringify({ id }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = await result.json()
+        return result.time;
+    }
+    const getCountDown = (val) => {
+        const currentDate = new Date();
+        const selectedDate = new Date(val * 1000);
+        const timeDiffMilliseconds = selectedDate - currentDate;
+        if (timeDiffMilliseconds < 0) {
+            setBtnClass(false);
+        }
+        const hours = Math.floor(timeDiffMilliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiffMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiffMilliseconds % (1000 * 60)) / 1000);
+        const formattedDifference = `${hours}:${minutes}:${seconds}`;
+        return formattedDifference;
+    }
     const handleSell = async (id, val, addr) => {
+        setBtnClass(true)
         let result = await fetch(`${api}sell-land`, {
             method: 'post',
             body: JSON.stringify({ objId: id, amt: val, addr: addr }),
@@ -71,6 +160,14 @@ export default function SellLand() {
     const handleRegistry = () => {
         navigate('/Registryform')
     }
+
+    const handleDurationChange = (event) => {
+        setSelectedDuration(event.target.value);
+    };
+
+    const isSell = (val) => {
+        return onSale.includes(val)
+    }
     return (
         <div className="sell-land">
             {
@@ -96,10 +193,20 @@ export default function SellLand() {
                             </div>
                             {
                                 !item.isLandVerified || item.isforSell ?
-                                    (<button style={{ background: 'gray' }}>Sell</button>) :
-                                    (<button onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress)} style={{ background: 'royalblue' }}>Sell</button>)
 
+                                    (<AnimatedButton style={{ background: 'gray', pointerEvents: 'none' }} isActive={btnClass}>Sell</AnimatedButton>) :
+                                    (<AnimatedButton onClick={() => handleSell()} isActive={btnClass}>{btnClass ? getCountDown(getTime(item.id)) : "Sell"}</AnimatedButton>)
                             }
+                            <select id="durationDropdown" value={selectedDuration} onChange={handleDurationChange}>
+                                <option value="5">5 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="120">2 hours</option>
+                                <option value="1440">1 day</option>
+                                <option value="2880">2 days</option>
+                                {/* Add more options as needed */}
+                            </select>
                         </div>
                     ))
                     :

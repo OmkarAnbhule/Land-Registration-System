@@ -36,7 +36,6 @@ export default function Register() {
     const [isComplete2, setIsComplete2] = useState(false)
     const [checkbox, setCheckBox] = useState(false)
     const [status, setStatus] = useState(false)
-    const formdata = new FormData;
     useEffect(() => {
         const today = new Date().toString().split('T')[0];
         setMaxDate(today);
@@ -216,6 +215,7 @@ export default function Register() {
                 const accounts = await web3.eth.getAccounts();
                 console.log(accounts)
                 if (accounts[0] == '' || accounts.length <= 0) {
+                    setStatus(false)
                     new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not connected`, {
                         position: 'bottom-center',
                         style: {
@@ -250,6 +250,7 @@ export default function Register() {
                     return result;
                 }
             } else {
+                setStatus(false)
                 new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
                     position: 'bottom-center',
                     style: {
@@ -275,6 +276,7 @@ export default function Register() {
             }
         }
         catch (e) {
+            setStatus(false)
             new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
                 position: 'bottom-center',
                 style: {
