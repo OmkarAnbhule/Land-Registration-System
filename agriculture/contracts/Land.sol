@@ -213,6 +213,10 @@ contract Land {
         Registerreqcount--;
     }
 
+    function getTime(uint256 landId) public view returns(uint256) {
+        return biddingContract.getTimeStamp(landId);
+    }
+
     function createLandBid(
         uint256 landId,
         uint256 closingTime,

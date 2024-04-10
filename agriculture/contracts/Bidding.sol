@@ -29,6 +29,12 @@ contract Bidding is Ownable(msg.sender) {
 
     event BidPlaced(uint256 landId, address bidder, uint256 amount);
 
+    function getTimeStamp(
+        uint256 id
+    ) external view onlyOwner returns (uint256) {
+        return landBids[id].closingTime;
+    }
+
     function createLandBid(
         uint256 landId,
         uint256 closingTime,
@@ -39,7 +45,7 @@ contract Bidding is Ownable(msg.sender) {
             landBids[landId].closingTime == 0,
             "Bidding already exists for this land"
         );
-        closingTime = block.timestamp + closingTime * 300;
+        closingTime = block.timestamp + closingTime * 60;
         // closingTime = block.timestamp + closingTime *1 minutes;
         LandBid storage currentBid = landBids[landId];
         currentBid.landId = landId;

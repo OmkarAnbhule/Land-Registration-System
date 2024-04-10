@@ -58,6 +58,12 @@ exports.getland = async (req, resp) => {
 				catch (e) {
 				}
 			}
+			if (i.isforSell) {
+				const tx2 = await contract.methods.getTime(i.id).call();
+				if (tx2) {
+					tx[i].maxTime = tx2;
+				}
+			}
 		}
 		resp.status(200).send({ success: true, data: tx })
 	}
@@ -91,8 +97,8 @@ exports.getTime = async (req, resp) => {
 	try {
 		const { id } = req.body;
 		const tx = await contract.methods.getTIme(id).call();
-		if(tx){
-			resp.status(201).send({success:true,time:tx});
+		if (tx) {
+			resp.status(201).send({ success: true, time: tx });
 		}
 	}
 	catch (e) {
