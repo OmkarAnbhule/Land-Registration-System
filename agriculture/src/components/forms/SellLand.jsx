@@ -81,18 +81,18 @@ const SellLand = () => {
                 }
             });
             const result = await response.json();
-            setLand(result.data.filter(item => item.area !== '' && item.isLandVerified));
+            setLand(result.data.filter(item => item.area !== ''));
         } catch (error) {
             console.error('Error fetching land:', error);
         }
     };
 
-    const handleSell = async (id, val, addr) => {
+    const handleSell = async (id, val, addr, duration) => {
         handleButtonToggle(id);
         try {
             const response = await fetch(`${api}sell-land`, {
                 method: 'post',
-                body: JSON.stringify({ objId: id, amt: val, addr: addr }),
+                body: JSON.stringify({ objId: id, amt: val, addr: addr, closingTime: duration }),
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -160,7 +160,9 @@ const SellLand = () => {
             {land.length > 0 ? (
                 land.map((item, index) => (
                     <div className="container" key={item.id}>
-                        <p className="verify-right"><i className="bi bi-patch-check-fill"></i> Verified</p>
+                        {!item.isLandVerified ?
+                            (<p className='verify-wrong'><i className="bi bi-x-circle-fill"></i> Not verified</p>) :
+                            (<p className='verify-right'><i className="bi bi-patch-check-fill"></i> verified</p>)}
                         {item.isforSell && <p className="sale">On Sale</p>}
                         <div className="location">
                             <i className="bi bi-geo-alt"></i>
@@ -177,7 +179,7 @@ const SellLand = () => {
                             <>
                                 <AnimatedButton
                                     isActive={item.btnClass}
-                                    onClick={() => handleSell(item.id, item.landPrice, item.landAddress)}
+                                    onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration)}
                                 >
                                     Sell
                                 </AnimatedButton>
@@ -192,7 +194,7 @@ const SellLand = () => {
                                 </select>
                             </>
                         ) : (
-                            <AnimatedButton isActive={item.btnClass} style={{pointerEvents:'none' , background:'gray'}}><Timer date={item.maxTime} key={item.id}/></AnimatedButton>
+                            <AnimatedButton isActive={item.btnClass} style={{ pointerEvents: 'none', background: 'gray' }}>{item.btnClass ? (<Timer date={item.maxTime} key={item.id} />) : "Sell"}</AnimatedButton>
                         )}
                     </div>
                 ))

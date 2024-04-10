@@ -121,9 +121,9 @@ const timer = (id) => {
 	}, 2000);
 }
 exports.sellland = async (req, resp) => {
-	const { objId, amt, addr } = req.body;
+	const { objId, amt, addr, closingTime } = req.body;
 	try {
-		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(2, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
+		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(closingTime, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
 			timer(parseInt(objId, 10))

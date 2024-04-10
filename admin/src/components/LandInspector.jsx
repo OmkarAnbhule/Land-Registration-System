@@ -138,6 +138,7 @@ const LandInspector = () => {
     });
 
     const toggleRegisterRequests = () => {
+        getRegisterReq()
         setShowRegisterRequests(!showRegisterRequests);
     };
 
