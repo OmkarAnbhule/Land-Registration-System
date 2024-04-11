@@ -69,6 +69,12 @@ const SellLand = () => {
 
     useEffect(() => {
         getLand();
+        const intervalId = setInterval(() => {
+            getLand(); // Fetch data at regular intervals
+        }, 5000);
+        return () => {
+            clearInterval(intervalId);
+        }
     }, []);
 
     const getLand = async () => {
@@ -179,7 +185,7 @@ const SellLand = () => {
                             <>
                                 <AnimatedButton
                                     isActive={item.btnClass}
-                                    onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration)}
+                                    onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration || 5)}
                                 >
                                     Sell
                                 </AnimatedButton>
@@ -194,7 +200,7 @@ const SellLand = () => {
                                 </select>
                             </>
                         ) : (
-                            <AnimatedButton isActive={item.btnClass} style={{ pointerEvents: 'none', background: 'gray' }}>{item.btnClass ? (<Timer date={item.maxTime} key={item.id} />) : "Sell"}</AnimatedButton>
+                            <AnimatedButton isActive={item.btnClass} style={{ pointerEvents: 'none', background: 'gray' }}>{item.isforSell ? (<Timer date={item.maxTime} key={item.id} />) : "Sell"}</AnimatedButton>
                         )}
                     </div>
                 ))

@@ -45,27 +45,32 @@ exports.addLand = async (req, resp) => {
 
 }
 exports.getland = async (req, resp) => {
-	const tx = await contract.methods.getMyLands(getaddress()).call()
-	if (tx) {
-		console.log(tx)
-		for (let i of tx) {
-			for (key in i) {
-				try {
-					if (BigInt(i[key]) === i[key]) {
-						i[key] = Number(i[key])
+	try {
+		const tx = await contract.methods.getMyLands(await getaddress()).call()
+		if (tx) {
+			for (let i of tx) {
+				for (key in i) {
+					try {
+						if (BigInt(i[key]) === i[key]) {
+							i[key] = Number(i[key])
+						}
+					}
+					catch (e) {
 					}
 				}
-				catch (e) {
+				if (i.isforSell) {
+					const tx2 = await contract.methods.getTime(i.id).call();
+					if (tx2) {
+						Object.assign(i, { 'maxTime': Number(tx2) });
+					}
 				}
 			}
-			if (i.isforSell) {
-				const tx2 = await contract.methods.getTime(i.id).call();
-				if (tx2) {
-					tx[i].maxTime = tx2;
-				}
-			}
+			resp.status(200).send({ success: true, data: tx })
 		}
-		resp.status(200).send({ success: true, data: tx })
+	}
+	catch (e) {
+		console.log(e)
+		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 }
 exports.getAllLands = async (req, resp) => {
@@ -107,9 +112,10 @@ exports.getTime = async (req, resp) => {
 }
 
 const timer = (id) => {
+	console.log('tiem')
 	const timeout = setTimeout(async () => {
 		try {
-			const tx = await contract.methods.finalizeBid(parseInt(id, 10), Date.now()).call();
+			const tx = await contract.methods.finalizeBid(parseInt(id, 10), parseInt(Date.now(),10)).call();
 			if (tx) {
 				clearTimeout(timeout)
 				console.log('transferred')
@@ -126,7 +132,7 @@ exports.sellland = async (req, resp) => {
 		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(closingTime, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
-			timer(parseInt(objId, 10))
+			timer(objId)
 		}
 	}
 	catch (e) {

@@ -30,7 +30,7 @@ const web3 = new Web3(web3Provider)
 let contractAddr = readContractAddress()
 let contract = new web3.eth.Contract(contractABI, contractAddr)
 
-const assignWallet = (_addr) => {
+const assignWallet = async(_addr) => {
     walletaddr = _addr
     return true;
 }

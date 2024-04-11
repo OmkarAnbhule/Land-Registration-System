@@ -582,7 +582,7 @@ export default function Register() {
                                     <p>{AadharErr}</p>
                                 </div>
                                 <div className="input-control" >
-                                    <label htmlFor='email' className={isfocus == 'email' || email != '' ? 'focused' : ''} style={{ color: EmailErr == '' ? '' : 'red' }}>Email</label>
+                                    <label htmlFor='email' className={isfocus == 'email' || email != '' ? 'focused' : ''} onClick={connectToMetaMask} style={{ color: EmailErr == '' ? '' : 'red' }}>Email</label>
                                     <input type='text' id='email' value={email} style={{ border: EmailErr == '' ? '' : '2px solid red' }} onChange={handleEmail} onFocus={() => handleFocusIn('email')} onBlur={handleBlur}></input>
                                     <p>{EmailErr}</p>
                                 </div>

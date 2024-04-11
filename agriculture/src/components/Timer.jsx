@@ -37,7 +37,7 @@ export default function Timer(props) {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [minutes, seconds , hours]);
+    }, [minutes, seconds , hours , props]);
     return (
         <div>
             {`${hours}:${minutes}:${seconds} `}
