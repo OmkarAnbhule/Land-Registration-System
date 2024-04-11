@@ -185,11 +185,11 @@ const SellLand = () => {
                             <>
                                 <AnimatedButton
                                     isActive={item.btnClass}
-                                    onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration || 5)}
+                                    onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration)}
                                 >
                                     Sell
                                 </AnimatedButton>
-                                <select value={item.selectedDuration || 5} onChange={(e) => handleDurationChange(index, e.target.value)}>
+                                <select value={item.selectedDuration} onChange={(e) => handleDurationChange(index, e.target.value)}>
                                     <option value="5">5 minutes</option>
                                     <option value="15">15 minutes</option>
                                     <option value="30">30 minutes</option>

@@ -213,7 +213,7 @@ contract Land {
         Registerreqcount--;
     }
 
-    function getTime(uint256 landId) public view returns(uint256) {
+    function getTime(uint256 landId) public view returns (uint256) {
         return biddingContract.getTimeStamp(landId);
     }
 
@@ -251,5 +251,9 @@ contract Land {
         lands[bidder].push(soldLand);
 
         delete lands[seller][id];
+    }
+
+    function changeLandForSell(uint256 id, address seller) external {
+        lands[seller][id].isforSell = false;
     }
 }
