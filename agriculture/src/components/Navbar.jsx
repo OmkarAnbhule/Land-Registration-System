@@ -32,7 +32,6 @@ export default function Navbar() {
                 }
             })
             result = await result.json()
-            console.log(result);
             setImg(result.image)
         }
 

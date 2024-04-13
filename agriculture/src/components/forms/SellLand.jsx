@@ -98,7 +98,7 @@ const SellLand = () => {
         try {
             const response = await fetch(`${api}sell-land`, {
                 method: 'post',
-                body: JSON.stringify({ objId: id, amt: val, addr: addr, closingTime: duration }),
+                body: JSON.stringify({ objId: id, amt: val, addr: addr, closingTime: (duration == null ? 5 : duration) }),
                 headers: {
                     "Content-Type": "application/json"
                 }

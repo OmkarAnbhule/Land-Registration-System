@@ -124,6 +124,7 @@ function App() {
   };
 
   useEffect(() => {
+    if(localStorage.getItem('isloggedin') == 'true')
     connectToMetaMask().then(()=>{
       checkLogin()
     })

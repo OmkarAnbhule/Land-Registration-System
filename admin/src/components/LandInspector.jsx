@@ -143,7 +143,6 @@ const LandInspector = () => {
     };
 
     useEffect(() => {
-        getRegisterReq();
         fetchDashboardStats();
     }, []);
 

@@ -112,10 +112,10 @@ exports.getTime = async (req, resp) => {
 }
 
 const timer = (id) => {
-	console.log('tiem')
 	const timeout = setTimeout(async () => {
 		try {
 			const tx = await contract.methods.finalizeBid(parseInt(id, 10), parseInt(Date.now(),10)).call();
+			console.log('time_try')
 			if (tx) {
 				clearTimeout(timeout)
 				console.log('transferred')
@@ -123,6 +123,7 @@ const timer = (id) => {
 		}
 		catch (e) {
 			timer()
+			console.log('time_catch')
 		}
 	}, 2000);
 }

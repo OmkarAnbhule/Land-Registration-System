@@ -254,6 +254,7 @@ contract Land {
     }
 
     function changeLandForSell(uint256 id, address seller) external {
-        lands[seller][id].isforSell = false;
+        Landreg storage soldLand = lands[seller][id];
+        soldLand.isforSell = false;
     }
 }
