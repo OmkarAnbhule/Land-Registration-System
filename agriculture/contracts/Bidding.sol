@@ -11,7 +11,7 @@ contract Bidding is Ownable(msg.sender) {
     }
 
     struct Bid {
-        address payable bidder;
+        address bidder;
         uint256 amount;
         uint256 timestamp;
     }
@@ -29,9 +29,12 @@ contract Bidding is Ownable(msg.sender) {
 
     event BidPlaced(uint256 landId, address bidder, uint256 amount);
 
-    function getTimeStamp(
-        uint256 id
-    ) external view onlyOwner returns (uint256) {
+    function getTimeStamp(uint256 id)
+        external
+        view
+        onlyOwner
+        returns (uint256)
+    {
         return landBids[id].closingTime;
     }
 
@@ -82,7 +85,7 @@ contract Bidding is Ownable(msg.sender) {
         require(currentBid.bids[msg.sender].amount < 0, "Bid already placed");
         currentBid.bidderAddresses.push(msg.sender); // Add the bidder address to the array
         currentBid.bids[msg.sender] = Bid(
-            payable(msg.sender),
+            msg.sender,
             msg.value,
             block.timestamp
         );
@@ -109,25 +112,26 @@ contract Bidding is Ownable(msg.sender) {
         return count;
     }
 
-    function getAddressAtIndex(
-        LandBid storage currentBid,
-        uint256 index
-    ) private view returns (address) {
+    function getAddressAtIndex(LandBid storage currentBid, uint256 index)
+        private
+        view
+        returns (address)
+    {
         require(index < getNumberOfBids(currentBid.landId), "Invalid index");
         address[] memory bidderAddresses = currentBid.bidderAddresses;
         return bidderAddresses[index];
     }
 
-    function finalizeBid(
-        uint256 landId,
-        uint256 _timestamp
-    ) external onlyOwner {
+    function finalizeBid(uint256 landId, uint256 _timestamp)
+        external
+        onlyOwner
+    {
         LandBid storage currentBid = landBids[landId];
         require(
             currentBid.closingTime < _timestamp,
             "Bidding is still ongoing"
         );
-        if (currentBid.bidderAddresses.length < 0) {
+        if (currentBid.bidderAddresses.length < 1) {
             LandContract.changeLandForSell(landId, currentBid.owner);
         } else {
             // Find the highest bidder
@@ -140,6 +144,7 @@ contract Bidding is Ownable(msg.sender) {
                     highestBid = currentBid.bids[bidderAddress].amount;
                 }
             }
+            payable(currentBid.owner).transfer(highestBid);
             // Return bid amounts to other bidders
             for (uint256 i = 0; i < currentBid.bidderAddresses.length; i++) {
                 if (currentBid.bidderAddresses[i] != highestBidder) {
