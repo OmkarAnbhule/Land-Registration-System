@@ -29,6 +29,12 @@ contract Bidding is Ownable(msg.sender) {
 
     event BidPlaced(uint256 landId, address bidder, uint256 amount);
 
+    function getTimeStamp(
+        uint256 id
+    ) external view onlyOwner returns (uint256) {
+        return landBids[id].closingTime;
+    }
+
     function createLandBid(
         uint256 landId,
         uint256 closingTime,
@@ -39,7 +45,7 @@ contract Bidding is Ownable(msg.sender) {
             landBids[landId].closingTime == 0,
             "Bidding already exists for this land"
         );
-        closingTime = block.timestamp + closingTime * 300;
+        closingTime = block.timestamp + closingTime * 60;
         // closingTime = block.timestamp + closingTime *1 minutes;
         LandBid storage currentBid = landBids[landId];
         currentBid.landId = landId;
@@ -121,28 +127,34 @@ contract Bidding is Ownable(msg.sender) {
             currentBid.closingTime < _timestamp,
             "Bidding is still ongoing"
         );
-        require(getNumberOfBids(landId) > 0, "No bids placed for this land");
-
-        // Find the highest bidder
-        address highestBidder = address(0);
-        uint256 highestBid = 0;
-        for (uint256 i = 0; i < currentBid.bidderAddresses.length; i++) {
-            address bidderAddress = currentBid.bidderAddresses[i];
-            if (currentBid.bids[bidderAddress].amount > highestBid) {
-                highestBidder = bidderAddress;
-                highestBid = currentBid.bids[bidderAddress].amount;
+        if (currentBid.bidderAddresses.length < 0) {
+            LandContract.changeLandForSell(landId, currentBid.owner);
+        } else {
+            // Find the highest bidder
+            address highestBidder = address(0);
+            uint256 highestBid = 0;
+            for (uint256 i = 0; i < currentBid.bidderAddresses.length; i++) {
+                address bidderAddress = currentBid.bidderAddresses[i];
+                if (currentBid.bids[bidderAddress].amount > highestBid) {
+                    highestBidder = bidderAddress;
+                    highestBid = currentBid.bids[bidderAddress].amount;
+                }
             }
-        }
-        // Return bid amounts to other bidders
-        for (uint256 i = 0; i < currentBid.bidderAddresses.length; i++) {
-            if (currentBid.bidderAddresses[i] != highestBidder) {
-                payable(currentBid.bidderAddresses[i]).transfer(
-                    currentBid.bids[currentBid.bidderAddresses[i]].amount
-                );
+            // Return bid amounts to other bidders
+            for (uint256 i = 0; i < currentBid.bidderAddresses.length; i++) {
+                if (currentBid.bidderAddresses[i] != highestBidder) {
+                    payable(currentBid.bidderAddresses[i]).transfer(
+                        currentBid.bids[currentBid.bidderAddresses[i]].amount
+                    );
+                }
             }
+            // Transfer ownership to the highest bidder (assuming Land.sol contract has a function for this)
+            LandContract.transferOwnership(
+                landId,
+                highestBidder,
+                currentBid.owner
+            );
+            // Replace the above line with the appropriate call to your Land.sol contract function
         }
-        // Transfer ownership to the highest bidder (assuming Land.sol contract has a function for this)
-        LandContract.transferOwnership(landId, highestBidder, currentBid.owner);
-        // Replace the above line with the appropriate call to your Land.sol contract function
     }
 }

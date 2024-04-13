@@ -2054,6 +2054,21 @@
 
     }
 
+    select {
+      padding: 7px;
+      font-size: 15px;
+      margin: 2px;
+      border-radius: 10px;
+      background: rgb(6, 6, 87);
+      color:white;
+    }
+
+    option {
+      &:hover {
+        background: rgba(0, 0, 0, .14);
+      }
+    }
+
     .location {
       width: 280px;
       height: 100px;
@@ -2082,18 +2097,8 @@
       }
 
     }
-
-    button {
-      width: 150px;
-      height: 60px;
-      font-weight: bold;
-      background: royalblue;
-      color: white;
-      font-size: 20px;
-      border: none;
-      border-radius: 50px;
-    }
   }
+
 
   .center {
     display: flex;

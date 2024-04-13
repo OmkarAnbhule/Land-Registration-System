@@ -14,6 +14,7 @@ const LandInspector = () => {
     const [showDashboardChart, setShowDashboardChart] = useState(false);
 
     const toggleRegisterRequests = () => {
+        getRegisterReq()
         setShowRegisterRequests(!showRegisterRequests);
     };
 
@@ -24,7 +25,6 @@ const LandInspector = () => {
     
 
     useEffect(() => {
-        getRegisterReq();
         fetchDashboardStats();
     }, []);
 

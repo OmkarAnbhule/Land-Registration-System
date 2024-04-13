@@ -21,7 +21,7 @@ app.post('/send-address', async (req, resp) => {
 		const { addr } = req.body;
 		if (assignWallet(addr)) {
 			const tx = await contract.methods.getUser(addr).call();
-			if (tx.id != addr) {
+			if (tx && tx.id != addr) {
 				resp.status(201).send({ success: true, message: 'address set successfully' });
 			}
 			else {
@@ -38,6 +38,7 @@ app.post('/check-login', async (req, resp) => {
 	if (getaddress() != '') {
 		try {
 			const tx = await contract.methods.getUser(getaddress()).call();
+			console.log(tx)
 			if (tx && tx.isloggedin) {
 				resp.status(200).send({ success: true, messsage: "successful" })
 			}
