@@ -127,7 +127,7 @@ contract Bidding is Ownable(msg.sender) {
             currentBid.closingTime < _timestamp,
             "Bidding is still ongoing"
         );
-        if (getNumberOfBids(landId) <= 0) {
+        if (currentBid.bidderAddresses.length < 0) {
             LandContract.changeLandForSell(landId, currentBid.owner);
         } else {
             // Find the highest bidder
