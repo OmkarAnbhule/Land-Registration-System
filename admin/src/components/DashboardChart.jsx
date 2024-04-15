@@ -5,7 +5,7 @@ const DashboardChart = ({ stats }) => {
     useEffect(() => {
         drawChart(stats);
     }, [stats]);
-
+//
     const drawChart = (stats) => {
         const ctx = document.getElementById('dashboardChart').getContext('2d');
         new Chart(ctx, {
