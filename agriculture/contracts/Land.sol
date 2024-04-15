@@ -231,30 +231,37 @@ contract Land {
         biddingContract.placeBid{value: msg.value}(landId);
     }
 
-    function finalizeBid(uint256 landId, uint256 _timestamp) public {
-        biddingContract.finalizeBid(landId, _timestamp);
+    function transferOwnership(
+        uint256 id,
+        address bidder,
+        address seller
+    ) private {
+        Landreg storage soldLand = lands[seller][id];
+        soldLand.ownerAddress = payable(bidder);
+        soldLand.isforSell = false;
+        lands[bidder].push(soldLand);
+        delete lands[seller][id];
+    }
+
+    function changeLandForSell(uint256 id, address seller) public {
+        Landreg storage soldLand = lands[seller][id];
+        soldLand.isforSell = false;
+    }
+
+    function finalizeBid(uint256 landId) public {
+        uint256 id;
+        address bidder;
+        address owner;
+        (id, bidder, owner) = biddingContract.finalizeBid(
+            landId,
+            block.timestamp
+        );
+        if (bidder != address(0) && owner != address(0))
+            transferOwnership(id, bidder, owner);
+        else changeLandForSell(id, owner);
     }
 
     //function getHighestBid(uint256 landId) public view returns(uint256){
     //    return biddingContract.getHighestBid(landId);
     // }
-
-    function transferOwnership(
-        uint256 id,
-        address bidder,
-        address seller
-    ) external {
-        Landreg storage soldLand = lands[seller][id];
-        soldLand.ownerAddress = payable(bidder);
-        soldLand.isforSell = false;
-
-        lands[bidder].push(soldLand);
-
-        delete lands[seller][id];
-    }
-
-    function changeLandForSell(uint256 id, address seller) external {
-        Landreg storage soldLand = lands[seller][id];
-        soldLand.isforSell = false;
-    }
 }

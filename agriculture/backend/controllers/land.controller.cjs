@@ -31,7 +31,7 @@ exports.addLand = async (req, resp) => {
 			files.push(await uploadFile(item.path))
 		}
 
-		const tx = await contract.methods.addLand(parseInt(area, 10), state, district, address, propertyid, survey, parseInt(price, 10), files).send({ from: getaddress() })
+		const tx = await contract.methods.addLand(parseInt(area, 10), state, district, address, propertyid, survey, parseInt(price, 10), files).send({ from: await getaddress() })
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'land registered' })
 		}
@@ -74,7 +74,7 @@ exports.getland = async (req, resp) => {
 	}
 }
 exports.getAllLands = async (req, resp) => {
-	const tx = await contract.methods.getAllLands(getaddress()).call()
+	const tx = await contract.methods.getAllLands(await getaddress()).call()
 	if (tx) {
 		for (var i in tx) {
 			for (let key in tx[i]) {
@@ -85,13 +85,6 @@ exports.getAllLands = async (req, resp) => {
 				}
 				catch (e) {
 				}
-			}
-			try {
-				const tx1 = await contract.methods.getHighestBid(tx[i].id).call()
-				tx[i].highestBid = Number(tx1);
-			}
-			catch (e) {
-				tx[i].highestBid = 0;
 			}
 		}
 		resp.status(200).send({ success: true, data: tx })
@@ -112,17 +105,16 @@ exports.getTime = async (req, resp) => {
 }
 
 const timer = (id) => {
-	const timeout = setTimeout(async () => {
+	const timeout = setInterval(async () => {
 		try {
 			const tx = await contract.methods.finalizeBid(parseInt(id, 10), parseInt(Date.now(),10)).call();
 			console.log('time_try')
 			if (tx) {
-				clearTimeout(timeout)
+				clearInterval(timeout)
 				console.log('transferred')
 			}
 		}
 		catch (e) {
-			timer()
 			console.log('time_catch')
 		}
 	}, 2000);
