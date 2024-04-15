@@ -241,23 +241,20 @@ contract Land {
         soldLand.isforSell = false;
         lands[bidder].push(soldLand);
         delete lands[seller][id];
+        biddingContract.deleteBid(id);
     }
 
     function changeLandForSell(uint256 id, address seller) public {
-        Landreg storage soldLand = lands[seller][id];
-        soldLand.isforSell = false;
+        lands[seller][id].isforSell = false;
+        biddingContract.deleteBid(id);
     }
 
-    function finalizeBid(uint256 landId) public {
+    function finalizeBid(uint256 landId, uint256 timestamp) public {
         uint256 id;
         address bidder;
         address owner;
-        (id, bidder, owner) = biddingContract.finalizeBid(
-            landId,
-            block.timestamp
-        );
-        if (bidder != address(0) && owner != address(0))
-            transferOwnership(id, bidder, owner);
+        (id, bidder, owner) = biddingContract.finalizeBid(landId, timestamp);
+        if (bidder != address(0)) transferOwnership(id, bidder, owner);
         else changeLandForSell(id, owner);
     }
 

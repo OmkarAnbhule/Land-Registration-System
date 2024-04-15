@@ -22,7 +22,7 @@ const uploadFile = async (val) => {
 	);
 	return res.data.IpfsHash;
 }
-
+const ids = [];
 exports.addLand = async (req, resp) => {
 	const { area, state, district, propertyid, survey, price, address } = JSON.parse(req.body.data)
 	try {
@@ -104,28 +104,35 @@ exports.getTime = async (req, resp) => {
 	}
 }
 
-const timer = (id) => {
+const timer = () => {
 	const timeout = setInterval(async () => {
-		try {
-			const tx = await contract.methods.finalizeBid(parseInt(id, 10), parseInt(Date.now(),10)).call();
-			console.log('time_try')
-			if (tx) {
-				clearInterval(timeout)
-				console.log('transferred')
+		console.log(ids)
+		if (ids.length > 0) {
+			for (let i = 0; i < ids.length; i++) {
+				try {
+					const tx = await contract.methods.finalizeBid(parseInt(ids[i], 10), Math.floor(Date.now() / 1000)).call();
+					console.log('time_try')
+					if (tx) {
+						ids.splice(i, 1);
+						clearInterval(timeout)
+						console.log('transferred')
+					}
+				}
+				catch (e) {
+					console.log('time_catch')
+				}
 			}
-		}
-		catch (e) {
-			console.log('time_catch')
 		}
 	}, 2000);
 }
+timer()
 exports.sellland = async (req, resp) => {
 	const { objId, amt, addr, closingTime } = req.body;
 	try {
 		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(closingTime, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'land selled' })
-			timer(objId)
+			ids.push(objId)
 		}
 	}
 	catch (e) {
