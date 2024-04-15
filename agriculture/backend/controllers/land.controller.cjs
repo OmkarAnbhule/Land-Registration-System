@@ -106,12 +106,10 @@ exports.getTime = async (req, resp) => {
 
 const timer = () => {
 	const timeout = setInterval(async () => {
-		console.log(ids)
 		if (ids.length > 0) {
 			for (let i = 0; i < ids.length; i++) {
 				try {
-					const tx = await contract.methods.finalizeBid(parseInt(ids[i], 10), Math.floor(Date.now() / 1000)).call();
-					console.log('time_try')
+					const tx = await contract.methods.finalizeBid(parseInt(ids[i], 10), Math.floor(Date.now() / 1000)).send({ from: getaddress() });
 					if (tx) {
 						ids.splice(i, 1);
 						clearInterval(timeout)
@@ -119,6 +117,7 @@ const timer = () => {
 					}
 				}
 				catch (e) {
+					console.log(e)
 					console.log('time_catch')
 				}
 			}
