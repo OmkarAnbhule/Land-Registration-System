@@ -1,4 +1,4 @@
-const { getaddress, contract } = require('../utils/contract.cjs')
+const { getaddress, contract, assignAdmin, getAdmin } = require('../utils/contract.cjs')
 
 
 exports.registeraccept = async (req, resp) => {
@@ -34,6 +34,24 @@ exports.dashBoard = async (req, resp) => {
         }
         console.log(tx)
         resp.status(200).send({ success: true, data: tx });
+    }
+    catch (e) {
+        console.log(e)
+        resp.status(500).send({ success: false, message: 'server not responding' });
+    }
+}
+
+exports.assignAddress = async (req, resp) => {
+    try {
+        if (await assignAdmin(req.body.addr)) {
+            const tx = await contract.methods.isContractOwner(await getAdmin()).call();
+            if (!tx) {
+                resp.status(400).send({ success: false })
+            }
+            else {
+                resp.status(200).send({ success: true })
+            }
+        }
     }
     catch (e) {
         console.log(e)

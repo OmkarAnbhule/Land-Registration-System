@@ -4,7 +4,6 @@ const otpGenerator = require('otp-generator')
 const axios = require('axios')
 const OTP = require('../models/OtpModel.cjs')
 const { getaddress , contract } = require('../utils/contract.cjs')
-const { getIPFSInstance } = require('../utils/ipfsNode.cjs')
 const fs = require('fs')
 const FormData = require('form-data');
 
