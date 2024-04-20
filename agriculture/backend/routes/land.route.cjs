@@ -17,8 +17,6 @@ app.post('/get-land', landController.getland)
 app.post('/get-land-all', landController.getAllLands)
 app.post('/sell-land', landController.sellland)
 app.post('/register-req', landController.registerreq)
-app.post('/register-accept', landController.registeraccept)
-app.post('/register-reject', landController.reject)
 app.post('/place-bid',landController.placeBid)
 
 module.exports = app;

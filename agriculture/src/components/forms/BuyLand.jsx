@@ -5,7 +5,7 @@ import Snackbar from "awesome-snackbar";
 export default function BuyLand() {
     const api = import.meta.env.VITE_API_URL;
     const [bid, setBid] = useState(0);
-    const navigate = useNavigate()
+    const [isBid, setIsBid] = useState(false);
     const [style, setStyle] = useState({})
     const seen = new Set();
     const [land, setLand] = useState([]);
@@ -74,7 +74,17 @@ export default function BuyLand() {
                     "Content-Type": "application/json"
                 }
             })
-
+            result = await result.json()
+            if (result.success) {
+                    setLand(prevLand => {
+                        const updatedLand = [...prevLand];
+                        updatedLand[id] = {
+                            ...updatedLand[id],
+                            isBid: !updatedLand[id].isBid
+                        };
+                        return updatedLand;
+                    });
+            }
         }
     }
     return (

@@ -57,4 +57,5 @@ app.get('/', (req, res) => {
 })
 app.use('/', require('./routes/user.route.cjs'))
 app.use('/', require('./routes/land.route.cjs'))
+app.use('/', require('./routes/admin.route.cjs'))
 

@@ -47,6 +47,8 @@ contract Land {
 
     uint256 public userCount;
     uint256 public landsCount;
+    uint256 public landOnSaleCount;
+    uint256 public RegisteredLandCount;
     uint256 public Registerreqcount;
 
     mapping(address => User) public UserMapping;
@@ -55,6 +57,19 @@ contract Land {
     mapping(address => Landreg[]) public lands;
     mapping(uint256 => RegisterLandStruct[]) public Registerrequests;
     address[] public ownerMapping;
+
+    modifier onlyRegisteredUsers() {
+        require(!RegisteredUserMapping[msg.sender], "Already resgistered");
+        _;
+    }
+
+    modifier onlyContractOwner() {
+        require(
+            msg.sender == contractOwner,
+            "Only contract owner can access this"
+        );
+        _;
+    }
 
     function registerUser(
         string memory _name,
@@ -65,8 +80,8 @@ contract Land {
         string memory _email,
         string memory _password,
         string memory _image
-    ) public {
-        require(!RegisteredUserMapping[msg.sender], "Already resgistered");
+    ) public onlyRegisteredUsers {
+        require(msg.sender != contractOwner, "contract owner cannot register");
         RegisteredUserMapping[msg.sender] = true;
         userCount++;
         AllUsers[userCount] = msg.sender;
@@ -88,11 +103,13 @@ contract Land {
         }
     }
 
-    function getUser(address _addr) public view returns (User memory) {
+    function getUser(
+        address _addr
+    ) public view onlyRegisteredUsers returns (User memory) {
         return UserMapping[_addr];
     }
 
-    function login(address _addr) public returns (bool) {
+    function login(address _addr) public onlyRegisteredUsers returns (bool) {
         if (RegisteredUserMapping[_addr]) {
             UserMapping[_addr].isloggedin = true;
             return true;
@@ -101,15 +118,21 @@ contract Land {
         }
     }
 
-    function logout(address _addr) public {
+    function logout(address _addr) public onlyRegisteredUsers {
         UserMapping[_addr].isloggedin = false;
     }
 
-    function resetPass(string memory password) public {
+    function resetPass(string memory password) public onlyRegisteredUsers {
+        require(
+            UserMapping[msg.sender].id == msg.sender,
+            "Address not owned by"
+        );
         UserMapping[msg.sender].password = password;
     }
 
-    function isElementPresent(address _element) public view returns (bool) {
+    function isElementPresent(
+        address _element
+    ) public view onlyRegisteredUsers returns (bool) {
         for (uint256 i = 0; i < ownerMapping.length; i++) {
             if (ownerMapping[i] == _element) {
                 return true; // Element is present
@@ -127,7 +150,7 @@ contract Land {
         string memory _surveyNum,
         uint256 _landPrice,
         string[] memory _files //string memory _timestamp
-    ) public {
+    ) public onlyRegisteredUsers {
         lands[msg.sender].push(
             Landreg(
                 landsCount,
@@ -152,11 +175,19 @@ contract Land {
         Registerreqcount++;
     }
 
-    function getMyLands(address _addr) public view returns (Landreg[] memory) {
+    function getMyLands(
+        address _addr
+    ) public view onlyRegisteredUsers returns (Landreg[] memory) {
         return lands[_addr];
     }
 
-    function getAllLands(address _addr) public view returns (Landreg[] memory) {
+    function isBid(uint256 landId) public view returns (bool) {
+        return biddingContract.bidPlaced(landId);
+    }
+
+    function getAllLands(
+        address _addr
+    ) public view onlyRegisteredUsers returns (Landreg[] memory) {
         Landreg[] memory result = new Landreg[](ownerMapping.length - 1);
         uint256 index = 0;
         for (uint256 i = 0; i < ownerMapping.length; i++) {
@@ -173,7 +204,12 @@ contract Land {
         return result;
     }
 
-    function getSellRequest() public view returns (Landreg[] memory) {
+    function getSellRequest()
+        public
+        view
+        onlyRegisteredUsers
+        returns (Landreg[] memory)
+    {
         Landreg[] memory result = new Landreg[](ownerMapping.length);
         uint256 index = 0;
         for (uint256 i = 0; i < Registerreqcount; i++) {
@@ -191,7 +227,7 @@ contract Land {
         return result;
     }
 
-    function acceptReg(address _addr, uint256 id) public {
+    function acceptReg(address _addr, uint256 id) public onlyContractOwner {
         lands[_addr][id].isLandVerified = true;
 
         for (uint256 i = id; i < Registerreqcount; i++) {
@@ -201,9 +237,10 @@ contract Land {
             Registerrequests[Registerreqcount].pop();
         }
         Registerreqcount--;
+        RegisteredLandCount++;
     }
 
-    function rejectReg(uint256 index) public {
+    function rejectReg(uint256 index) public onlyContractOwner {
         for (uint256 i = index; i < Registerreqcount; i++) {
             Registerrequests[i] = Registerrequests[i + 1];
         }
@@ -213,7 +250,9 @@ contract Land {
         Registerreqcount--;
     }
 
-    function getTime(uint256 landId) public view returns (uint256) {
+    function getTime(
+        uint256 landId
+    ) public view onlyRegisteredUsers returns (uint256) {
         return biddingContract.getTimeStamp(landId);
     }
 
@@ -222,12 +261,13 @@ contract Land {
         uint256 closingTime,
         uint256 amount,
         address seller
-    ) public {
+    ) public onlyRegisteredUsers {
         lands[seller][landId].isforSell = true;
         biddingContract.createLandBid(landId, closingTime, amount, seller);
+        landOnSaleCount++;
     }
 
-    function placeBid(uint256 landId) public payable {
+    function placeBid(uint256 landId) public payable onlyRegisteredUsers {
         biddingContract.placeBid{value: msg.value}(landId);
     }
 
@@ -235,7 +275,7 @@ contract Land {
         uint256 id,
         address bidder,
         address seller
-    ) private {
+    ) private onlyContractOwner {
         Landreg storage soldLand = lands[seller][id];
         soldLand.ownerAddress = payable(bidder);
         soldLand.isforSell = false;
@@ -261,4 +301,12 @@ contract Land {
     //function getHighestBid(uint256 landId) public view returns(uint256){
     //    return biddingContract.getHighestBid(landId);
     // }
+
+    function dashBoardStats()
+        public
+        view
+        returns (uint256, uint256, uint256, uint256)
+    {
+        return (userCount, landsCount, landOnSaleCount, RegisteredLandCount);
+    }
 }

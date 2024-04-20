@@ -9,7 +9,7 @@ const LandInspector = () => {
         numberOfLands: 0,
         numberOfRegisteredUsers: 0,
         numberOfRegisteredLand: 0,
-        numberOfBidsPlaced: 0
+        numberOfLandOnSale: 0
     });
     const [showDashboardChart, setShowDashboardChart] = useState(false);
 
@@ -22,8 +22,8 @@ const LandInspector = () => {
         console.log("Toggling dashboard chart");
         setShowDashboardChart(!showDashboardChart);
     };
-    
-//
+
+    //
     useEffect(() => {
         fetchDashboardStats();
     }, []);
@@ -49,13 +49,23 @@ const LandInspector = () => {
 
     const fetchDashboardStats = async () => {
         // Simulated data, replace with your actual API calls
-        const stats = {
-            numberOfLands: 50,
-            numberOfRegisteredUsers: 50,
-            numberOfRegisteredLand: 50,
-            numberOfBidsPlaced: 50
-        };
-        setDashboardStats(stats);
+        let result = await fetch('http://localhost:5000/dashboard-stats', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        result = await result.json();
+        if (result.success === true) {
+            for (var item of result.data) {
+                setDashboardStats({
+                    numberOfLands: item[1],
+                    numberOfRegisteredUsers: item[0],
+                    numberOfRegisteredLand: item[2],
+                    numberOfLandOnSale: item[1]
+                });
+            }
+        }
     };
 
     const approveRequest = (id, addr) => {
@@ -89,10 +99,6 @@ const LandInspector = () => {
     return (
         <div className="land-inspector">
             <h2>Land Inspector Dashboard</h2>
-            
-            <div className="main-content">
-                {showDashboardChart && <DashboardChart stats={dashboardStats} />}
-            </div>
             <div className="toggle-buttons">
                 <button onClick={toggleRegisterRequests} className={showRegisterRequests ? 'active' : ''}>Register Requests</button>
                 <button onClick={toggleDashboardChart}>Show Stats</button>
@@ -122,6 +128,9 @@ const LandInspector = () => {
                     </ul>
                 </div>
             )}
+            <div className="main-content">
+                {showDashboardChart && <DashboardChart stats={dashboardStats} />}
+            </div>
         </div>
     );
 };

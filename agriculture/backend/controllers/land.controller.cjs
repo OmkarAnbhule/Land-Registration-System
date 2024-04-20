@@ -1,10 +1,7 @@
 require('dotenv').config()
 const axios = require('axios')
-const bcrypt = require('bcrypt');
-const otpGenerator = require('otp-generator')
 const fs = require('fs')
 const FormData = require('form-data');
-const OTP = require('../models/OtpModel.cjs')
 const { getaddress, contract } = require('../utils/contract.cjs')
 
 const uploadFile = async (val) => {
@@ -77,6 +74,14 @@ exports.getAllLands = async (req, resp) => {
 	const tx = await contract.methods.getAllLands(await getaddress()).call()
 	if (tx) {
 		for (var i in tx) {
+			const tx1 = await contract.methods.isBid(parseInt(tx[i].id, 10)).call();
+			console.log(tx1)
+			if (tx1) {
+				tx[i].isBid = true;
+			}
+			else {
+				tx[i].isBid = false;
+			}
 			for (let key in tx[i]) {
 				try {
 					if (BigInt(tx[i][key]) === tx[i][key]) {
@@ -113,12 +118,9 @@ const timer = () => {
 					if (tx) {
 						ids.splice(i, 1);
 						clearInterval(timeout)
-						console.log('transferred')
 					}
 				}
 				catch (e) {
-					console.log(e)
-					console.log('time_catch')
 				}
 			}
 		}
@@ -145,7 +147,7 @@ exports.placeBid = async (req, resp) => {
 	try {
 		const tx = await contract.methods.placeBid(parseInt(id, 10)).send({ from: getaddress(), value: bid })
 		if (tx) {
-			resp.status(500).send({ success: true })
+			resp.status(201).send({ success: true })
 		}
 	}
 	catch (e) {
@@ -181,27 +183,4 @@ exports.registerreq = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 }
-exports.registeraccept = async (req, resp) => {
-	const { id, _addr } = req.body;
-	try {
-		const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: getaddress() })
-		console.log(tx)
-		if (tx)
-			resp.status(201).send({ success: true })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-}
 
-exports.reject = async (req, resp) => {
-	const { id } = req.body;
-	try {
-		const tx = await contract.methods.rejectReg(parseInt(id, 10)).call()
-		if (tx)
-			resp.status(201).send({ success: true })
-	}
-	catch (e) {
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-}
