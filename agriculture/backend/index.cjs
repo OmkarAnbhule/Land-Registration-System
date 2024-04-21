@@ -20,6 +20,7 @@ app.post('/send-address', async (req, resp) => {
 	try {
 		const { addr } = req.body;
 		if (await assignWallet(addr)) {
+			console.log(addr)
 			const tx = await contract.methods.getUser(addr).call();
 			if (tx && tx.id != addr) {
 				resp.status(201).send({ success: true, message: 'address set successfully' });

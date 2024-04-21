@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Snackbar from "awesome-snackbar";
+import Timer from "../Timer"
 
 export default function BuyLand() {
+    const obj = {
+        'id': 0,
+        'landAddress': 'abc',
+        'files': ['34343', '434344'],
+        'landPrice': '039303',
+        'propertyPID': 'PID233',
+        'surveyNum': 'NUM2039',
+        'isBid': true,
+        'amount': '0990'
+
+    }
     const api = import.meta.env.VITE_API_URL;
     const [bid, setBid] = useState(0);
     const [isBid, setIsBid] = useState(false);
     const [style, setStyle] = useState({})
     const seen = new Set();
-    const [land, setLand] = useState([{
-        'id': 0,
-        'landAddress': 'abc',
-        'files': ['34343','434344'],
-        'landPrice': '039303',
-        'propertyPID': 'PID233',
-        'surveyNum': 'NUM2039',
-    }]);
+    const [land, setLand] = useState([])
     useEffect(() => {
-        getData()
+        setTimeout(() => {
+            getData()
+        }, 3000);
     }, [])
     const getData = async () => {
         let result = await fetch(`${api}get-land-all`, {
@@ -117,18 +124,32 @@ export default function BuyLand() {
                             <p><b>Survey Number: </b>{item.surveyNum}</p>
                         </div>
                         <div className="button-div">
-                            <div className="bid">
-                                <i className="bi bi-plus" key={index} onClick={() => setBid(parseInt(bid) + 1)}></i>
-                                <input key={index} type="text" value={bid == 0 ? item.landPrice : bid} onChange={handleInput}></input>
-                                <i className="bi bi-dash" key={index} onClick={() => setBid(parseInt(bid) - 1)}></i>
-                            </div>
-                            <button onClick={() => handleBuy(item.id, item.landPrice)}>Bid</button>
+                            {
+                                item.isBid ? (
+                                    <div>
+                                        <p><b>Amount Placed:</b> {item.amount}</p>
+                                    </div>
+                                ) : (
+                                    <div className="bid">
+                                        <i className="bi bi-plus" key={index} onClick={() => setBid(parseInt(bid) + 1)}></i>
+                                        <input key={index} type="text" value={bid == 0 ? item.landPrice : bid} onChange={handleInput}></input>
+                                        <i className="bi bi-dash" key={index} onClick={() => setBid(parseInt(bid) - 1)}></i>
+                                    </div>)
+                            }
+                            {item.isBid ? (
+                                <button style={{ background: 'gray' }}>Bid Placed</button>
+                            ) : (
+                                <button onClick={() => handleBuy(item.id, item.landPrice)}>Bid</button>
+                            )}
                         </div>
-                    </div>
+                        <div style={{ marginTop: '15px' }}>
+                            <Timer date={item.maxTime} key={item.id} />
+                        </div>
+                    </div >
                 ))
                 :
                 <p className="center">No Lands Available</p>
             }
-        </div>
+        </div >
     )
 }

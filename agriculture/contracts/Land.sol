@@ -111,7 +111,7 @@ contract Land {
     function login(
         address _addr
     ) public onlyRegisteredUsers(_addr) returns (bool) {
-        if (RegisteredUserMapping[_addr]) {
+        if (RegisteredUserMapping[_addr] && UserMapping[_addr].id == _addr) {
             UserMapping[_addr].isloggedin = true;
             return true;
         } else {
@@ -186,7 +186,7 @@ contract Land {
         return lands[_addr];
     }
 
-    function isBid(uint256 landId) public view returns (bool) {
+    function isBid(uint256 landId) public view returns (bool, uint256) {
         return biddingContract.bidPlaced(landId);
     }
 

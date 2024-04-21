@@ -1,10 +1,10 @@
-const { getaddress, contract, assignAdmin, getAdmin } = require('../utils/contract.cjs')
+const { contract, assignAdmin, getAdmin } = require('../utils/contract.cjs')
 
 
 exports.registeraccept = async (req, resp) => {
     const { id, _addr } = req.body;
     try {
-        const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: getaddress() })
+        const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: getAdmin() })
         console.log(tx)
         if (tx)
             resp.status(201).send({ success: true })

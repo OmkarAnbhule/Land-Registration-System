@@ -78,9 +78,14 @@ exports.getAllLands = async (req, resp) => {
 			console.log(tx1)
 			if (tx1) {
 				tx[i].isBid = true;
+				tx[i].amount = Number(tx1[1])
 			}
 			else {
 				tx[i].isBid = false;
+			}
+			const tx2 = await contract.methods.getTime(tx[i].id).call();
+			if (tx2) {
+				Object.assign(tx[i], { 'maxTime': Number(tx2) });
 			}
 			for (let key in tx[i]) {
 				try {

@@ -89,11 +89,11 @@ contract Bidding is Ownable(msg.sender) {
         emit BidPlaced(landId, msg.sender, msg.value);
     }
 
-    function bidPlaced(uint256 landId) public view returns (bool) {
+    function bidPlaced(uint256 landId) public view returns (bool , uint256) {
         if (landBids[landId].bids[msg.sender].amount > 0) {
-            return true;
+            return (true , landBids[landId].bids[msg.sender].amount);
         }
-        return false;
+        return (false,0);
     }
 
     function getNumberOfBids(uint256 landId) public view returns (uint256) {

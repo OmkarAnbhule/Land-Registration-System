@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const axios = require('axios')
 const OTP = require('../models/OtpModel.cjs')
-const { getaddress , contract } = require('../utils/contract.cjs')
+const { getaddress, contract } = require('../utils/contract.cjs')
 const fs = require('fs')
 const FormData = require('form-data');
 
@@ -157,7 +157,7 @@ exports.registerUser = async (req, resp) => {
 
 exports.getUserDetails = async (req, resp) => {
 	try {
-		const tx = await contract.methods.getUser(getaddress()).call()
+		const tx = await contract.methods.getUser(await getaddress()).call()
 		if (tx) {
 			console.log(tx)
 			resp.status(201).send({ success: true, image: tx.image })

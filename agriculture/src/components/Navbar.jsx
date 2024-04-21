@@ -75,7 +75,9 @@ export default function Navbar() {
 
     useEffect(() => {
         if (localStorage.getItem('isloggedin') == 'true') {
-            getdata()
+            setTimeout(()=>{
+                getdata()
+            },3000)
         }
     }, [])
     return (
