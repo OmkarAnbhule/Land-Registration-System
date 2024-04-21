@@ -8,7 +8,14 @@ export default function BuyLand() {
     const [isBid, setIsBid] = useState(false);
     const [style, setStyle] = useState({})
     const seen = new Set();
-    const [land, setLand] = useState([]);
+    const [land, setLand] = useState([{
+        'id': 0,
+        'landAddress': 'abc',
+        'files': ['34343','434344'],
+        'landPrice': '039303',
+        'propertyPID': 'PID233',
+        'surveyNum': 'NUM2039',
+    }]);
     useEffect(() => {
         getData()
     }, [])
@@ -76,14 +83,14 @@ export default function BuyLand() {
             })
             result = await result.json()
             if (result.success) {
-                    setLand(prevLand => {
-                        const updatedLand = [...prevLand];
-                        updatedLand[id] = {
-                            ...updatedLand[id],
-                            isBid: !updatedLand[id].isBid
-                        };
-                        return updatedLand;
-                    });
+                setLand(prevLand => {
+                    const updatedLand = [...prevLand];
+                    updatedLand[id] = {
+                        ...updatedLand[id],
+                        isBid: !updatedLand[id].isBid
+                    };
+                    return updatedLand;
+                });
             }
         }
     }

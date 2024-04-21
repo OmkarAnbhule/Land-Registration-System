@@ -119,8 +119,8 @@ contract Land {
         }
     }
 
-    function isContractOwner() public view returns (bool) {
-        return msg.sender == contractOwner;
+    function isContractOwner(address _addr) public view returns (bool) {
+        return _addr == contractOwner;
     }
 
     function logout(address _addr) public onlyRegisteredUsers(_addr) {

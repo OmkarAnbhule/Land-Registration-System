@@ -43,12 +43,14 @@ exports.dashBoard = async (req, resp) => {
 
 exports.assignAddress = async (req, resp) => {
     try {
-        if (await assignAdmin(req.body.addr)) {
-            const tx = await contract.methods.isContractOwner(await getAdmin()).call();
+        const tx = await contract.methods.isContractOwner(req.body.addr).call();
+        if (tx) {
+            console.log(tx)
             if (!tx) {
                 resp.status(400).send({ success: false })
             }
             else {
+                await assignAdmin(req.body.addr)
                 resp.status(200).send({ success: true })
             }
         }
