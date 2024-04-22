@@ -5,6 +5,8 @@ app.post('/register-accept', adminController.registeraccept)
 app.post('/register-reject', adminController.reject)
 app.post('/dashboard-stats', adminController.dashBoard);
 app.post('/assignAddress', adminController.assignAddress);
+app.post('/register-req', adminController.registerreq)
+
 
 
 module.exports = app;

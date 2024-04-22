@@ -89,11 +89,11 @@ contract Bidding is Ownable(msg.sender) {
         emit BidPlaced(landId, msg.sender, msg.value);
     }
 
-    function bidPlaced(uint256 landId) public view returns (bool , uint256) {
+    function bidPlaced(uint256 landId) public view returns (bool, uint256) {
         if (landBids[landId].bids[msg.sender].amount > 0) {
-            return (true , landBids[landId].bids[msg.sender].amount);
+            return (true, landBids[landId].bids[msg.sender].amount);
         }
-        return (false,0);
+        return (false, 0);
     }
 
     function getNumberOfBids(uint256 landId) public view returns (uint256) {
@@ -125,14 +125,14 @@ contract Bidding is Ownable(msg.sender) {
     function finalizeBid(
         uint256 landId,
         uint256 _timestamp
-    ) external returns (uint256, address, address) {
+    ) external returns (uint256, address, address, uint256) {
         LandBid storage currentBid = landBids[landId];
         require(
             currentBid.closingTime < _timestamp,
             "Bidding is still ongoing"
         );
         if (currentBid.bidderAddresses.length < 1) {
-            return (landId, address(0), currentBid.owner);
+            return (landId, address(0), currentBid.owner, 0);
         } else {
             // Find the highest bidder
             address highestBidder = address(0);
@@ -153,7 +153,7 @@ contract Bidding is Ownable(msg.sender) {
                     );
                 }
             }
-            return (landId, highestBidder, currentBid.owner);
+            return (landId, highestBidder, currentBid.owner, highestBid);
             // Transfer ownership to the highest bidder (assuming Land.sol contract has a function for this)
             // Replace the above line with the appropriate call to your Land.sol contract function
         }

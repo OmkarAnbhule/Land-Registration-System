@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
-const notifySchema = mongoose.Schema({
+const notifySchema = new mongoose.Schema({
     id: {
         type: 'String',
-        required: true
+        required: true,
+        uinque:true
     },
     notifications: [
         {
@@ -22,4 +23,4 @@ const notifySchema = mongoose.Schema({
         }
     ]
 })
-exports.default = mongoose.model('Notification', notifySchema);
+module.exports = mongoose.model('notify', notifySchema);

@@ -16,7 +16,6 @@ app.post('/add-land', uploadFiles.array('files'), landController.addLand)
 app.post('/get-land', landController.getland)
 app.post('/get-land-all', landController.getAllLands)
 app.post('/sell-land', landController.sellland)
-app.post('/register-req', landController.registerreq)
-app.post('/place-bid',landController.placeBid)
+app.post('/place-bid', landController.placeBid)
 
 module.exports = app;

@@ -72,6 +72,9 @@ contract Land {
         _;
     }
 
+    event ownerShipTranfer(address owner, address bidder, uint256 amount);
+    event changeLandSell(address owner);
+
     function registerUser(
         string memory _name,
         string memory _date,
@@ -176,7 +179,7 @@ contract Land {
         );
         landsCount++;
         Registerrequests[Registerreqcount].push(
-            RegisterLandStruct(Registerreqcount, msg.sender , landsCount)
+            RegisterLandStruct(Registerreqcount, msg.sender, landsCount)
         );
         Registerreqcount++;
     }
@@ -247,7 +250,9 @@ contract Land {
     }
 
     function rejectReg(uint256 index) public onlyContractOwner {
-        delete lands[Registerrequests[index][0].seller][Registerrequests[index][0].landId];
+        delete lands[Registerrequests[index][0].seller][
+            Registerrequests[index][0].landId
+        ];
         for (uint256 i = index; i < Registerreqcount; i++) {
             Registerrequests[i] = Registerrequests[i + 1];
         }
@@ -281,7 +286,8 @@ contract Land {
     function transferOwnership(
         uint256 id,
         address bidder,
-        address seller
+        address seller,
+        uint256 _amount
     ) private onlyContractOwner {
         Landreg storage soldLand = lands[seller][id];
         soldLand.ownerAddress = payable(bidder);
@@ -289,20 +295,29 @@ contract Land {
         lands[bidder].push(soldLand);
         delete lands[seller][id];
         biddingContract.deleteBid(id);
+        emit ownerShipTranfer(seller, bidder, _amount);
     }
 
     function changeLandForSell(uint256 id, address seller) public {
         lands[seller][id].isforSell = false;
         biddingContract.deleteBid(id);
+        emit changeLandSell(seller);
     }
 
     function finalizeBid(uint256 landId, uint256 timestamp) public {
         uint256 id;
         address bidder;
         address owner;
-        (id, bidder, owner) = biddingContract.finalizeBid(landId, timestamp);
-        if (bidder != address(0)) transferOwnership(id, bidder, owner);
-        else changeLandForSell(id, owner);
+        uint256 _amount;
+        (id, bidder, owner, _amount) = biddingContract.finalizeBid(
+            landId,
+            timestamp
+        );
+        if (bidder != address(0)) {
+            transferOwnership(id, bidder, owner, _amount);
+        } else {
+            changeLandForSell(id, owner);
+        }
     }
 
     //function getHighestBid(uint256 landId) public view returns(uint256){

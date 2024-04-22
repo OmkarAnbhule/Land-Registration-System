@@ -2,7 +2,8 @@ require('dotenv').config()
 const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data');
-const { getaddress, contract } = require('../utils/contract.cjs')
+const { getaddress, contract, getAdmin } = require('../utils/contract.cjs')
+const notify = require('../models/Notification.model.cjs');
 
 const uploadFile = async (val) => {
 	const formData = new FormData()
@@ -115,10 +116,42 @@ const timer = () => {
 		if (ids.length > 0) {
 			for (let i = 0; i < ids.length; i++) {
 				try {
-					const tx = await contract.methods.finalizeBid(parseInt(ids[i], 10), Math.floor(Date.now() / 1000)).send({ from: getaddress() });
+					let flag = false;
+					let bidder = null;
+					let amount = 0;
+					let owner = null;
+					const tx = await contract.methods.finalizeBid(parseInt(ids[i], 10), Math.floor(Date.now() / 1000)).send({ from: getAdmin() })
+						.on('receipt', function (receipt) {
+							console.log('Transaction Receipt:', receipt);
+							contract.events.ownerShipTranfer()
+								.on('data', function (event) {
+									console.log('Returned Value:', event.returnValues.bidder);
+									console.log('Returned Value:', event.returnValues.owner);
+									bidder = event.returnValues.bidder;
+									owner = event.returnValues.owner;
+									amount = Number(event.returnValues.amount);
+								})
+								.on('error', console.error);
+							contract.events.changeLandSell()
+								.on('data', function (event) {
+									flag = true;
+									console.log('Returned Value:', event.returnValues.owner);
+									owner = event.returnValues.owner;
+								})
+								.on('error', console.error);
+						})
 					if (tx) {
+						if (flag) {
+							const result = await notify.findOneAndUpdate({ id: owner }, { $push: { notifications: { messageType: 'my-land-no-bid', message: `Your Land at ${ids[i]} has returned to you. As no bid was placed`, isRead: false } } })
+						}
+						else {
+							const result = await notify.findOneAndUpdate({ id: owner }, { $push: { notifications: { messageType: 'my-land-transfer', message: `Your Land at ${ids[i]} has been buyed at ${amount} `, isRead: false } } })
+							const result1 = await notify.findOneAndUpdate({ id: bidder }, { $push: { notifications: { messageType: 'my-land-transfer', message: `Your have won bid at ${amount} for land at ${ids[i]} id`, isRead: false } } })
+						}
 						ids.splice(i, 1);
-						clearInterval(timeout)
+						if (ids.length <= 0) {
+							clearInterval(timeout);
+						}
 					}
 				}
 				catch (e) {
@@ -133,6 +166,7 @@ exports.sellland = async (req, resp) => {
 	try {
 		const tx = await contract.methods.createLandBid(parseInt(objId, 10), parseInt(closingTime, 10), parseInt(amt, 10), addr).send({ from: getaddress() })
 		if (tx) {
+			const result = await notify.findOneAndUpdate({ id: { $ne: addr } }, { $push: { notifications: { messageType: 'buy-land', message: `A new Land has been on Sell. Click to be the first Bidder`, isRead: false } } })
 			resp.status(201).send({ success: true, message: 'land selled' })
 			ids.push(objId)
 		}
@@ -156,32 +190,3 @@ exports.placeBid = async (req, resp) => {
 		resp.status(500).send({ success: false, message: 'server not responding' })
 	}
 }
-
-
-//admin queries
-
-exports.registerreq = async (req, resp) => {
-	try {
-		const tx = await contract.methods.getSellRequest().call();
-		console.log(tx)
-		if (tx) {
-			for (var i in tx) {
-				for (let key in tx[i]) {
-					try {
-						if (BigInt(tx[i][key]) === tx[i][key]) {
-							tx[i][key] = Number(tx[i][key])
-						}
-					}
-					catch (e) {
-					}
-				}
-			}
-			resp.status(201).send({ success: true, data: tx })
-		}
-	}
-	catch (e) {
-		console.log(e)
-		resp.status(500).send({ success: false, message: 'server not responding' })
-	}
-}
-

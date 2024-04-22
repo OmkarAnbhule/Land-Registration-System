@@ -8,10 +8,11 @@ import logo from '../assets/Navbar/logo.png'
 export default function Navbar() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
-    const [isNotify , setIsNotify] = useState(false);
+    const [isNotify, setIsNotify] = useState(false);
     const [style, setStyle] = useState(false)
     const [style2, setStyle2] = useState(false)
     const [img, setImg] = useState('')
+    const [notification, setNotification] = useState([])
     const handleSideBar = () => {
         setStyle(!style)
     }
@@ -73,12 +74,36 @@ export default function Navbar() {
         }
     }
 
+    const handleNotify = async (id) => {
+        let result = await fetch(`${api}read-notification`, {
+            method: 'put',
+            body: JSON.stringify({ _id: id }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = await result.json()
+    }
+
+    const getNotifications = async () => {
+        let result = await fetch(`${api}get-notification`, {
+            method: 'get',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = await result.json()
+        setNotification(result.data);
+    }
 
     useEffect(() => {
-        if (localStorage.getItem('isloggedin') == 'true') {
+        if (localStorage.getItem('isloggedin') === 'true') {
             setTimeout(() => {
                 getdata()
             }, 3000)
+            setInterval(async () => {
+                await getNotifications()
+            }, 5000)
         }
     }, [])
     return (
@@ -128,14 +153,14 @@ export default function Navbar() {
                     <>
                         <div className='notification'>
                             <div>
-                                <i className={isNotify ? 'bi bi-bell-slash' : 'bi bi-bell'} onClick={()=>setIsNotify(!isNotify)}></i>
+                                <i className={isNotify ? 'bi bi-bell-slash' : 'bi bi-bell'} onClick={() => setIsNotify(!isNotify)}></i>
                             </div>
-                            <div className='notification-display' style={{transform:isNotify ? 'scaleY(1)' : 'scaleY(0)'}}>
-                                <p>This is a demo notification</p>
-                                <p>This is a demo notification This is a demo notification This is a demo notification </p>
-                                <p>This is a demo notification</p>
-                                <p>This is a demo notification</p>
-                                <p>This is a demo notification</p>
+                            <div className='notification-display' style={{ transform: isNotify ? 'scaleY(1)' : 'scaleY(0)' }}>
+                                {
+                                    notification.map((item, index) => (
+                                        <p key={index} onClick={() => handleNotify(item._id)}>{item.message}</p>
+                                    ))
+                                }
                                 <p>Mark all as read</p>
                             </div>
                         </div>

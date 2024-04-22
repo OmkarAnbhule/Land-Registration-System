@@ -6,6 +6,7 @@ const OTP = require('../models/OtpModel.cjs')
 const { getaddress, contract } = require('../utils/contract.cjs')
 const fs = require('fs')
 const FormData = require('form-data');
+const notify = require('../models/Notification.model.cjs');
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
@@ -144,13 +145,13 @@ exports.registerUser = async (req, resp) => {
 			console.log(res.data.IpfsHash)
 			let hashedPassword = await bcrypt.hash(password, 10);
 			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, res.data.IpfsHash).send({ from: getaddress() })
+			const result = await notify.create({ id: await getaddress() });
 			if (tx) {
 				resp.status(201).send({ success: true, message: 'registration successful' })
 			}
 		}
 	}
 	catch (e) {
-		console.log(e)
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 	}
 }
@@ -196,6 +197,42 @@ exports.logout = async (req, resp) => {
 		const tx = await contract.methods.logout(getaddress()).call();
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'logout success' })
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+	}
+}
+
+exports.getNotification = async (req, resp) => {
+	try {
+		const result = await notify.find({ id: await getaddress() })
+		console.log(result)
+		if (result) {
+			if (result[0].notifications.length > 0) {
+				// Extract notifications where isRead is false
+				const unreadNotifications = result[0].notifications.filter(notification => !notification.isRead);
+				console.log(unreadNotifications)
+				resp.status(201).send({ success: true, data: unreadNotifications })
+			}
+			else {
+				resp.status(201).send({ success: true, data: result[0].notifications })
+			}
+		}
+	}
+	catch (e) {
+		console.log(e)
+	}
+}
+
+exports.readNotification = async (req, resp) => {
+	try {
+		const result = await notify.findOneAndUpdate({ id: await getaddress(), 'notifications._id': req.body._id },
+			{ $set: { 'notifications.$.isRead': true } },
+			{ new: true }
+		);
+		if(result){
+			resp.status(201).send({success:true,message:'notificatiion read successfully'});
 		}
 	}
 	catch (e) {

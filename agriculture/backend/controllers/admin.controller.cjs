@@ -64,3 +64,28 @@ exports.assignAddress = async (req, resp) => {
         resp.status(500).send({ success: false, message: 'server not responding' });
     }
 }
+
+exports.registerreq = async (req, resp) => {
+    try {
+        const tx = await contract.methods.getSellRequest().call();
+        console.log(tx)
+        if (tx) {
+            for (var i in tx) {
+                for (let key in tx[i]) {
+                    try {
+                        if (BigInt(tx[i][key]) === tx[i][key]) {
+                            tx[i][key] = Number(tx[i][key])
+                        }
+                    }
+                    catch (e) {
+                    }
+                }
+            }
+            resp.status(201).send({ success: true, data: tx })
+        }
+    }
+    catch (e) {
+        console.log(e)
+        resp.status(500).send({ success: false, message: 'server not responding' })
+    }
+}

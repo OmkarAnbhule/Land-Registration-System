@@ -17,8 +17,10 @@ app.post('/forgot-password', userController.forgetpass)
 app.post('/reset-password', userController.resetpass)
 app.post('/verify-otp', upload.single('image'), userController.registerUser)
 app.post('/get-image', userController.getUserDetails)
-app.post('/logout',userController.logout)
+app.post('/logout', userController.logout)
 app.post('/login', userController.login)
+app.get('/get-notification', userController.getNotification);
+app.put('/read-notification', userController.readNotification);
 
 
 module.exports = app;
