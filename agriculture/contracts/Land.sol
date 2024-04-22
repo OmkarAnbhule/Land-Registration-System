@@ -43,6 +43,7 @@ contract Land {
     struct RegisterLandStruct {
         uint256 id;
         address seller;
+        uint256 landId;
     }
 
     uint256 public userCount;
@@ -175,7 +176,7 @@ contract Land {
         );
         landsCount++;
         Registerrequests[Registerreqcount].push(
-            RegisterLandStruct(Registerreqcount, msg.sender)
+            RegisterLandStruct(Registerreqcount, msg.sender , landsCount)
         );
         Registerreqcount++;
     }
@@ -246,6 +247,7 @@ contract Land {
     }
 
     function rejectReg(uint256 index) public onlyContractOwner {
+        delete lands[Registerrequests[index][0].seller][Registerrequests[index][0].landId];
         for (uint256 i = index; i < Registerreqcount; i++) {
             Registerrequests[i] = Registerrequests[i + 1];
         }

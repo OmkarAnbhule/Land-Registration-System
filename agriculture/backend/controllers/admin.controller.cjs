@@ -1,13 +1,15 @@
 const { contract, assignAdmin, getAdmin } = require('../utils/contract.cjs')
-
+const notify = require('../models/Notification.model.cjs');
 
 exports.registeraccept = async (req, resp) => {
     const { id, _addr } = req.body;
     try {
         const tx = await contract.methods.acceptReg(_addr, parseInt(id, 10)).send({ from: getAdmin() })
         console.log(tx)
-        if (tx)
+        if (tx) {
+            const result = await notify.findOneAndUpdate({ id: _addr }, { $push: { notifications: { messageType: 'my-land-verify', message: `Your Land at ${id} id has been verified`, isRead: false } } });
             resp.status(201).send({ success: true })
+        }
     }
     catch (e) {
         resp.status(500).send({ success: false, message: 'server not responding' })
@@ -18,8 +20,10 @@ exports.reject = async (req, resp) => {
     const { id } = req.body;
     try {
         const tx = await contract.methods.rejectReg(parseInt(id, 10)).call()
-        if (tx)
+        if (tx) {
+            const result = await notify.findOneAndUpdate({ id: _addr }, { $push: { notifications: { messageType: 'my-land-reject', message: `Your Land at ${id} id has been Rejected`, isRead: false } } });
             resp.status(201).send({ success: true })
+        }
     }
     catch (e) {
         resp.status(500).send({ success: false, message: 'server not responding' })

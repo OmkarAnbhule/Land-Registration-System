@@ -105,7 +105,7 @@ export default function BuyLand() {
         <div className="buy-land">
             {land.length > 0 ?
                 land.map((item, index) => (
-                    <div className="container" key={index}>
+                    <div className="container" key={index} id={item.id}>
                         <div className="location">
                             <i className="bi bi-geo-alt"></i>
                             <p>{item.landAddress}</p><br />

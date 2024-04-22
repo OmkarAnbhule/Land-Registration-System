@@ -8,6 +8,7 @@ import logo from '../assets/Navbar/logo.png'
 export default function Navbar() {
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+    const [isNotify , setIsNotify] = useState(false);
     const [style, setStyle] = useState(false)
     const [style2, setStyle2] = useState(false)
     const [img, setImg] = useState('')
@@ -24,16 +25,16 @@ export default function Navbar() {
         navigate('/login')
     }
     const getdata = async () => {
-            let result = await fetch(`${api}get-image`, {
-                method: 'post',
-                body: JSON.stringify({ email: localStorage.getItem("id") }),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            result = await result.json()
-            setImg(result.image)
-        }
+        let result = await fetch(`${api}get-image`, {
+            method: 'post',
+            body: JSON.stringify({ email: localStorage.getItem("id") }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = await result.json()
+        setImg(result.image)
+    }
 
     const handleLogout = async () => {
         let result = await fetch(`${api}logout`, {
@@ -75,9 +76,9 @@ export default function Navbar() {
 
     useEffect(() => {
         if (localStorage.getItem('isloggedin') == 'true') {
-            setTimeout(()=>{
+            setTimeout(() => {
                 getdata()
-            },3000)
+            }, 3000)
         }
     }, [])
     return (
@@ -125,9 +126,24 @@ export default function Navbar() {
             <div className='profile'>
                 {localStorage.getItem('isloggedin') ? (
                     <>
-                        <img width={50} height={50} src={`https://ipfs.io/ipfs/${img}`} onClick={handleSideBar2}></img>
-                        <div className='sidebar2' onMouseLeave={handleSideBar2} style={{ display: style2 ? 'block' : 'none' }}>
-                            <p onClick={handleLogout}>Logout</p>
+                        <div className='notification'>
+                            <div>
+                                <i className={isNotify ? 'bi bi-bell-slash' : 'bi bi-bell'} onClick={()=>setIsNotify(!isNotify)}></i>
+                            </div>
+                            <div className='notification-display' style={{transform:isNotify ? 'scaleY(1)' : 'scaleY(0)'}}>
+                                <p>This is a demo notification</p>
+                                <p>This is a demo notification This is a demo notification This is a demo notification </p>
+                                <p>This is a demo notification</p>
+                                <p>This is a demo notification</p>
+                                <p>This is a demo notification</p>
+                                <p>Mark all as read</p>
+                            </div>
+                        </div>
+                        <div>
+                            <img width={50} height={50} src={`https://ipfs.io/ipfs/${img}`} onClick={handleSideBar2}></img>
+                            <div className='sidebar2' onMouseLeave={handleSideBar2} style={{ display: style2 ? 'block' : 'none' }}>
+                                <p onClick={handleLogout}>Logout</p>
+                            </div>
                         </div>
                     </>
                 ) : (<>

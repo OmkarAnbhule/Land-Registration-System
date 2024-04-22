@@ -894,6 +894,65 @@
     grid-auto-flow: column;
     padding-right: 10px;
 
+    .notification {
+      margin-right: 70px;
+      width: auto;
+      height: auto;
+      position: relative;
+      display: grid;
+      place-items: center;
+
+      div:first-child {
+        display: grid;
+        place-items: center;
+        i{
+          font-size: 25px;
+          color:rgb(233, 233, 233);
+          border-radius: 50%;
+          padding: 10px;
+          display: grid;
+          place-items: center;
+          background: rgb(8, 130, 206);
+        }
+      }
+    }
+
+    .notification-display {
+      border: 2px solid;
+      width: 350px;
+      height: auto;
+      position: absolute;
+      top: 61px;
+      right: -100px;
+      background: white;
+      transform-origin: 100% 0%;
+      transition: all .5s;
+
+      p {
+        padding: 10px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        margin: 0;
+
+        &:not(:last-child) {
+          border-bottom: 2px solid gray;
+        }
+
+        &:last-child {
+          background: #285AEB;
+          color: white;
+          transition: all .5s;
+
+          &:hover {
+            background: #330867;
+            color: white;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
     img {
       border-radius: 50%;
       outline: 3px solid royalblue;
@@ -1647,11 +1706,12 @@
       }
     }
 
-    i {
+    &>i {
       font-size: 30px;
       border-radius: 50%;
       padding: 5px 10px;
       margin: 5px;
+      transition: all 1s;
 
       &:nth-child(1) {
         &:hover {
@@ -1680,6 +1740,19 @@
           color: white;
           background: rgb(14, 94, 254);
           border: 2px solid rgb(14, 94, 254);
+        }
+      }
+    }
+
+    a {
+      i {
+        font-size: 30px;
+        border-radius: 50%;
+        padding: 5px 10px;
+        margin: 5px;
+
+        &:hover {
+          background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
         }
       }
     }
@@ -2060,7 +2133,7 @@
       margin: 2px;
       border-radius: 10px;
       background: rgb(6, 6, 87);
-      color:white;
+      color: white;
     }
 
     option {

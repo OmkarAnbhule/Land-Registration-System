@@ -165,7 +165,7 @@ const SellLand = () => {
         <div className="sell-land">
             {land.length > 0 ? (
                 land.map((item, index) => (
-                    <div className="container" key={item.id}>
+                    <div className="container" key={item.id} id={item.id}>
                         {!item.isLandVerified ?
                             (<p className='verify-wrong'><i className="bi bi-x-circle-fill"></i> Not verified</p>) :
                             (<p className='verify-right'><i className="bi bi-patch-check-fill"></i> verified</p>)}

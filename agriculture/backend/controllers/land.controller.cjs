@@ -27,19 +27,15 @@ exports.addLand = async (req, resp) => {
 		for (const item of req.files) {
 			files.push(await uploadFile(item.path))
 		}
-
 		const tx = await contract.methods.addLand(parseInt(area, 10), state, district, address, propertyid, survey, parseInt(price, 10), files).send({ from: await getaddress() })
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'land registered' })
 		}
-
 	}
 	catch (e) {
 		console.log(e)
 		resp.status(500).send({ success: false, message: 'Server Not Responding' })
 	}
-
-
 }
 exports.getland = async (req, resp) => {
 	try {

@@ -111,7 +111,7 @@ exports.resetpass = async (req, resp) => {
 	const { email, password } = req.body;
 	try {
 		let hashedPassword = await bcrypt.hash(password, 10);
-		const response = await contract.methods.resetPass(hashedPassword);
+		const response = await contract.methods.resetPass(hashedPassword).send({ from: await getaddress() });
 		if (response) {
 			resp.status(201).send({ success: true, message: 'password reset successful' })
 		}
