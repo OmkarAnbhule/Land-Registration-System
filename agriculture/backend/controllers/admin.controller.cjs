@@ -12,6 +12,7 @@ exports.registeraccept = async (req, resp) => {
         }
     }
     catch (e) {
+        console.log(e)
         resp.status(500).send({ success: false, message: 'server not responding' })
     }
 }

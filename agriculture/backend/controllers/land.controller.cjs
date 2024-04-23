@@ -71,8 +71,7 @@ exports.getAllLands = async (req, resp) => {
 	const tx = await contract.methods.getAllLands(await getaddress()).call()
 	if (tx) {
 		for (var i in tx) {
-			const tx1 = await contract.methods.isBid(parseInt(tx[i].id, 10)).call();
-			console.log(tx1, tx1[0], tx1[1])
+			const tx1 = await contract.methods.isBid(parseInt(tx[i].id, 10)).send({ from: await getaddress() });
 			if (tx1[0]) {
 				tx[i].isBid = true;
 				tx[i].amount = Number(tx1[1])

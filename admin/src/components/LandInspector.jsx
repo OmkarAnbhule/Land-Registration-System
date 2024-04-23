@@ -124,9 +124,9 @@ const LandInspector = () => {
             }
         }).then((res) => {
             if (res.success == true)
-                registerRequests.filter((item, index) => {
+                setRegisterRequests(registerRequests.filter((item, index) => {
                     item.id != id
-                })
+                }))
         })
     }
     const rejectRequest = (id) => {
@@ -137,9 +137,9 @@ const LandInspector = () => {
                 "Content-Type": "application/json"
             }
         }).then((res) => {
-            registerRequests.filter((item, index) => {
+            setRegisterRequests(registerRequests.filter((item, index) => {
                 item.id != id
-            })
+            }))
         })
     }
 
