@@ -21,6 +21,7 @@ app.post('/logout', userController.logout)
 app.post('/login', userController.login)
 app.get('/get-notification', userController.getNotification);
 app.put('/read-notification', userController.readNotification);
+app.put('/read-all-notification',userController.readAllNotification);
 
 
 module.exports = app;

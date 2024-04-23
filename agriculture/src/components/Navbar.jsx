@@ -74,6 +74,16 @@ export default function Navbar() {
         }
     }
 
+    const handleAllNotify = async () => {
+        let result = await fetch(`${api}/read-all-notification`, {
+            method: 'put',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        result = await result.json()
+    }
+
     const handleNotify = async (id) => {
         let result = await fetch(`${api}read-notification`, {
             method: 'put',
@@ -161,7 +171,7 @@ export default function Navbar() {
                                         <p key={index} onClick={() => handleNotify(item._id)}>{item.message}</p>
                                     ))
                                 }
-                                <p>Mark all as read</p>
+                                <p onClick={handleAllNotify}>Mark all as read</p>
                             </div>
                         </div>
                         <div>

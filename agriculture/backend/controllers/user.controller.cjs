@@ -231,8 +231,24 @@ exports.readNotification = async (req, resp) => {
 			{ $set: { 'notifications.$.isRead': true } },
 			{ new: true }
 		);
-		if(result){
-			resp.status(201).send({success:true,message:'notificatiion read successfully'});
+		if (result) {
+			resp.status(201).send({ success: true, message: 'notificatiion read successfully' });
+		}
+	}
+	catch (e) {
+		resp.status(500).send({ success: false, message: 'Server Not Responding' })
+	}
+}
+
+exports.readAllNotification = async (req, resp) => {
+	try {
+		const result = await notify.updateMany(
+			{ id: await getaddress(), 'notifications.isRead': false },
+			{ $set: { 'notifications.$[elem].isRead': true } },
+			{ arrayFilters: [{ 'elem.isRead': false }] }
+		);
+		if (result) {
+			resp.status(201).send({ success: true, message: 'all notifications read successfully' })
 		}
 	}
 	catch (e) {
