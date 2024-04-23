@@ -111,10 +111,16 @@ exports.forgetpass = async (req, resp) => {
 exports.resetpass = async (req, resp) => {
 	const { email, password } = req.body;
 	try {
-		let hashedPassword = await bcrypt.hash(password, 10);
-		const response = await contract.methods.resetPass(hashedPassword).send({ from: await getaddress() });
-		if (response) {
-			resp.status(201).send({ success: true, message: 'password reset successful' })
+		const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+		if (response.length === 0 || response[0].otp !== otp) {
+			resp.status(500).send({ success: false, message: 'Invalid Otp' })
+		}
+		else {
+			let hashedPassword = await bcrypt.hash(password, 10);
+			const response = await contract.methods.resetPass(hashedPassword).send({ from: await getaddress() });
+			if (response) {
+				resp.status(201).send({ success: true, message: 'password reset successful' })
+			}
 		}
 	}
 	catch (e) {
