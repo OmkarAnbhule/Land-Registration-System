@@ -241,7 +241,6 @@ export default function Login() {
         }
         else {
             setFocus(null)
-            checkFields()
         }
     }
     const handleRegister = () => {

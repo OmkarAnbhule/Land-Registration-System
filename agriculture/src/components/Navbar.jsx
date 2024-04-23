@@ -108,12 +108,16 @@ export default function Navbar() {
 
     useEffect(() => {
         if (localStorage.getItem('isloggedin') === 'true') {
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 getdata()
             }, 3000)
-            setInterval(async () => {
+            const timer2 = setInterval(async () => {
                 await getNotifications()
             }, 5000)
+        }
+        return()=>{
+            clearTimeout(timer)
+            clearInterval(timer2)
         }
     }, [])
     return (

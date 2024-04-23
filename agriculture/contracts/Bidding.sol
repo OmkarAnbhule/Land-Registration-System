@@ -78,9 +78,8 @@ contract Bidding is Ownable(msg.sender) {
                 revert("Bid amount must be greater than all existing bids");
             }
         }
-        // Update previous bid for the sender (if any)
-        require(currentBid.bids[msg.sender].amount < 0, "Bid already placed");
-        currentBid.bidderAddresses.push(msg.sender); // Add the bidder address to the array
+        require(currentBid.bids[msg.sender].amount > 0, "Bid already placed");
+        currentBid.bidderAddresses.push(msg.sender);
         currentBid.bids[msg.sender] = Bid(
             msg.sender,
             msg.value,
