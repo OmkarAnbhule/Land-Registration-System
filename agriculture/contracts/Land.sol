@@ -191,7 +191,7 @@ contract Land {
     }
 
     function isBid(uint256 landId) public view returns (bool, uint256) {
-        return biddingContract.bidPlaced(landId);
+        return biddingContract.bidPlaced(landId, msg.sender);
     }
 
     function getAllLands(
@@ -280,7 +280,7 @@ contract Land {
     function placeBid(
         uint256 landId
     ) public payable onlyRegisteredUsers(msg.sender) {
-        biddingContract.placeBid{value: msg.value}(landId);
+        biddingContract.placeBid{value: msg.value}(landId, msg.sender);
     }
 
     function transferOwnership(
@@ -289,9 +289,10 @@ contract Land {
         address seller,
         uint256 _amount
     ) private onlyContractOwner {
-        lands[seller][id].ownerAddress = payable(bidder);
-        lands[seller][id].isforSell = false;
-        lands[bidder].push(lands[seller][id]);
+        Landreg storage soldLand = lands[seller][id];
+        soldLand.ownerAddress = payable(bidder);
+        soldLand.isforSell = false;
+        lands[bidder].push(soldLand);
         delete lands[seller][id];
         biddingContract.deleteBid(id);
         emit ownerShipTranfer(seller, bidder, _amount);

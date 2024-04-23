@@ -29,9 +29,12 @@ contract Bidding is Ownable(msg.sender) {
 
     event BidPlaced(uint256 landId, address bidder, uint256 amount);
 
-    function getTimeStamp(
-        uint256 id
-    ) external view onlyOwner returns (uint256) {
+    function getTimeStamp(uint256 id)
+        external
+        view
+        onlyOwner
+        returns (uint256)
+    {
         return landBids[id].closingTime;
     }
 
@@ -54,7 +57,7 @@ contract Bidding is Ownable(msg.sender) {
         newBid.owner = owner;
     }
 
-    function placeBid(uint256 landId) external payable {
+    function placeBid(uint256 landId , address seller) external payable {
         LandBid storage currentBid = landBids[landId];
 
         // Ensure bidding is open and bid amount meets starting bid requirement
@@ -67,20 +70,20 @@ contract Bidding is Ownable(msg.sender) {
             "Bid amount must be greater than or equal to the starting bid"
         );
         require(
-            currentBid.bids[msg.sender].bidder == address(0),
+            currentBid.bids[seller].bidder == address(0),
             "Bid already placed"
         );
-        currentBid.bidderAddresses.push(msg.sender);
-        currentBid.bids[msg.sender] = Bid(
-            msg.sender,
+        currentBid.bidderAddresses.push(seller);
+        currentBid.bids[seller] = Bid(
+            seller,
             msg.value,
             block.timestamp
         );
         emit BidPlaced(landId, msg.sender, msg.value);
     }
 
-    function bidPlaced(uint256 landId) public view returns (bool, uint256) {
-        if (landBids[landId].bids[msg.sender].amount > 0) {
+    function bidPlaced(uint256 landId , address seller) public view returns (bool, uint256) {
+        if (landBids[landId].bids[seller].amount > 0) {
             return (true, landBids[landId].bids[msg.sender].amount);
         }
         return (false, 0);
@@ -99,10 +102,11 @@ contract Bidding is Ownable(msg.sender) {
         return count;
     }
 
-    function getAddressAtIndex(
-        LandBid storage currentBid,
-        uint256 index
-    ) private view returns (address) {
+    function getAddressAtIndex(LandBid storage currentBid, uint256 index)
+        private
+        view
+        returns (address)
+    {
         require(index < getNumberOfBids(currentBid.landId), "Invalid index");
         address[] memory bidderAddresses = currentBid.bidderAddresses;
         return bidderAddresses[index];
@@ -112,10 +116,15 @@ contract Bidding is Ownable(msg.sender) {
         delete landBids[landId];
     }
 
-    function finalizeBid(
-        uint256 landId,
-        uint256 _timestamp
-    ) external returns (uint256, address, address, uint256) {
+    function finalizeBid(uint256 landId, uint256 _timestamp)
+        external
+        returns (
+            uint256,
+            address,
+            address,
+            uint256
+        )
+    {
         LandBid storage currentBid = landBids[landId];
         require(
             currentBid.closingTime < _timestamp,
