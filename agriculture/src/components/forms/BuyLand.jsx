@@ -22,9 +22,10 @@ export default function BuyLand() {
     const seen = new Set();
     const [land, setLand] = useState([])
     useEffect(() => {
-        setTimeout(() => {
+        const timer = setInterval(() => {
             getData()
         }, 3000);
+        return () => clearInterval(timer)
     }, [])
     const getData = async () => {
         let result = await fetch(`${api}get-land-all`, {
