@@ -289,10 +289,9 @@ contract Land {
         address seller,
         uint256 _amount
     ) private onlyContractOwner {
-        Landreg storage soldLand = lands[seller][id];
-        soldLand.ownerAddress = payable(bidder);
-        soldLand.isforSell = false;
-        lands[bidder].push(soldLand);
+        lands[seller][id].ownerAddress = payable(bidder);
+        lands[seller][id].isforSell = false;
+        lands[bidder].push(lands[seller][id]);
         delete lands[seller][id];
         biddingContract.deleteBid(id);
         emit ownerShipTranfer(seller, bidder, _amount);

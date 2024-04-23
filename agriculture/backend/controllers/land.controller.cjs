@@ -123,22 +123,16 @@ const timer = () => {
 					const tx = await contract.methods.finalizeBid(parseInt(ids[i], 10), Math.floor(Date.now() / 1000)).send({ from: getAdmin() })
 						.on('receipt', function (receipt) {
 							console.log('Transaction Receipt:', receipt);
-							contract.events.ownerShipTranfer()
-								.on('data', function (event) {
-									console.log('Returned Value:', event.returnValues.bidder);
-									console.log('Returned Value:', event.returnValues.owner);
-									bidder = event.returnValues.bidder;
-									owner = event.returnValues.owner;
-									amount = Number(event.returnValues.amount);
-								})
-								.on('error', console.error);
-							contract.events.changeLandSell()
-								.on('data', function (event) {
-									flag = true;
-									console.log('Returned Value:', event.returnValues.owner);
-									owner = event.returnValues.owner;
-								})
-								.on('error', console.error);
+							if (receipt.events.hasOwnProperty('ownerShipTranfer')) {
+								bidder = receipt.events.ownerShipTranfer.returnValues.bidder;
+								owner = receipt.events.ownerShipTranfer.returnValues.owner;
+								amount = Number(receipt.events.ownerShipTranfer.returnValues.amount);
+							}
+							else {
+								flag = true;
+								console.log('Returned Value:', receipt.events.changeLandSell.returnValues.owner);
+								owner = receipt.events.changeLandSell.returnValues.owner;
+							}
 						})
 					if (tx) {
 						if (flag) {

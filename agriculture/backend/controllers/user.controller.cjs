@@ -207,7 +207,6 @@ exports.logout = async (req, resp) => {
 exports.getNotification = async (req, resp) => {
 	try {
 		const result = await notify.find({ id: await getaddress() })
-		console.log(result)
 		if (result) {
 			if (result[0].notifications.length > 0) {
 				// Extract notifications where isRead is false

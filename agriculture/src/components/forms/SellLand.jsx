@@ -87,7 +87,7 @@ const SellLand = () => {
                 }
             });
             const result = await response.json();
-            setLand(result.data.filter(item => item.area !== ''));
+            setLand(result.data.filter(item => item.surveyNum !== ''));
         } catch (error) {
             console.error('Error fetching land:', error);
         }

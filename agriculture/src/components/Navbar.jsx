@@ -75,7 +75,7 @@ export default function Navbar() {
     }
 
     const handleAllNotify = async () => {
-        let result = await fetch(`${api}/read-all-notification`, {
+        let result = await fetch(`${api}read-all-notification`, {
             method: 'put',
             headers: {
                 "Content-Type": "application/json"
@@ -118,6 +118,7 @@ export default function Navbar() {
         return()=>{
             clearTimeout(timer)
             clearInterval(timer2)
+            setNotification([])
         }
     }, [])
     return (
