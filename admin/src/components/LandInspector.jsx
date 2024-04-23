@@ -114,20 +114,21 @@ const LandInspector = () => {
         }
     }
 
-    const approveRequest = (id, addr) => {
+    const approveRequest = async (id, addr) => {
         sendAddress()
-        fetch('http://localhost:5000/register-accept', {
+        let result = await fetch('http://localhost:5000/register-accept', {
             method: 'post',
             body: JSON.stringify({ id: id, _addr: addr }),
             headers: {
                 "Content-Type": "application/json"
             }
-        }).then((res) => {
-            if (res.success == true)
-                setRegisterRequests(registerRequests.filter((item, index) => {
-                    item.id != id
-                }))
         })
+        result = await result.json()
+        if (result.success == true) {
+            setRegisterRequests(registerRequests.filter((item, index) => {
+                item.id != id
+            }))
+        }
     }
     const rejectRequest = (id) => {
         fetch('http://localhost:5000/register-reject', {
