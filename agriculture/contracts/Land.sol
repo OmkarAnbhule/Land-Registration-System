@@ -11,6 +11,11 @@ contract Land {
         biddingContract = new Bidding(msg.sender);
     }
 
+    struct Cordinates {
+        uint256 x;
+        uint256 y;
+    }
+
     struct Landreg {
         uint256 id;
         uint256 area;
@@ -21,6 +26,7 @@ contract Land {
         string surveyNum;
         uint256 landPrice;
         string[] files;
+        Cordinates[] coordinates;
         uint256 timestamp;
         bool isforSell;
         address payable ownerAddress;
@@ -150,6 +156,21 @@ contract Land {
         return false; // Element is not present
     }
 
+    function areCoordinatesEqual(
+        Cordinates[] memory coords1,
+        Cordinates[] memory coords2
+    ) internal pure returns (bool) {
+        if (coords1.length != coords2.length) {
+            return false;
+        }
+        for (uint256 i = 0; i < coords1.length; i++) {
+            if (coords1[i].x != coords2[i].x || coords1[i].y != coords2[i].y) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     function addLand(
         uint256 _area,
         string memory _state,
@@ -158,8 +179,21 @@ contract Land {
         string memory _propertyPID,
         string memory _surveyNum,
         uint256 _landPrice,
-        string[] memory _files //string memory _timestamp
+        string[] memory _files,
+        Cordinates[] memory coordinates
     ) public onlyRegisteredUsers(msg.sender) {
+        for (uint256 i = 0; i < ownerMapping.length; i++) {
+            Landreg[] memory ownerLands = lands[ownerMapping[i]];
+            for (uint256 j = 0; j < ownerLands.length; j++) {
+                if (
+                    areCoordinatesEqual(ownerLands[j].coordinates, coordinates)
+                ) {
+                    revert(
+                        "Another land with the same coordinates already exists."
+                    );
+                }
+            }
+        }
         lands[msg.sender].push(
             Landreg(
                 landsCount,
@@ -171,6 +205,7 @@ contract Land {
                 _surveyNum,
                 _landPrice,
                 _files,
+                coordinates,
                 block.timestamp,
                 false,
                 payable(msg.sender),
