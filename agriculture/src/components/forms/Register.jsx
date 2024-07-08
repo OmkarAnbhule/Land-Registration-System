@@ -6,6 +6,7 @@ import Otp from './Otp';
 import profile from '../../assets/home_assets/register_form/default.jpg'
 import Snackbar from 'awesome-snackbar'
 import Loader from '../Loader.jsx';
+import { useAuthContext, AuthProvider } from '../../context/auth_cotext.cjs'
 
 export default function Register() {
     const api = import.meta.env.VITE_API_URL;
@@ -36,6 +37,7 @@ export default function Register() {
     const [isComplete2, setIsComplete2] = useState(false)
     const [checkbox, setCheckBox] = useState(false)
     const [status, setStatus] = useState(false)
+    const { account } = useAuthContext()
     useEffect(() => {
         const today = new Date().toString().split('T')[0];
         setMaxDate(today);
@@ -208,99 +210,6 @@ export default function Register() {
             });
         }
     }
-    const connectToMetaMask = async () => {
-        try {
-            if (window.ethereum) {
-                const web3 = new Web3(window.ethereum);
-                const accounts = await web3.eth.getAccounts();
-                console.log(accounts)
-                if (accounts[0] == '' || accounts.length <= 0) {
-                    setStatus(false)
-                    new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not connected`, {
-                        position: 'bottom-center',
-                        style: {
-                            container: [
-                                ['background', 'rgb(246, 58, 93)'],
-                                ['border-radius', '5px'],
-                                ['height', '50px'],
-                                ['padding', '10px'],
-                                ['border-radius', '20px']
-                            ],
-                            message: [
-                                ['color', '#eee'],
-                                ['font-size', '18px']
-                            ],
-                            bold: [
-                                ['font-weight', 'bold'],
-                            ],
-                            actionButton: [
-                                ['color', 'white'],
-                            ],
-                        }
-                    });
-                }
-                else {
-                    let result = await fetch(`${api}send-address`, {
-                        method: 'post',
-                        body: JSON.stringify({ addr: accounts[0] }),
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    })
-                    return result;
-                }
-            } else {
-                setStatus(false)
-                new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Metamask not installed`, {
-                    position: 'bottom-center',
-                    style: {
-                        container: [
-                            ['background', 'rgb(246, 58, 93)'],
-                            ['border-radius', '5px'],
-                            ['height', '50px'],
-                            ['padding', '10px'],
-                            ['border-radius', '20px']
-                        ],
-                        message: [
-                            ['color', '#eee'],
-                            ['font-size', '18px']
-                        ],
-                        bold: [
-                            ['font-weight', 'bold'],
-                        ],
-                        actionButton: [
-                            ['color', 'white'],
-                        ],
-                    }
-                });
-            }
-        }
-        catch (e) {
-            setStatus(false)
-            new Snackbar(`<i class="bi bi-exclamation-circle-fill"></i>&nbsp;&nbsp;&nbsp;Internal Server Error`, {
-                position: 'bottom-center',
-                style: {
-                    container: [
-                        ['background', 'rgb(246, 58, 93)'],
-                        ['border-radius', '5px'],
-                        ['height', '50px'],
-                        ['padding', '10px'],
-                        ['border-radius', '20px']
-                    ],
-                    message: [
-                        ['color', '#eee'],
-                        ['font-size', '18px']
-                    ],
-                    bold: [
-                        ['font-weight', 'bold'],
-                    ],
-                    actionButton: [
-                        ['color', 'white'],
-                    ],
-                }
-            });
-        }
-    };
     const handleClick2 = () => {
         setStatus(true)
         checkFields2()
@@ -514,7 +423,8 @@ export default function Register() {
             method: 'post',
             body: JSON.stringify({ email: email }),
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${account}`
             }
         })
         result = await result.json()
@@ -527,14 +437,15 @@ export default function Register() {
             method: 'post',
             body: JSON.stringify({ email: email }),
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${account}`
             }
         })
         result = await result.json()
         return result
     }
     return (
-        <>
+        <AuthProvider>
             <Loader status={status} />
             <div className='register-root'>
                 <div>
@@ -677,6 +588,6 @@ export default function Register() {
 
                 </div>
             </div >
-        </>
+        </AuthProvider>
     )
 }

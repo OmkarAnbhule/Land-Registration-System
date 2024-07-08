@@ -1,26 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Snackbar from "awesome-snackbar";
 import Timer from "../Timer"
+import { useAuthContext, AuthProvider } from '../../context/auth_cotext.cjs'
 
 export default function BuyLand() {
-    const obj = {
-        'id': 0,
-        'landAddress': 'abc',
-        'files': ['34343', '434344'],
-        'landPrice': '039303',
-        'propertyPID': 'PID233',
-        'surveyNum': 'NUM2039',
-        'isBid': true,
-        'amount': '0990'
-
-    }
     const api = import.meta.env.VITE_API_URL;
     const [bid, setBid] = useState(0);
     const [isBid, setIsBid] = useState(false);
     const [style, setStyle] = useState({})
     const seen = new Set();
     const [land, setLand] = useState([])
+    const { account } = useAuthContext()
     useEffect(() => {
         const timer = setInterval(() => {
             getData()
@@ -31,7 +21,8 @@ export default function BuyLand() {
         let result = await fetch(`${api}get-land-all`, {
             method: 'post',
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${account}`
             }
         })
         result = await result.json()
@@ -86,7 +77,8 @@ export default function BuyLand() {
                 method: 'post',
                 body: JSON.stringify({ id: id, bid }),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${account}`
                 }
             })
             result = await result.json()
@@ -103,54 +95,56 @@ export default function BuyLand() {
         }
     }
     return (
-        <div className="buy-land">
-            {land.length > 0 ?
-                land.map((item, index) => (
-                    <div className="container" key={index} id={item.id}>
-                        <div className="location">
-                            <i className="bi bi-geo-alt"></i>
-                            <p>{item.landAddress}</p><br />
-                        </div>
-                        <div className="images-div">
-                            {
-                                item.files.map((file, key) => (
-                                    <img src={"https://ipfs.io/ipfs/" + file} key={key} width={50} height={50} className={style == 0 ? 'zoomed' : ''} onClick={() => handleImage(key)} onMouseLeave={handleBlur}></img>
-                                ))
-                            }
-                        </div>
-                        <div className="details">
-                            <p><b>Area: </b>{item.area}</p>
-                            <p><b>Estimated Price: </b>{item.landPrice}</p>
-                            <p><b>Property Number: </b>{item.propertyPID}</p>
-                            <p><b>Survey Number: </b>{item.surveyNum}</p>
-                        </div>
-                        <div className="button-div">
-                            {
-                                item.isBid ? (
-                                    <div>
-                                        <p><b>Amount Placed:</b> {item.amount}</p>
-                                    </div>
+        <AuthProvider>
+            <div className="buy-land">
+                {land.length > 0 ?
+                    land.map((item, index) => (
+                        <div className="container" key={index} id={item.id}>
+                            <div className="location">
+                                <i className="bi bi-geo-alt"></i>
+                                <p>{item.landAddress}</p><br />
+                            </div>
+                            <div className="images-div">
+                                {
+                                    item.files.map((file, key) => (
+                                        <img src={"https://ipfs.io/ipfs/" + file} key={key} width={50} height={50} className={style == 0 ? 'zoomed' : ''} onClick={() => handleImage(key)} onMouseLeave={handleBlur}></img>
+                                    ))
+                                }
+                            </div>
+                            <div className="details">
+                                <p><b>Area: </b>{item.area}</p>
+                                <p><b>Estimated Price: </b>{item.landPrice}</p>
+                                <p><b>Property Number: </b>{item.propertyPID}</p>
+                                <p><b>Survey Number: </b>{item.surveyNum}</p>
+                            </div>
+                            <div className="button-div">
+                                {
+                                    item.isBid ? (
+                                        <div>
+                                            <p><b>Amount Placed:</b> {item.amount}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="bid">
+                                            <i className="bi bi-plus" key={index} onClick={() => setBid(parseInt(bid) + 1)}></i>
+                                            <input key={index} type="text" value={bid == 0 ? item.landPrice : bid} onChange={handleInput}></input>
+                                            <i className="bi bi-dash" key={index} onClick={() => setBid(parseInt(bid) - 1)}></i>
+                                        </div>)
+                                }
+                                {item.isBid ? (
+                                    <button style={{ background: 'gray' }}>Bid Placed</button>
                                 ) : (
-                                    <div className="bid">
-                                        <i className="bi bi-plus" key={index} onClick={() => setBid(parseInt(bid) + 1)}></i>
-                                        <input key={index} type="text" value={bid == 0 ? item.landPrice : bid} onChange={handleInput}></input>
-                                        <i className="bi bi-dash" key={index} onClick={() => setBid(parseInt(bid) - 1)}></i>
-                                    </div>)
-                            }
-                            {item.isBid ? (
-                                <button style={{ background: 'gray' }}>Bid Placed</button>
-                            ) : (
-                                <button onClick={() => handleBuy(item.id, item.landPrice)}>Bid</button>
-                            )}
-                        </div>
-                        <div style={{ marginTop: '15px' }}>
-                            <Timer date={item.maxTime} key={item.id} />
-                        </div>
-                    </div >
-                ))
-                :
-                <p className="center">No Lands Available</p>
-            }
-        </div >
+                                    <button onClick={() => handleBuy(item.id, item.landPrice)}>Bid</button>
+                                )}
+                            </div>
+                            <div style={{ marginTop: '15px' }}>
+                                <Timer date={item.maxTime} key={item.id} />
+                            </div>
+                        </div >
+                    ))
+                    :
+                    <p className="center">No Lands Available</p>
+                }
+            </div >
+        </AuthProvider>
     )
 }

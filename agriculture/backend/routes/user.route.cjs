@@ -1,4 +1,5 @@
 const userController = require('../controllers/user.controller.cjs')
+const { auth } = require('../middlewares/auth.middleware.cjs')
 const multer = require('multer');
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
@@ -16,12 +17,12 @@ app.post('/verify-otp-fp', userController.verifyOtp)
 app.post('/forgot-password', userController.forgetpass)
 app.post('/reset-password', userController.resetpass)
 app.post('/verify-otp', upload.single('image'), userController.registerUser)
-app.post('/get-image', userController.getUserDetails)
-app.post('/logout', userController.logout)
+app.post('/get-image', auth, userController.getUserDetails)
+app.post('/logout', auth, userController.logout)
 app.post('/login', userController.login)
-app.get('/get-notification', userController.getNotification);
-app.put('/read-notification', userController.readNotification);
-app.put('/read-all-notification',userController.readAllNotification);
+app.get('/get-notification', auth, userController.getNotification);
+app.put('/read-notification', auth, userController.readNotification);
+app.put('/read-all-notification', auth, userController.readAllNotification);
 
 
 module.exports = app;

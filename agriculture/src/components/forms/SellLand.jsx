@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Snackbar from 'awesome-snackbar'
 import styled from 'styled-components';
 import Timer from "../Timer";
+import { useAuthContext, AuthProvider } from '../../context/auth_cotext.cjs'
 
 const AnimatedButton = styled.button`
   width: 150px;
@@ -40,32 +41,10 @@ const AnimatedButton = styled.button`
 `;
 
 const SellLand = () => {
-    const obj = {
-        id: 0,
-        isLandVerified: true,
-        isforSell: false,
-        landAddress: 'something big big very very big land and property right here',
-        area: 200,
-        landPrice: 10000,
-        propertyPID: 'pid123',
-        surveyNum: 'num34',
-        timestamp: 19239202829
-    }
-    const ob1 = {
-        id: 1,
-        isLandVerified: true,
-        isforSell: true,
-        landAddress: 'something big big very very big land and property right here',
-        area: 200,
-        landPrice: 10000,
-        propertyPID: 'pid123',
-        surveyNum: 'num34',
-        timestamp: 9040404090,
-        maxTime: 1712800000
-    }
     const api = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const [land, setLand] = useState([]);
+    const { account } = useAuthContext()
 
     useEffect(() => {
         getLand();
@@ -83,7 +62,8 @@ const SellLand = () => {
                 method: 'post',
                 body: JSON.stringify({ email: localStorage.getItem('id') }),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${account}`
                 }
             });
             const result = await response.json();
@@ -100,7 +80,8 @@ const SellLand = () => {
                 method: 'post',
                 body: JSON.stringify({ objId: id, amt: val, addr: addr, closingTime: (duration == null ? 5 : duration) }),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${account}`
                 }
             });
             const result = await response.json();
@@ -162,55 +143,57 @@ const SellLand = () => {
     };
 
     return (
-        <div className="sell-land">
-            {land.length > 0 ? (
-                land.map((item, index) => (
-                    <div className="container" key={item.id} id={item.id}>
-                        {!item.isLandVerified ?
-                            (<p className='verify-wrong'><i className="bi bi-x-circle-fill"></i> Not verified</p>) :
-                            (<p className='verify-right'><i className="bi bi-patch-check-fill"></i> verified</p>)}
-                        {item.isforSell && <p className="sale">On Sale</p>}
-                        <div className="location">
-                            <i className="bi bi-geo-alt"></i>
-                            <p>{item.landAddress}</p>
+        <AuthProvider>
+            <div className="sell-land">
+                {land.length > 0 ? (
+                    land.map((item, index) => (
+                        <div className="container" key={item.id} id={item.id}>
+                            {!item.isLandVerified ?
+                                (<p className='verify-wrong'><i className="bi bi-x-circle-fill"></i> Not verified</p>) :
+                                (<p className='verify-right'><i className="bi bi-patch-check-fill"></i> verified</p>)}
+                            {item.isforSell && <p className="sale">On Sale</p>}
+                            <div className="location">
+                                <i className="bi bi-geo-alt"></i>
+                                <p>{item.landAddress}</p>
+                            </div>
+                            <div className="details">
+                                <p><b>Area: </b>{item.area}</p>
+                                <p><b>Land Price: </b>{item.landPrice}</p>
+                                <p><b>Property Number: </b>{item.propertyPID}</p>
+                                <p><b>Survey Number: </b>{item.surveyNum}</p>
+                                <p><b>Registered on: </b>{new Date(item.timestamp * 1000).toISOString().split('T')[0]}</p>
+                            </div>
+                            {item.isLandVerified && !item.isforSell ? (
+                                <>
+                                    <AnimatedButton
+                                        isActive={item.btnClass}
+                                        onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration)}
+                                    >
+                                        Sell
+                                    </AnimatedButton>
+                                    <select value={item.selectedDuration} onChange={(e) => handleDurationChange(index, e.target.value)}>
+                                        <option value="5">5 minutes</option>
+                                        <option value="15">15 minutes</option>
+                                        <option value="30">30 minutes</option>
+                                        <option value="60">1 hour</option>
+                                        <option value="120">2 hours</option>
+                                        <option value="1440">1 day</option>
+                                        <option value="2880">2 days</option>
+                                    </select>
+                                </>
+                            ) : (
+                                <AnimatedButton isActive={item.btnClass} style={{ pointerEvents: 'none', background: 'gray' }}>{item.isforSell ? (<Timer date={item.maxTime} key={item.id} />) : "Sell"}</AnimatedButton>
+                            )}
                         </div>
-                        <div className="details">
-                            <p><b>Area: </b>{item.area}</p>
-                            <p><b>Land Price: </b>{item.landPrice}</p>
-                            <p><b>Property Number: </b>{item.propertyPID}</p>
-                            <p><b>Survey Number: </b>{item.surveyNum}</p>
-                            <p><b>Registered on: </b>{new Date(item.timestamp * 1000).toISOString().split('T')[0]}</p>
-                        </div>
-                        {item.isLandVerified && !item.isforSell ? (
-                            <>
-                                <AnimatedButton
-                                    isActive={item.btnClass}
-                                    onClick={() => handleSell(item.id, item.landPrice, item.ownerAddress, item.selectedDuration)}
-                                >
-                                    Sell
-                                </AnimatedButton>
-                                <select value={item.selectedDuration} onChange={(e) => handleDurationChange(index, e.target.value)}>
-                                    <option value="5">5 minutes</option>
-                                    <option value="15">15 minutes</option>
-                                    <option value="30">30 minutes</option>
-                                    <option value="60">1 hour</option>
-                                    <option value="120">2 hours</option>
-                                    <option value="1440">1 day</option>
-                                    <option value="2880">2 days</option>
-                                </select>
-                            </>
-                        ) : (
-                            <AnimatedButton isActive={item.btnClass} style={{ pointerEvents: 'none', background: 'gray' }}>{item.isforSell ? (<Timer date={item.maxTime} key={item.id} />) : "Sell"}</AnimatedButton>
-                        )}
-                    </div>
-                ))
-            ) : (
-                <p className="center">
-                    You have not registered any Land &nbsp;
-                    <b onClick={handleRegistry}>click to register</b>
-                </p>
-            )}
-        </div>
+                    ))
+                ) : (
+                    <p className="center">
+                        You have not registered any Land &nbsp;
+                        <b onClick={handleRegistry}>click to register</b>
+                    </p>
+                )}
+            </div>
+        </AuthProvider>
     );
 };
 

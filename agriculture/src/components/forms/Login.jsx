@@ -5,6 +5,7 @@ import img from '../../assets/home_assets/register_form/register.jpg'
 import Snackbar from 'awesome-snackbar'
 import Otp from './Otp'
 import ResetPassword from './ResetPassword'
+import { useAuthContext, AuthProvider } from '../../context/auth_cotext.cjs'
 
 export default function Login() {
     const api = import.meta.env.VITE_API_URL;
@@ -18,7 +19,7 @@ export default function Login() {
     const [isforgot, setIsForgot] = useState(false)
     const [isOtp, setIsOtp] = useState(false)
     const [isreset, setIsReset] = useState(false)
-
+    const { account } = useAuthContext()
 
     const handleEmail = (e) => {
         const temp = e.target.value.replace(/\s/g, '').toLowerCase()
@@ -31,20 +32,16 @@ export default function Login() {
 
     const handleClick = async () => {
         if (email != '' && password != '') {
-            if (window.ethereum) {
-                const web3 = new Web3(window.ethereum);
-                const accounts = await web3.eth.getAccounts();
-                let result = await fetch(`${api}send-address`, {
-                    method: 'post',
-                    body: JSON.stringify({ addr: accounts[0] }),
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                })
-                result = await result.json();
-                if(result){
-                    sendData()
+            let result = await fetch(`${api}send-address`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${account}`
                 }
+            })
+            result = await result.json();
+            if (result) {
+                sendData()
             }
         }
         else {
@@ -80,7 +77,8 @@ export default function Login() {
                 method: 'post',
                 body: JSON.stringify({ email }),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${account}`
                 }
             })
         }
@@ -89,7 +87,8 @@ export default function Login() {
                 method: 'post',
                 body: JSON.stringify({ email, password }),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${account}`
                 }
             })
         }
@@ -248,64 +247,66 @@ export default function Login() {
 
     }
     return (
-        <div className='login-root'>
-            <div>
-                {(isforgot == false) ?
-                    (
-                        <>
-                            <h1>Login to your account</h1>
-                            <div className='form'>
-                                <div className='form-group'>
-                                    <div className="input-control" >
-                                        <label htmlFor='email' className={isfocus == 'email' || email != '' ? 'focused' : ''}>Email Id</label>
-                                        <input type='text' id='email' value={email} onChange={handleEmail} onFocus={() => handleFocusIn('email')} onBlur={handleBlur}></input>
-                                    </div>
-                                    <div className="input-control">
-                                        <label htmlFor='password' className={isfocus == 'password' || password != '' ? 'focused' : ''}>Password</label>
-                                        <input type={isShow ? 'text' : 'password'} id='password' value={password} onChange={handlePassword} onFocus={() => handleFocusIn('password')} onBlur={handleBlur}></input>
-                                        <div className='icon-control'>
-                                            <i className={isShow ? 'bi bi-eye-slash' : 'bi bi-eye'} onClick={() => setShow(!isShow)}></i>
+        <AuthProvider>
+            <div className='login-root'>
+                <div>
+                    {(isforgot == false) ?
+                        (
+                            <>
+                                <h1>Login to your account</h1>
+                                <div className='form'>
+                                    <div className='form-group'>
+                                        <div className="input-control" >
+                                            <label htmlFor='email' className={isfocus == 'email' || email != '' ? 'focused' : ''}>Email Id</label>
+                                            <input type='text' id='email' value={email} onChange={handleEmail} onFocus={() => handleFocusIn('email')} onBlur={handleBlur}></input>
                                         </div>
-                                        <p onClick={() => setIsForgot(true)}>Forgot password ? </p>
-                                    </div>
-                                    <button onClick={handleClick}>Log in</button>
-                                    <div>
-                                        Don't have an account <b onClick={handleRegister}>click to signup</b>
+                                        <div className="input-control">
+                                            <label htmlFor='password' className={isfocus == 'password' || password != '' ? 'focused' : ''}>Password</label>
+                                            <input type={isShow ? 'text' : 'password'} id='password' value={password} onChange={handlePassword} onFocus={() => handleFocusIn('password')} onBlur={handleBlur}></input>
+                                            <div className='icon-control'>
+                                                <i className={isShow ? 'bi bi-eye-slash' : 'bi bi-eye'} onClick={() => setShow(!isShow)}></i>
+                                            </div>
+                                            <p onClick={() => setIsForgot(true)}>Forgot password ? </p>
+                                        </div>
+                                        <button onClick={handleClick}>Log in</button>
+                                        <div>
+                                            Don't have an account <b onClick={handleRegister}>click to signup</b>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                        </>
-                    ) :
-                    (
-                        <>
-                            {isOtp ? <Otp type={'fp'} email={email} btnref={btnref} /> :
-                                isreset ? <ResetPassword email={email} btnref={btnref2} /> :
-                                    (<>
-                                        <h1>Forgot Password</h1>
-                                        <div className='form'>
-                                            <div className='form-group'>
-                                                <div className="input-control" >
-                                                    <label htmlFor='email2' className={isfocus == 'email2' || email != '' ? 'focused' : ''}>Email Id</label>
-                                                    <input type='text' id='email2' value={email} onChange={handleEmail} onFocus={() => handleFocusIn('email2')} onBlur={handleBlur}></input>
+                            </>
+                        ) :
+                        (
+                            <>
+                                {isOtp ? <Otp type={'fp'} email={email} btnref={btnref} /> :
+                                    isreset ? <ResetPassword email={email} btnref={btnref2} /> :
+                                        (<>
+                                            <h1>Forgot Password</h1>
+                                            <div className='form'>
+                                                <div className='form-group'>
+                                                    <div className="input-control" >
+                                                        <label htmlFor='email2' className={isfocus == 'email2' || email != '' ? 'focused' : ''}>Email Id</label>
+                                                        <input type='text' id='email2' value={email} onChange={handleEmail} onFocus={() => handleFocusIn('email2')} onBlur={handleBlur}></input>
+                                                    </div>
+                                                    <button onClick={handleFp}>Send</button>
                                                 </div>
-                                                <button onClick={handleFp}>Send</button>
                                             </div>
-                                        </div>
-                                    </>
-                                    )
+                                        </>
+                                        )
 
-                            }
+                                }
 
-                        </>)
-                }
-                <button ref={btnref} style={{ display: 'none' }} onClick={() => { setIsReset(true); setIsOtp(false) }}></button>
-                <button ref={btnref2} style={{ display: 'none' }} onClick={() => { setIsReset(false); setIsOtp(false); setIsForgot(false) }}></button>
+                            </>)
+                    }
+                    <button ref={btnref} style={{ display: 'none' }} onClick={() => { setIsReset(true); setIsOtp(false) }}></button>
+                    <button ref={btnref2} style={{ display: 'none' }} onClick={() => { setIsReset(false); setIsOtp(false); setIsForgot(false) }}></button>
+                </div>
+                <div>
+                    <img width={400} height={380} src={img}></img>
+                    <h2>Welcome Back to Land Ledger</h2>
+                </div>
             </div>
-            <div>
-                <img width={400} height={380} src={img}></img>
-                <h2>Welcome Back to Land Ledger</h2>
-            </div>
-        </div>
+        </AuthProvider>
     )
 }

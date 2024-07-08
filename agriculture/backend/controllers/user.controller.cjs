@@ -3,14 +3,14 @@ const bcrypt = require('bcrypt');
 const otpGenerator = require('otp-generator')
 const axios = require('axios')
 const OTP = require('../models/OtpModel.cjs')
-const { getaddress, contract } = require('../utils/contract.cjs')
+const { contract } = require('../utils/contract.cjs')
 const fs = require('fs')
 const FormData = require('form-data');
 const notify = require('../models/Notification.model.cjs');
 
 exports.verifyOldUser = async (req, resp) => {
 	try {
-		const existingUser = await contract.methods.getUser(getaddress()).call();
+		const existingUser = await contract.methods.getUser(req.headers['Authorization'].replace('Bearer ', '')).call();
 		if (existingUser && existingUser.email == req.body.email) {
 			resp.status(201).send({ success: true, message: 'User Found' })
 		}
@@ -67,7 +67,7 @@ exports.verifyOtp = async (req, resp) => {
 
 exports.logout = async (req, resp) => {
 	try {
-		const tx = await contract.methods.logout(getaddress()).call();
+		const tx = await contract.methods.logout(req.user.id).call();
 		if (tx) {
 			resp.status(201).send({ success: true, message: 'logout successfull' })
 		}
@@ -112,7 +112,9 @@ exports.resetpass = async (req, resp) => {
 	const { email, password } = req.body;
 	try {
 		let hashedPassword = await bcrypt.hash(password, 10);
-		const response = await contract.methods.resetPass(hashedPassword).send({ from: await getaddress() });
+		const response = await contract.methods.resetPass(hashedPassword).send({
+			from: req.headers['Authorization'].replace('Bearer ', '')
+		});
 		if (response) {
 			resp.status(201).send({ success: true, message: 'password reset successful' })
 		}
@@ -130,6 +132,7 @@ exports.registerUser = async (req, resp) => {
 			resp.status(500).send({ success: false, message: 'Invalid Otp' })
 		}
 		else {
+			const id = req.headers['Authorization'].replace('Bearer ', '')
 			const formData = new FormData()
 			const file = fs.createReadStream(req.file.path);
 			formData.append('file', file)
@@ -142,10 +145,9 @@ exports.registerUser = async (req, resp) => {
 					},
 				}
 			);
-			console.log(res.data.IpfsHash)
 			let hashedPassword = await bcrypt.hash(password, 10);
-			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, res.data.IpfsHash).send({ from: getaddress() })
-			const result = await notify.create({ id: await getaddress() });
+			const tx = await contract.methods.registerUser(name, dob, gender, aadhar, pan, email, hashedPassword, res.data.IpfsHash).send({ from: id })
+			const result = await notify.create({ id: id });
 			if (tx) {
 				resp.status(201).send({ success: true, message: 'registration successful' })
 			}
@@ -158,7 +160,7 @@ exports.registerUser = async (req, resp) => {
 
 exports.getUserDetails = async (req, resp) => {
 	try {
-		const tx = await contract.methods.getUser(await getaddress()).call()
+		const tx = await contract.methods.getUser(req.user.id).call()
 		if (tx) {
 			console.log(tx)
 			resp.status(201).send({ success: true, image: tx.image })
@@ -173,7 +175,7 @@ exports.login = async (req, resp) => {
 	const { email, password } = req.body
 	try {
 
-		const user = await contract.methods.getUser(getaddress()).call()
+		const user = await contract.methods.getUser(req.headers['Authorization'].replace('Bearer ', '')).call()
 		if (user) {
 			let result = await bcrypt.compare(password, user.password)
 			if (result)
@@ -194,7 +196,7 @@ exports.login = async (req, resp) => {
 
 exports.logout = async (req, resp) => {
 	try {
-		const tx = await contract.methods.logout(getaddress()).call();
+		const tx = await contract.methods.logout(req.user.id).call();
 		if (tx) {
 			resp.status(200).send({ success: true, message: 'logout success' })
 		}
@@ -206,10 +208,9 @@ exports.logout = async (req, resp) => {
 
 exports.getNotification = async (req, resp) => {
 	try {
-		const result = await notify.find({ id: await getaddress() })
+		const result = await notify.find({ id: req.user.id })
 		if (result) {
 			if (result[0].notifications.length > 0) {
-				// Extract notifications where isRead is false
 				const unreadNotifications = result[0].notifications.filter(notification => !notification.isRead);
 				console.log(unreadNotifications)
 				resp.status(201).send({ success: true, data: unreadNotifications })
@@ -226,7 +227,7 @@ exports.getNotification = async (req, resp) => {
 
 exports.readNotification = async (req, resp) => {
 	try {
-		const result = await notify.findOneAndUpdate({ id: await getaddress(), 'notifications._id': req.body._id },
+		const result = await notify.findOneAndUpdate({ id: req.user.id, 'notifications._id': req.body._id },
 			{ $set: { 'notifications.$.isRead': true } },
 			{ new: true }
 		);
@@ -242,7 +243,7 @@ exports.readNotification = async (req, resp) => {
 exports.readAllNotification = async (req, resp) => {
 	try {
 		const result = await notify.updateMany(
-			{ id: await getaddress(), 'notifications.isRead': false },
+			{ id: req.user.id, 'notifications.isRead': false },
 			{ $set: { 'notifications.$[elem].isRead': true } },
 			{ arrayFilters: [{ 'elem.isRead': false }] }
 		);

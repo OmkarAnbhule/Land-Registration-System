@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Snackbar from 'awesome-snackbar'
 import Loader from '../Loader';
+import { useAuthContext, AuthProvider } from '../../context/auth_cotext.cjs'
 
 export default function Otp(props) {
   const api = import.meta.env.VITE_API_URL;
@@ -21,6 +22,7 @@ export default function Otp(props) {
   const numref4 = useRef();
   const numref5 = useRef();
   const numref6 = useRef();
+  const { account } = useAuthContext()
 
 
 
@@ -87,7 +89,8 @@ export default function Otp(props) {
         method: 'post',
         body: JSON.stringify({ otp: otp, email: props.email }),
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${account}`
         }
       })
       result = await result.json()
@@ -138,10 +141,12 @@ export default function Otp(props) {
       }))
       let result = await fetch(`${api}verify-otp`, {
         method: 'post',
-        body: formdata
+        body: formdata,
+        headers: {
+          "Authorization": `Bearer ${account}`
+        }
       })
       result = await result.json()
-      console.log(result)
       if (result.success == true) {
         setStatus(false)
         new Snackbar(`<i class="bi bi-check-circle-fill"></i>&nbsp;&nbsp;&nbsp;Registration Successful`, {
@@ -207,7 +212,8 @@ export default function Otp(props) {
         email: props.email,
       }),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${account}`
       }
     })
     result = await result.json()
@@ -218,8 +224,7 @@ export default function Otp(props) {
   }
 
   return (
-    <>
-
+    <AuthProvider>
       <div className='otp-root'>
         <p>Otp Sent Successfully to <b>{props.email}</b></p>
         <div className='input-group'>
@@ -233,7 +238,7 @@ export default function Otp(props) {
         <div>
           <button onClick={handleClick}>
             Sumbit Otp&nbsp;&nbsp;
-            <Loader status = {status} otp={true}/>
+            <Loader status={status} otp={true} />
           </button>
           {minutes > 0 ? (
             <button onClick={handleReset} disabled={minutes > 0 ? false : true} style={{ background: minutes > 0 ? 'gray' : '' }}>Resend Otp&nbsp;&nbsp;
@@ -246,6 +251,6 @@ export default function Otp(props) {
           )}
         </div>
       </div>
-    </>
+    </AuthProvider>
   )
 }

@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
 	console.log('Database connected')
 });
+
 const { contract, getaddress, assignWallet } = require('./utils/contract.cjs')
 const express = require('express');
 const cors = require('cors')

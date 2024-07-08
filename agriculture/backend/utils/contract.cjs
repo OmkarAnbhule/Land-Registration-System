@@ -31,21 +31,4 @@ const web3 = new Web3(web3Provider)
 let contractAddr = readContractAddress()
 let contract = new web3.eth.Contract(contractABI, contractAddr)
 
-const assignWallet = async (_addr) => {
-    walletaddr = _addr
-    return true;
-}
-const getaddress = () => {
-    return walletaddr;
-}
-
-const assignAdmin = async (_addr) => {
-    adminAddress = _addr
-    return true;
-}
-
-const getAdmin = () => {
-    return adminAddress;
-}
-
-module.exports = { getaddress, contract, assignWallet, assignAdmin, getAdmin }
+module.exports = { contract, assignAdmin, getAdmin }

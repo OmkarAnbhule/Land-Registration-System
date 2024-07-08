@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Snackbar from 'awesome-snackbar'
 import { mappls as mappls1 } from 'mappls-web-maps'
 import Loader from '../Loader';
+import { useAuthContext, AuthProvider } from '../../context/auth_cotext.cjs'
 
 const LandRegistrationForm = () => {
   const api = import.meta.env.VITE_API_URL;
@@ -27,6 +28,7 @@ const LandRegistrationForm = () => {
   const [polygon, setPolygon] = useState('')
   const [status, setStatus] = useState(false);
   const navigate = useNavigate()
+  const { account } = useAuthContext()
 
   const styleMap = {
     width: '80%', height: '80vh', display: showMap, position: 'absolute', zIndex: '10', left: '10%', top: '20%'
@@ -132,7 +134,10 @@ const LandRegistrationForm = () => {
       formdata.append('data', JSON.stringify({ price, area, state, district, propertyid, survey, address }))
       let result = await fetch(`${api}add-land`, {
         method: 'post',
-        body: formdata
+        body: formdata,
+        headers: {
+          'Authorization': `Bearer ${account}`
+        }
       })
       result = await result.json()
       if (result.success == true) {
@@ -319,7 +324,7 @@ const LandRegistrationForm = () => {
 
 
   return (
-    <>
+    <AuthProvider>
       <Loader status={status} />
       <div>
         <div id="map" style={styleMap}>
@@ -440,7 +445,7 @@ const LandRegistrationForm = () => {
           <button onClick={handleSubmit} className="btn-submit">Register</button>
         </div>
       </div>
-    </>
+    </AuthProvider>
   );
 };
 
