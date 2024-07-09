@@ -11,7 +11,7 @@ contract Land {
         biddingContract = new Bidding(msg.sender);
     }
 
-    struct Cordinates {
+    struct Coordinates {
         uint256 x;
         uint256 y;
     }
@@ -26,7 +26,7 @@ contract Land {
         string surveyNum;
         uint256 landPrice;
         string[] files;
-        Cordinates[] coordinates;
+        Coordinates[] coordinates;
         uint256 timestamp;
         bool isforSell;
         address payable ownerAddress;
@@ -157,9 +157,9 @@ contract Land {
     }
 
     function areCoordinatesEqual(
-        Cordinates[] memory coords1,
-        Cordinates[] memory coords2
-    ) internal pure returns (bool) {
+        Coordinates[] storage coords1,
+        Coordinates[] calldata coords2
+    ) internal view returns (bool) {
         if (coords1.length != coords2.length) {
             return false;
         }
@@ -180,10 +180,10 @@ contract Land {
         string memory _surveyNum,
         uint256 _landPrice,
         string[] memory _files,
-        Cordinates[] memory coordinates
+        Coordinates[] calldata coordinates
     ) public onlyRegisteredUsers(msg.sender) {
         for (uint256 i = 0; i < ownerMapping.length; i++) {
-            Landreg[] memory ownerLands = lands[ownerMapping[i]];
+            Landreg[] storage ownerLands = lands[ownerMapping[i]];
             for (uint256 j = 0; j < ownerLands.length; j++) {
                 if (
                     areCoordinatesEqual(ownerLands[j].coordinates, coordinates)
@@ -194,24 +194,29 @@ contract Land {
                 }
             }
         }
-        lands[msg.sender].push(
-            Landreg(
-                landsCount,
-                _area,
-                _state,
-                _district,
-                _address,
-                _propertyPID,
-                _surveyNum,
-                _landPrice,
-                _files,
-                coordinates,
-                block.timestamp,
-                false,
-                payable(msg.sender),
-                false
-            )
-        );
+
+        Landreg storage newLand = lands[msg.sender].push();
+        newLand.id = landsCount;
+        newLand.area = _area;
+        newLand.state = _state;
+        newLand.district = _district;
+        newLand.landAddress = _address;
+        newLand.propertyPID = _propertyPID;
+        newLand.surveyNum = _surveyNum;
+        newLand.landPrice = _landPrice;
+        newLand.timestamp = block.timestamp;
+        newLand.isforSell = false;
+        newLand.ownerAddress = payable(msg.sender);
+        newLand.isLandVerified = false;
+
+        for (uint256 i = 0; i < _files.length; i++) {
+            newLand.files.push(_files[i]);
+        }
+
+        for (uint256 i = 0; i < coordinates.length; i++) {
+            newLand.coordinates.push(coordinates[i]);
+        }
+
         landsCount++;
         Registerrequests[Registerreqcount].push(
             RegisterLandStruct(Registerreqcount, msg.sender, landsCount)
